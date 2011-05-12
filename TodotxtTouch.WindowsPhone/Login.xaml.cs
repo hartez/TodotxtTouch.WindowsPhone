@@ -6,20 +6,20 @@ using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
 {
-	public partial class MainPage : PhoneApplicationPage
+	public partial class Login : PhoneApplicationPage
 	{
-		public MainPage()
+		public Login()
 		{
 			InitializeComponent();
 
-			Messenger.Default.Register<NeedCredentialsMessage>(
-				this, (message) => ShowDropboxCredentialsPage());
+			Loaded += LoginLoaded;
+		}
 
+		private void LoginLoaded(object sender, RoutedEventArgs e)
+		{
 			Messenger.Default.Register<LoadingStateChangedMessage>(
 				this, LoadingStateChanged);
 		}
-
-	
 
 		private void LoadingStateChanged(LoadingStateChangedMessage message)
 		{
@@ -29,15 +29,12 @@ namespace TodotxtTouch.WindowsPhone
 					// Todo display loading message or something
 					break;
 				case TaskLoadingState.Loaded:
+					// Go back to the main page
+					NavigationService.Navigate(new Uri("/MainPage.xaml", UriKind.Relative));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-		}
-
-		private void ShowDropboxCredentialsPage()
-		{
-			NavigationService.Navigate(new Uri("/Login.xaml", UriKind.Relative));
 		}
 	}
 }
