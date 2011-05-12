@@ -19,16 +19,20 @@ namespace TodotxtTouch.WindowsPhone
 				this, LoadingStateChanged);
 		}
 
-	
-
 		private void LoadingStateChanged(LoadingStateChangedMessage message)
 		{
 			switch (message.State)
 			{
+				case TaskLoadingState.NotLoaded:
+					textBlock1.Visibility = Visibility.Collapsed;
+					break;
 				case TaskLoadingState.Loading:
+					textBlock1.Visibility = Visibility.Collapsed;
 					// Todo display loading message or something
 					break;
 				case TaskLoadingState.Loaded:
+					DropBoxLogin.Visibility = Visibility.Collapsed;
+					textBlock1.Visibility = Visibility.Visible;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -37,7 +41,7 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void ShowDropboxCredentialsPage()
 		{
-			NavigationService.Navigate(new Uri("/Login.xaml", UriKind.Relative));
+			DropBoxLogin.Visibility = Visibility.Visible;
 		}
 	}
 }

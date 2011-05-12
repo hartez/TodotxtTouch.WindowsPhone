@@ -47,9 +47,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private readonly Dictionary<string, string> _apikeys = new Dictionary<string, string>();
 		private DropNetClient _dropNetclient;
 		private String _password = String.Empty;
+		private TaskLoadingState _state = TaskLoadingState.NotLoaded;
 		private String _taskList = String.Empty;
 		private string _username = String.Empty;
-
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -64,7 +64,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				// Code runs "for real"
 				_apikeys = LoadApiKeysFromFile();
-				LoadTasksCommand = new RelayCommand(LoadTasks);
+				LoadTasksCommand = new RelayCommand(LoadTasks, () => _state != TaskLoadingState.Loading);
 			}
 		}
 
@@ -142,14 +142,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		private bool _loggedIn = false;
-
 		private void LoadTasks()
 		{
-			if (!_loggedIn)
-			{
-				LoginToDropbox();
-			}
+			LoginToDropbox();
 		}
 
 		private void LoginCallback(RestResponse<UserLogin> response)
@@ -158,8 +153,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			// If response doesn't have an error, save credentials to app settings
 			SaveCredentials();
-
-			
 
 			_dropNetclient.GetMetaDataAsync("todo", GetMetaDataCallBack);
 
@@ -189,13 +182,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			bool haveCredentials =
 				!String.IsNullOrEmpty(Username) && !String.IsNullOrEmpty(Password);
 
-			if(!haveCredentials)
+			if (!haveCredentials)
 			{
 				String usernameSetting = null;
 				String passwordSetting = null;
 
 				haveCredentials = IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxUsername", out usernameSetting)
-					&& IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxPassword", out passwordSetting);
+				                  && IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxPassword", out passwordSetting);
 
 				if (haveCredentials)
 				{
@@ -207,7 +200,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			if (haveCredentials)
 			{
 				// TODO Replace this with LoadingState 
-				_loggedIn = true;
 				_dropNetclient.LoginAsync(Username, Password, LoginCallback);
 			}
 			else

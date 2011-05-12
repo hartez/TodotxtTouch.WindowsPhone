@@ -2,6 +2,7 @@
 {
 	public enum TaskLoadingState
 	{
+		NotLoaded,
 		Loading,
 		Loaded
 	}
