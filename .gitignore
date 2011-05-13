@@ -5,3 +5,4 @@ packages/*
 *.testsettings
 packages.config
 *.vsmdi
+TodotxtTouch.WindowsPhone/apikeys.txt

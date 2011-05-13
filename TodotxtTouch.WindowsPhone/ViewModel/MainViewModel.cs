@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Windows;
-using System.Windows.Resources;
 using DropNet;
 using DropNet.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using Newtonsoft.Json;
 using RestSharp;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
@@ -44,7 +38,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string TaskListPropertyName = "TaskList";
 
-		private readonly Dictionary<string, string> _apikeys = new Dictionary<string, string>();
 		private DropNetClient _dropNetclient;
 		private String _password = String.Empty;
 		private TaskLoadingState _state = TaskLoadingState.NotLoaded;
@@ -63,7 +56,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			else
 			{
 				// Code runs "for real"
-				_apikeys = LoadApiKeysFromFile();
+#if DEBUG
+				Username = "hartez@gmail.com";
+				Password = "23yoink42dropbox";
+#endif
+
 				LoadTasksCommand = new RelayCommand(LoadTasks, () => _state != TaskLoadingState.Loading);
 			}
 		}
@@ -134,7 +131,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					return;
 				}
 
-				string oldValue = _taskList;
 				_taskList = value;
 
 				// Update bindings, no broadcast
@@ -154,9 +150,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			// If response doesn't have an error, save credentials to app settings
 			SaveCredentials();
 
-			_dropNetclient.GetMetaDataAsync("todo", GetMetaDataCallBack);
-
-			Messenger.Default.Send(new LoadingStateChangedMessage(TaskLoadingState.Loaded));
+			_dropNetclient.GetFileAsync("/todo/todo.txt", GotTaskFile);
 		}
 
 		private void SaveCredentials()
@@ -164,27 +158,31 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			// Check application settings for whether to store credentials
 
 			// Save credentials if we're supposed to
+			IsolatedStorageSettings.ApplicationSettings["dropboxUsername"] = Username;
+			IsolatedStorageSettings.ApplicationSettings["dropboxPassword"] = Password;
 		}
 
-		private void GetMetaDataCallBack(RestResponse<MetaData> metaData)
+		private void GotTaskFile(RestResponse response)
 		{
-			TaskList = metaData.Data.Contents.Aggregate(String.Empty,
-			                                            (list, data) =>
-			                                            list + (list.Length > 0 ? ", " : "") + data.Name);
+			TaskList = response.Content;
+
+			_state = TaskLoadingState.Loaded;
+			Messenger.Default.Send(new LoadingStateChangedMessage(_state));
 		}
 
 		public void LoginToDropbox()
 		{
-			Messenger.Default.Send(new LoadingStateChangedMessage(TaskLoadingState.Loading));
+			_state = TaskLoadingState.Loading;
+			Messenger.Default.Send(new LoadingStateChangedMessage(_state));
 
-			_dropNetclient = new DropNetClient(_apikeys["dropboxkey"], _apikeys["dropboxsecret"]);
+			_dropNetclient = DropNetExtensions.CreateClient();
 
 			bool haveCredentials =
 				!String.IsNullOrEmpty(Username) && !String.IsNullOrEmpty(Password);
 
 			if (!haveCredentials)
 			{
-				String usernameSetting = null;
+				String usernameSetting;
 				String passwordSetting = null;
 
 				haveCredentials = IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxUsername", out usernameSetting)
@@ -199,29 +197,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			if (haveCredentials)
 			{
-				// TODO Replace this with LoadingState 
 				_dropNetclient.LoginAsync(Username, Password, LoginCallback);
 			}
 			else
 			{
 				Messenger.Default.Send(new NeedCredentialsMessage());
 			}
-		}
-
-		private Dictionary<string, string> LoadApiKeysFromFile()
-		{
-			StreamResourceInfo apikeysResource =
-				Application.GetResourceStream(new Uri("/TodotxtTouch.WindowsPhone;component/apikeys.txt", UriKind.Relative));
-
-			var sr = new StreamReader(apikeysResource.Stream);
-
-			string keys = sr.ReadToEnd();
-
-			JsonSerializer serializer = JsonSerializer.Create(new JsonSerializerSettings());
-
-			var reader = new JsonTextReader(new StringReader(keys));
-
-			return serializer.Deserialize<Dictionary<string, string>>(reader);
 		}
 	}
 }
