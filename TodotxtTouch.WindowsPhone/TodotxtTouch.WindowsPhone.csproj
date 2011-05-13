@@ -102,10 +102,12 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\ApplicationSettingsViewModel.cs" />
     <Compile Include="ViewModel\DropNetExtensions.cs" />
     <Compile Include="ViewModel\LoadingStateChangedMessage.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
+    <Compile Include="ViewModel\SettingsUpdatedMessage.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
@@ -138,6 +140,7 @@
     <Content Include="Background.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Readme.txt" />
     <Content Include="README_FIRST.txt" />
     <Content Include="README_Phoney.txt" />
     <Content Include="SplashScreenImage.jpg" />

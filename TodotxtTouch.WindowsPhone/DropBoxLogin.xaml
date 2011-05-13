@@ -6,7 +6,8 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="480" d:DesignWidth="480">
+    d:DesignHeight="480" d:DesignWidth="480"
+    DataContext="{Binding ApplicationSettings, Source={StaticResource Locator}}">
     
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneChromeBrush}" Height="400">
         <TextBox Height="72" HorizontalAlignment="Stretch" Margin="0,70,0,0" 
@@ -19,7 +20,7 @@
                     Margin="0,294,0,0" Name="LoginButton" VerticalAlignment="Top" Width="160">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
-                    <cmd:EventToCommand Command="{Binding LoadTasksCommand}"></cmd:EventToCommand>
+                    <cmd:EventToCommand Command="{Binding UpdateSettingsCommand}"></cmd:EventToCommand>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>

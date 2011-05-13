@@ -23,6 +23,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
     public class ViewModelLocator
     {
         private static MainViewModel _main;
+    	private static ApplicationSettingsViewModel _appSettings;
 
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
@@ -38,7 +39,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             ////    // Create run time services and view models
             ////}
 
-            _main = new MainViewModel();
+			_appSettings = new ApplicationSettingsViewModel();
+            _main = new MainViewModel(_appSettings);
         }
 
         /// <summary>
@@ -54,5 +56,19 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 return _main;
             }
         }
+
+		/// <summary>
+		/// Gets the ApplicationSettings property which defines the application settings viewmodel.
+		/// </summary>
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+			"CA1822:MarkMembersAsStatic",
+			Justification = "This non-static member is needed for data binding purposes.")]
+		public ApplicationSettingsViewModel ApplicationSettings
+		{
+			get
+			{
+				return _appSettings;
+			}
+		}
     }
 }
