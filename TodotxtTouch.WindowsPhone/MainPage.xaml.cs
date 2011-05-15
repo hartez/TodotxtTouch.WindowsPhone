@@ -13,18 +13,45 @@ namespace TodotxtTouch.WindowsPhone
 			InitializeComponent();
 
 			Messenger.Default.Register<NeedCredentialsMessage>(
-				this, (message) => ShowDropboxCredentialsPage());
+				this, (message) => ShowLogin());
 
-			Messenger.Default.Register<LoadingStateChangedMessage>(
+			Messenger.Default.Register<TaskLoadingState>(
 				this, LoadingStateChanged);
+
+			Messenger.Default.Register<ViewTaskMessage>(
+			this, ViewSelectedTask);
+
+			Messenger.Default.Register<CredentialsUpdatedMessage>(
+				this, (message) => HideLogin());
 		}
 
-		private void LoadingStateChanged(LoadingStateChangedMessage message)
+		private void ViewSelectedTask(ViewTaskMessage obj)
 		{
-			switch (message.State)
+			NavigationService.Navigate(new Uri("/TaskDetail.xaml", UriKind.Relative));
+		}
+
+		private void ShowLogin()
+		{
+			DropBoxLogin.Visibility = Visibility.Visible;
+			TaskList.Visibility = Visibility.Collapsed;
+			SyncButton.Visibility = Visibility.Collapsed;
+		}
+
+		private void HideLogin()
+		{
+			DropBoxLogin.Visibility = Visibility.Collapsed;
+			TaskList.Visibility = Visibility.Visible;
+			SyncButton.Visibility = Visibility.Visible;
+		}
+
+
+		private void LoadingStateChanged(TaskLoadingState taskLoadingState)
+		{
+			switch (taskLoadingState)
 			{
 				case TaskLoadingState.NotLoaded:
 					TaskList.Visibility = Visibility.Collapsed;
+					SyncButton.Visibility = Visibility.Collapsed;
 					break;
 				case TaskLoadingState.Loading:
 					TaskList.Visibility = Visibility.Collapsed;
@@ -37,11 +64,6 @@ namespace TodotxtTouch.WindowsPhone
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-		}
-
-		private void ShowDropboxCredentialsPage()
-		{
-			DropBoxLogin.Visibility = Visibility.Visible;
 		}
 	}
 }

@@ -23,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
     public class ViewModelLocator
     {
         private static MainViewModel _main;
-    	private static ApplicationSettingsViewModel _appSettings;
+    	private static DropBoxCredentialsViewModel _dropBoxCredentials;
 
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
@@ -39,8 +39,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             ////    // Create run time services and view models
             ////}
 
-			_appSettings = new ApplicationSettingsViewModel();
-            _main = new MainViewModel(_appSettings);
+			_dropBoxCredentials = new DropBoxCredentialsViewModel();
+            _main = new MainViewModel(_dropBoxCredentials);
         }
 
         /// <summary>
@@ -63,11 +63,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
-		public ApplicationSettingsViewModel ApplicationSettings
+		public DropBoxCredentialsViewModel DropBoxCredentials
 		{
 			get
 			{
-				return _appSettings;
+				return _dropBoxCredentials;
 			}
 		}
     }

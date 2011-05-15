@@ -102,14 +102,17 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModel\ApplicationSettingsViewModel.cs" />
+    <Compile Include="TaskDetail.xaml.cs">
+      <DependentUpon>TaskDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
     <Compile Include="ViewModel\DropNetExtensions.cs" />
-    <Compile Include="ViewModel\LoadingStateChangedMessage.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
-    <Compile Include="ViewModel\SettingsUpdatedMessage.cs" />
+    <Compile Include="ViewModel\CredentialsUpdatedMessage.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="ViewModel\ViewTaskMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -121,6 +124,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TaskDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

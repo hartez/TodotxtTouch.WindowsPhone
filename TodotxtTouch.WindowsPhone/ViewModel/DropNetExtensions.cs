@@ -17,6 +17,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			return new DropNetClient(apikeys["dropboxkey"], apikeys["dropboxsecret"]);
 		}
 
+		public static DropNetClient CreateClient(string token, string secret)
+		{
+			var apikeys = LoadApiKeysFromFile();
+
+			return new DropNetClient(apikeys["dropboxkey"], apikeys["dropboxsecret"], token, secret);
+		}
+
 		private static Dictionary<string, string> LoadApiKeysFromFile()
 		{
 			StreamResourceInfo apikeysResource =

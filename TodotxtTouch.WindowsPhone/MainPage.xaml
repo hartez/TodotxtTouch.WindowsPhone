@@ -20,13 +20,34 @@
 			<WindowsPhone:DropBoxLogin x:Name="DropBoxLogin" Visibility="Collapsed">
 			</WindowsPhone:DropBoxLogin>
             
-            <ListBox x:Name="TaskList" ItemsSource="{Binding TaskList}">
+            
+            <Button x:Name="SyncButton" Content="Sync"
+                    VerticalAlignment="Top" Height="85">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <cmd:EventToCommand Command="{Binding LoadTasksCommand}"></cmd:EventToCommand>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            
+            <ListBox x:Name="TaskList" ItemsSource="{Binding TaskList}"
+                     SelectedItem="{Binding Path=SelectedTask, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Body}"></TextBlock>
+                        <Grid>
+                            <TextBlock Text="{Binding Body}" />
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <cmd:EventToCommand Command="{Binding ViewTaskDetailsCommand}"></cmd:EventToCommand>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             </ListBox>
+            
+            
 		</Grid>
 	</Grid>
  
