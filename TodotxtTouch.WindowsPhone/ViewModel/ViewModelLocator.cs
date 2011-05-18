@@ -12,6 +12,7 @@
   See http://www.galasoft.ch/mvvm
 */
 
+using System.Collections.ObjectModel;
 using GalaSoft.MvvmLight;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
@@ -70,5 +71,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				return _dropBoxCredentials;
 			}
 		}
+
     }
 }

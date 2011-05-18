@@ -57,7 +57,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Code runs "for real"
 #if DEBUG
 				Username = "hartez@gmail.com";
-				Password = "23yoink42dropbox";
+				Password = "23yoink42dropbo";
 #endif
 
 				UpdateCredentialsCommand = new RelayCommand(UpdateCredentials);
@@ -87,10 +87,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					{
 						_username = username;
 					}
-					else
-					{
-						Messenger.Default.Send(new NeedCredentialsMessage());
-					}
 				}
 
 				return _username;
@@ -118,11 +114,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			get
 			{
-				if (String.IsNullOrEmpty(_password))
-				{
-					Messenger.Default.Send(new NeedCredentialsMessage());
-				}
-
 				return _password;
 			}
 
@@ -147,7 +138,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public bool HasLoginCredentials
 		{
-			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username); }
+			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username) && Password != "23yoink42dropbo"; }
 		}
 
 		/// <summary>
@@ -190,7 +181,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		}
 
 		/// <summary>
-		/// Gets the Token property.
+		/// Gets the Secret property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
 		public string Secret

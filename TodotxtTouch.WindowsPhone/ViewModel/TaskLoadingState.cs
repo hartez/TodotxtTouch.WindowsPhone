@@ -4,6 +4,7 @@
 	{
 		NotLoaded,
 		Loading,
-		Loaded
+		Loaded,
+		Saving
 	}
 }

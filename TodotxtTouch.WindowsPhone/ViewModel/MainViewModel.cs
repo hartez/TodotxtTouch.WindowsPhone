@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Linq;
 using DropNet;
 using DropNet.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Reactive;
 using RestSharp;
 using todotxtlib.net;
 
@@ -25,6 +29,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	/// </summary>
 	public class MainViewModel : ViewModelBase
 	{
+		#region Property Names
+		
 		/// <summary>
 		/// The <see cref="TaskList" /> property's name.
 		/// </summary>
@@ -40,10 +46,19 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string SelectedTaskPropertyName = "SelectedTask";
 
+		/// <summary>
+		/// The <see cref="SelectedTaskDraft" /> property's name.
+		/// </summary>
+		public const string SelectedTaskDraftPropertyName = "SelectedTaskDraft";
+
+		#endregion
+
+		#region Backing fields
 		private readonly DropBoxCredentialsViewModel _dropBoxCredentials;
 
-		private DropNetClient _dropNetclient;
 		private readonly TaskList _taskList = new TaskList();
+		private ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
+		private DropNetClient _dropNetclient;
 
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private bool _localHasChanges;
@@ -51,6 +66,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private Task _selectedTask;
 		private string todoFileName = "testingtodo.txt";
+		private Task _selectedTaskDraft;
+
+		#endregion
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -62,15 +80,32 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			if (IsInDesignMode)
 			{
 				// Code runs in Blend --> create design time data.
+				Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => _availablePriorities.Add(p));
+
+				_taskList.Add(new Task("A", null, null, "This is a designer task"));
+				_taskList.Add(new Task("", null, null, "This is a designer task2"));
+				_taskList.Add(new Task("", null, null, "This is a designer task3"));
+				var b = new Task("B", null, null, "This is a designer task4");
+				b.ToggleCompleted();
+				_taskList.Add(b);
+				_taskList.Add(new Task("C", null, null, "This is a designer task5"));
+
+				_selectedTask = _taskList[3];
 			}
 			else
 			{
 				// Code runs "for real"
-				
-				
-				LoadTasksCommand = new RelayCommand(Sync, () => LoadingState == TaskLoadingState.NotLoaded);
-				ViewTaskDetailsCommand = new RelayCommand(ViewTask);
+				WireUpCommands();
+
+				Messenger.Default.Register<CredentialsUpdatedMessage>(
+					this, (message) => Sync());
 			}
+		}
+
+		public ObservableCollection<String> AvailablePriorities
+		{
+			get { return _availablePriorities; }
+			private set { _availablePriorities = value; }
 		}
 
 		/// <summary>
@@ -118,10 +153,98 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
+		/// <summary>
+		/// Gets the SelectedTaskDraft property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public Task SelectedTaskDraft
+		{
+			get { return _selectedTaskDraft; }
+
+			set
+			{
+				if (_selectedTaskDraft == value)
+				{
+					return;
+				}
+
+				_selectedTaskDraft = value;
+
+				// Update bindings, no broadcast
+				RaisePropertyChanged(SelectedTaskDraftPropertyName);
+			}
+		}
+
+		#region Commands
+
+		private void WireUpCommands()
+		{
+			LoadTasksCommand = new RelayCommand(Sync, () => LoadingState == TaskLoadingState.NotLoaded);
+			
+			ViewTaskDetailsCommand = new RelayCommand(ViewTask, () =>
+				LoadingState == TaskLoadingState.Loaded 
+				&& SelectedTask != null);
+
+			AddTaskCommand = new RelayCommand(AddTask, () => LoadingState == TaskLoadingState.Loaded);
+
+			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask, () => LoadingState == TaskLoadingState.Loaded
+				&& SelectedTaskDraft != null);
+		}
+
 		public RelayCommand LoadTasksCommand { get; private set; }
 
 		public RelayCommand ViewTaskDetailsCommand { get; private set; }
 
+		public RelayCommand SaveCurrentTaskCommand { get; private set; }
+
+		public RelayCommand AddTaskCommand { get; private set; }
+			 
+		private void AddTask()
+		{
+			SelectedTask = null;
+
+			SelectedTaskDraft = new Task(String.Empty, null, null, String.Empty);
+
+			UpdateAvailablePriorities();
+
+			Messenger.Default.Send(new ViewTaskMessage());
+		}
+
+		private void ViewTask()
+		{
+			SelectedTaskDraft = SelectedTask;
+
+			UpdateAvailablePriorities();
+
+			Messenger.Default.Send(new ViewTaskMessage());
+		}
+
+		private void SaveCurrentTask()
+		{
+			LoadingState = TaskLoadingState.Saving;
+
+			if (SelectedTask != null)
+			{
+				var index = TaskList.IndexOf(SelectedTask);
+				TaskList[index].Body = SelectedTaskDraft.Body;
+				//TaskList[index] = SelectedTaskDraft;
+			}
+			else
+			{
+				TaskList.Add(SelectedTaskDraft);
+			}
+
+			_localHasChanges = true;
+
+			SaveTasks();
+			Sync();
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Gets the ApplicationTitle property.
+		/// </summary>
 		public string ApplicationTitle
 		{
 			get { return "Todo.txt"; }
@@ -169,25 +292,31 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		private void ViewTask()
+		private void UpdateAvailablePriorities()
 		{
-			Messenger.Default.Send(new ViewTaskMessage());
+			_availablePriorities.Clear();
+			_availablePriorities.Add("");
+
+			IEnumerable<String> prioritiesInUse =
+				(from t in _taskList
+				 where t.IsPriority && t.Priority != SelectedTaskDraft.Priority
+				 orderby t.Priority
+				 select t.Priority).Distinct();
+
+			// Generate the possible priorities, then skip over the ones that are already in use
+			Observable.Range(65, 26).Select(n => ((char) n).ToString()).SkipWhile(c => prioritiesInUse.Contains(c))
+				.Subscribe((priority) => _availablePriorities.Add(priority));
 		}
 
-		private void GotRemoteMetadata(RestResponse<MetaData> obj)
-		{
-			Sync(obj.Data);
-		}
-
-		private void GetRemoteMetaData()
+		private void GetRemoteMetaData(Action<RestResponse<MetaData>> metaDataCallback)
 		{
 			if (!_dropBoxCredentials.IsAuthenticated)
 			{
-				LoginToDropbox(GetRemoteMetaData);
+				LoginToDropbox(() => GetRemoteMetaData(metaDataCallback));
 			}
 			else
 			{
-				_dropNetclient.GetMetaDataAsync("/todo/" + todoFileName, GotRemoteMetadata);
+				_dropNetclient.GetMetaDataAsync("/todo/" + todoFileName, metaDataCallback);
 			}
 		}
 
@@ -201,7 +330,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			// Check to see if we have a data connection
 			// and whether dropbox is considered accessible
 			// If so, get the metadata for the remote file
-			GetRemoteMetaData();
+			GetRemoteMetaData((metaDataResponse) => Sync(metaDataResponse.Data));
 
 			// If not, do nothing right now
 		}
@@ -239,16 +368,42 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					PushLocal();
 				}
 			}
+			else
+			{
+				UseRemoteFile(remoteLastModified);
+			}
 		}
 
 		private void PushLocal()
 		{
-			// Upload the local version, then get metadata to update local last modified
+			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			{
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(todoFileName, FileMode.Open, FileAccess.Read))
+				{
+					var bytes = new byte[file.Length];
+					file.Read(bytes, 0, (int)file.Length);
+
+					// Upload the local version, then get metadata to update local last modified
+					_dropNetclient.UploadFileAsync("/todo", todoFileName, bytes, (response) =>
+						{
+							if (response.ErrorException == null)
+							{
+								GetRemoteMetaData((metaDataResponse) =>
+									{
+										_localHasChanges = false;
+										LocalLastModified = metaDataResponse.Data.UTCDateModified;
+									});
+							}
+
+							// Handle error
+						});
+				}
+			}
 		}
 
 		private void Merge()
 		{
-			// Get the remote, merge, push local, get local last modified
+			// Get the remote, merge, push local
 		}
 
 		private void LoadTasks()
@@ -259,6 +414,17 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				{
 					TaskList.LoadTasks(file);
 					LoadingState = TaskLoadingState.Loaded;
+				}
+			}
+		}
+
+		private void SaveTasks()
+		{
+			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			{
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(todoFileName, FileMode.Open, FileAccess.Write))
+				{
+					TaskList.SaveTasks(file);
 				}
 			}
 		}
@@ -278,6 +444,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 
 			LocalLastModified = remoteModifiedTime;
+			_localHasChanges = false;
 			LoadTasks();
 		}
 
@@ -290,7 +457,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			else
 			{
 				_dropNetclient.GetFileAsync("/todo/" + todoFileName,
-					(response) => OverwriteWithRemoteFile(response, remoteModifiedTime));
+				                            (response) => OverwriteWithRemoteFile(response, remoteModifiedTime));
 			}
 		}
 
@@ -298,7 +465,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			// Check response for an error
 
-	
+
 			_dropBoxCredentials.Secret = response.Data.Secret;
 			_dropBoxCredentials.Token = response.Data.Token;
 		}
@@ -318,6 +485,5 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				                          	});
 			}
 		}
-
 	}
 }
