@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using TodotxtTouch.WindowsPhone.ViewModel;
@@ -17,11 +19,19 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void CancelButton_Click(object sender, EventArgs e)
 		{
-			NavigationService.GoBack();
+			// TODO this should issue a revert command
 		}
 
 		private void SaveButton_Click(object sender, EventArgs e)
 		{
+			// Focus kludge to make the binding in the textbox update
+			object focusObj = FocusManager.GetFocusedElement();
+			if (focusObj != null && focusObj is TextBox)
+			{
+				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				binding.UpdateSource();
+			}
+
 			((MainViewModel)DataContext).SaveCurrentTaskCommand.Execute(null);
 			NavigationService.GoBack();
 		}

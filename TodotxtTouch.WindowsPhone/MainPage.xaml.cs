@@ -42,6 +42,7 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			DropBoxLogin.Visibility = Visibility.Visible;
 			TaskList.Visibility = Visibility.Collapsed;
+			ApplicationBar.IsVisible = false;
 			//SyncButton.Visibility = Visibility.Collapsed;
 		}
 
@@ -49,6 +50,7 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			DropBoxLogin.Visibility = Visibility.Collapsed;
 			TaskList.Visibility = Visibility.Visible;
+			ApplicationBar.IsVisible = true;
 			//SyncButton.Visibility = Visibility.Visible;
 		}
 

@@ -226,8 +226,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			if (SelectedTask != null)
 			{
 				var index = TaskList.IndexOf(SelectedTask);
-				TaskList[index].Body = SelectedTaskDraft.Body;
-				//TaskList[index] = SelectedTaskDraft;
+				TaskList[index] = SelectedTaskDraft;
 			}
 			else
 			{
@@ -392,6 +391,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 									{
 										_localHasChanges = false;
 										LocalLastModified = metaDataResponse.Data.UTCDateModified;
+										LoadingState = TaskLoadingState.Loaded;
 									});
 							}
 
