@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.IO.IsolatedStorage;
 using DropNet;
@@ -26,19 +28,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 			_dropBoxCredentials = dropBoxCredentialsViewModel;
 			this.taskFileName = taskFileName;
 
+			_taskList.CollectionChanged += TaskListCollectionChanged;
+
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 				this, message => Sync());
 
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, (message) =>
-				{
-					if (HaveLocalFile)
 					{
-						LoadTasks();
-					}
+						if (HaveLocalFile)
+						{
+							LoadTasks();
+						}
 
-					Sync();
-				});
+						Sync();
+					});
 		}
 
 		/// <summary>
@@ -98,7 +102,22 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
+		private void TaskListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			InvokeTaskListChanged(new TaskListChangedEventArgs());
+		}
+
 		public event EventHandler<LoadingStateChangedEventArgs> LoadingStateChanged;
+		public event EventHandler<TaskListChangedEventArgs> TaskListChanged;
+
+		public void InvokeTaskListChanged(TaskListChangedEventArgs e)
+		{
+			EventHandler<TaskListChangedEventArgs> handler = TaskListChanged;
+			if (handler != null)
+			{
+				handler(this, e);
+			}
+		}
 
 		public void InvokeLoadingStateChanged(LoadingStateChangedEventArgs e)
 		{
@@ -107,6 +126,31 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				handler(this, e);
 			}
+		}
+
+		public void ContentCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if (e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				foreach (Task item in e.NewItems)
+				{
+					//Removed items
+					item.PropertyChanged -= TaskPropertyChanged;
+				}
+			}
+			else if (e.Action == NotifyCollectionChangedAction.Add)
+			{
+				foreach (Task item in e.NewItems)
+				{
+					//Added items
+					item.PropertyChanged += TaskPropertyChanged;
+				}
+			}
+		}
+
+		private void TaskPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			InvokeTaskListChanged(new TaskListChangedEventArgs());
 		}
 
 		public void AddTask(Task task)

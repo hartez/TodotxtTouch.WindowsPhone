@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -32,6 +33,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string TaskListPropertyName = "TaskList";
 
+		public const string CompletedTasksPropertyName = "CompletedTasks";
+
 		/// <summary>
 		/// The <see cref="LoadingState" /> property's name.
 		/// </summary>
@@ -47,6 +50,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string SelectedTaskDraftPropertyName = "SelectedTaskDraft";
 
+		public const string ContextsPropertyName = "Contexts";
+		public const string ProjectsPropertyName = "Projects";
+
 		#endregion
 
 		#region Backing fields
@@ -59,7 +65,27 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		#endregion
 
+
+		public IEnumerable<String> Projects
+		{
+			get
+			{
+				return TaskList.SelectMany(task => task.Projects,
+				                    (task, project) => project).Distinct().OrderBy(project => project);
+			}
+		}
+
+		public IEnumerable<String> Contexts
+		{
+			get
+			{
+				return TaskList.SelectMany(task => task.Contexts,
+									(task, context) => context).Distinct().OrderBy(context => context);
+			}
+		}
+
 		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
+		private IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -72,6 +98,18 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				_taskFileService, "LoadingStateChanged");
 
 			_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
+
+			_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
+				_taskFileService, "TaskListChanged");
+
+			_taskListChangedObserver.Subscribe(e =>
+				{
+					RaisePropertyChanged(TaskListPropertyName);
+					RaisePropertyChanged(CompletedTasksPropertyName);
+					RaisePropertyChanged(ContextsPropertyName);
+					RaisePropertyChanged(ProjectsPropertyName);
+				}
+				);
 
 			if (IsInDesignMode)
 			{
@@ -97,6 +135,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
+		
 		/// <summary>
 		/// Gets the LoadingState property.
 		/// This property's value is broadcasted by the Messenger's default instance when it changes.
@@ -185,6 +224,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public TaskList TaskList
 		{
 			get { return _taskFileService.TaskList; }
+		}
+
+		public IEnumerable<Task> CompletedTasks
+		{
+			get { return TaskList.Where(t => t.Completed); }
 		}
 
 		#region Commands

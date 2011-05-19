@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
+using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
@@ -19,12 +14,6 @@ namespace TodotxtTouch.WindowsPhone
 {
 	public partial class App : Application
 	{
-		/// <summary>
-		/// Provides easy access to the root frame of the Phone Application.
-		/// </summary>
-		/// <returns>The root frame of the Phone Application.</returns>
-		public PhoneApplicationFrame RootFrame { get; private set; }
-
 		private string StateKey = "State";
 
 		/// <summary>
@@ -36,10 +25,10 @@ namespace TodotxtTouch.WindowsPhone
 			UnhandledException += Application_UnhandledException;
 
 			// Show graphics profiling information while debugging.
-			if (System.Diagnostics.Debugger.IsAttached)
+			if (Debugger.IsAttached)
 			{
 				// Display the current frame rate counters.
-				Application.Current.Host.Settings.EnableFrameRateCounter = true;
+				Current.Host.Settings.EnableFrameRateCounter = true;
 
 				// Show the areas of the app that are being redrawn in each frame.
 				//Application.Current.Host.Settings.EnableRedrawRegions = true;
@@ -56,6 +45,12 @@ namespace TodotxtTouch.WindowsPhone
 			InitializePhoneApplication();
 		}
 
+		/// <summary>
+		/// Provides easy access to the root frame of the Phone Application.
+		/// </summary>
+		/// <returns>The root frame of the Phone Application.</returns>
+		public PhoneApplicationFrame RootFrame { get; private set; }
+
 		// Code to execute when the application is launching (eg, from Start)
 		// This code will not execute when the application is reactivated
 		private void Application_Launching(object sender, LaunchingEventArgs e)
@@ -68,11 +63,11 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			Messenger.Default.Send(new ApplicationReadyMessage());
 
-			var viewModel = ((ViewModelLocator)Current.Resources["Locator"]).Main;
+			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 
 			if (viewModel != null)
 			{
-				var state = TombstoneState.FromJson(PhoneApplicationService.Current.State[StateKey].ToString());
+				TombstoneState state = TombstoneState.FromJson(PhoneApplicationService.Current.State[StateKey].ToString());
 
 				viewModel.SetState(state);
 			}
@@ -86,37 +81,37 @@ namespace TodotxtTouch.WindowsPhone
 			object focusObj = FocusManager.GetFocusedElement();
 			if (focusObj != null && focusObj is TextBox)
 			{
-				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				BindingExpression binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
 				if (binding != null)
 				{
 					binding.UpdateSource();
 				}
 			}
 
-			var viewModel = ((ViewModelLocator) Application.Current.Resources["Locator"]).Main;
+			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 
 			if (viewModel != null)
 			{
 				string selectedTask = String.Empty;
-				if(viewModel.SelectedTask != null)
+				if (viewModel.SelectedTask != null)
 				{
 					selectedTask = viewModel.SelectedTask.ToString();
 				}
 
 				string draft = String.Empty;
-				if(viewModel.SelectedTaskDraft != null)
+				if (viewModel.SelectedTaskDraft != null)
 				{
 					draft = viewModel.SelectedTaskDraft.ToString();
 				}
 
 				var state = new TombstoneState(selectedTask, draft);
-				if(PhoneApplicationService.Current.State.ContainsKey(StateKey))
+				if (PhoneApplicationService.Current.State.ContainsKey(StateKey))
 				{
 					PhoneApplicationService.Current.State[StateKey] = TombstoneState.ToJson(state);
 				}
 				else
 				{
-					PhoneApplicationService.Current.State.Add(StateKey, TombstoneState.ToJson(state));	
+					PhoneApplicationService.Current.State.Add(StateKey, TombstoneState.ToJson(state));
 				}
 			}
 		}
@@ -130,33 +125,35 @@ namespace TodotxtTouch.WindowsPhone
 		// Code to execute if a navigation fails
 		private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
 		{
-			if (System.Diagnostics.Debugger.IsAttached)
+			if (Debugger.IsAttached)
 			{
 				// A navigation has failed; break into the debugger
-				System.Diagnostics.Debugger.Break();
+				Debugger.Break();
 			}
 		}
 
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
 		{
-			if (System.Diagnostics.Debugger.IsAttached)
+			if (Debugger.IsAttached)
 			{
 				// An unhandled exception has occurred; break into the debugger
-				System.Diagnostics.Debugger.Break();
+				Debugger.Break();
 			}
 		}
 
 		#region Phone application initialization
 
 		// Avoid double-initialization
-		private bool phoneApplicationInitialized = false;
+		private bool phoneApplicationInitialized;
 
 		// Do not add any additional code to this method
 		private void InitializePhoneApplication()
 		{
 			if (phoneApplicationInitialized)
+			{
 				return;
+			}
 
 			// Create the frame but don't set it as RootVisual yet; this allows the splash
 			// screen to remain active until the application is ready to render.
@@ -175,7 +172,9 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			// Set the root visual to allow the application to render
 			if (RootVisual != RootFrame)
+			{
 				RootVisual = RootFrame;
+			}
 
 			// Remove this handler since it is no longer needed
 			RootFrame.Navigated -= CompleteInitializePhoneApplication;
