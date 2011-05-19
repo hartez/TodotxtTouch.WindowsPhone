@@ -14,6 +14,7 @@
 
 using System.Collections.ObjectModel;
 using GalaSoft.MvvmLight;
+using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
@@ -41,7 +42,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             ////}
 
 			_dropBoxCredentials = new DropBoxCredentialsViewModel();
-            _main = new MainViewModel(_dropBoxCredentials);
+			_main = new MainViewModel(new TaskFileService(_dropBoxCredentials, "testingtodo.txt"));
         }
 
         /// <summary>

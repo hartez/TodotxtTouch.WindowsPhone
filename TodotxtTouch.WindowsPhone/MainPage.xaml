@@ -54,10 +54,4 @@
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 
-	<i:Interaction.Triggers>
-		<i:EventTrigger EventName="Loaded">
-			<cmd:EventToCommand Command="{Binding LoadTasksCommand}"></cmd:EventToCommand>
-		</i:EventTrigger>
-	</i:Interaction.Triggers>
-
 </phone:PhoneApplicationPage>

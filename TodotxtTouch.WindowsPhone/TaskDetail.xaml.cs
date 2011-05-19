@@ -22,15 +22,23 @@ namespace TodotxtTouch.WindowsPhone
 			// TODO this should issue a revert command
 		}
 
-		private void SaveButton_Click(object sender, EventArgs e)
+		private void FocusKludge()
 		{
 			// Focus kludge to make the binding in the textbox update
 			object focusObj = FocusManager.GetFocusedElement();
 			if (focusObj != null && focusObj is TextBox)
 			{
 				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
-				binding.UpdateSource();
+				if (binding != null)
+				{
+					binding.UpdateSource();
+				}
 			}
+		}
+
+		private void SaveButton_Click(object sender, EventArgs e)
+		{
+			FocusKludge();
 
 			((MainViewModel)DataContext).SaveCurrentTaskCommand.Execute(null);
 			NavigationService.GoBack();

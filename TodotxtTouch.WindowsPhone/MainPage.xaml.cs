@@ -26,6 +26,13 @@ namespace TodotxtTouch.WindowsPhone
 				this, (message) => HideLogin());
 
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
+
+			Loaded += MainPage_Loaded;
+		}
+
+		void MainPage_Loaded(object sender, RoutedEventArgs e)
+		{
+			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
 		private void AddButton_Click(object sender, EventArgs e)
@@ -63,11 +70,11 @@ namespace TodotxtTouch.WindowsPhone
 					TaskList.Visibility = Visibility.Collapsed;
 					//SyncButton.Visibility = Visibility.Collapsed;
 					break;
-				case TaskLoadingState.Loading:
+				case TaskLoadingState.Syncing:
 					TaskList.Visibility = Visibility.Collapsed;
 					// Todo display loading message or something
 					break;
-				case TaskLoadingState.Loaded:
+				case TaskLoadingState.Ready:
 					DropBoxLogin.Visibility = Visibility.Collapsed;
 					TaskList.Visibility = Visibility.Visible;
 					break;

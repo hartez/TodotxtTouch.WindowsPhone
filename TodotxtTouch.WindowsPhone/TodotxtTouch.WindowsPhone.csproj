@@ -105,13 +105,17 @@
     <Compile Include="TaskDetail.xaml.cs">
       <DependentUpon>TaskDetail.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\ApplicationReadyMessage.cs" />
     <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
     <Compile Include="ViewModel\DropNetExtensions.cs" />
+    <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
     <Compile Include="ViewModel\CredentialsUpdatedMessage.cs" />
     <Compile Include="ViewModel\TaskExensions.cs" />
+    <Compile Include="Service\TaskFileService.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />
+    <Compile Include="ViewModel\TombstoneState.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\ViewTaskMessage.cs" />
   </ItemGroup>

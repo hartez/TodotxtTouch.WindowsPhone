@@ -3,8 +3,7 @@
 	public enum TaskLoadingState
 	{
 		NotLoaded,
-		Loading,
-		Loaded,
-		Saving
+		Syncing,
+		Ready
 	}
 }

@@ -10,8 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
 {
@@ -22,6 +24,8 @@ namespace TodotxtTouch.WindowsPhone
 		/// </summary>
 		/// <returns>The root frame of the Phone Application.</returns>
 		public PhoneApplicationFrame RootFrame { get; private set; }
+
+		private string StateKey = "State";
 
 		/// <summary>
 		/// Constructor for the Application object.
@@ -62,12 +66,59 @@ namespace TodotxtTouch.WindowsPhone
 		// This code will not execute when the application is first launched
 		private void Application_Activated(object sender, ActivatedEventArgs e)
 		{
+			Messenger.Default.Send(new ApplicationReadyMessage());
+
+			var viewModel = ((ViewModelLocator)Current.Resources["Locator"]).Main;
+
+			if (viewModel != null)
+			{
+				var state = TombstoneState.FromJson(PhoneApplicationService.Current.State[StateKey].ToString());
+
+				viewModel.SetState(state);
+			}
 		}
 
 		// Code to execute when the application is deactivated (sent to background)
 		// This code will not execute when the application is closing
 		private void Application_Deactivated(object sender, DeactivatedEventArgs e)
 		{
+			// Focus kludge to make the binding in the textbox update
+			object focusObj = FocusManager.GetFocusedElement();
+			if (focusObj != null && focusObj is TextBox)
+			{
+				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				if (binding != null)
+				{
+					binding.UpdateSource();
+				}
+			}
+
+			var viewModel = ((ViewModelLocator) Application.Current.Resources["Locator"]).Main;
+
+			if (viewModel != null)
+			{
+				string selectedTask = String.Empty;
+				if(viewModel.SelectedTask != null)
+				{
+					selectedTask = viewModel.SelectedTask.ToString();
+				}
+
+				string draft = String.Empty;
+				if(viewModel.SelectedTaskDraft != null)
+				{
+					draft = viewModel.SelectedTaskDraft.ToString();
+				}
+
+				var state = new TombstoneState(selectedTask, draft);
+				if(PhoneApplicationService.Current.State.ContainsKey(StateKey))
+				{
+					PhoneApplicationService.Current.State[StateKey] = TombstoneState.ToJson(state);
+				}
+				else
+				{
+					PhoneApplicationService.Current.State.Add(StateKey, TombstoneState.ToJson(state));	
+				}
+			}
 		}
 
 		// Code to execute when the application is closing (eg, user hit Back)
