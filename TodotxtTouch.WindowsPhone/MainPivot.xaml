@@ -21,10 +21,10 @@
         </WindowsPhone:DropBoxLogin>
 
         <!--Pivot Control-->
-        <controls:Pivot Title="Todo.txt" x:Name="TaskPivot">
+        <controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot">
             <!--Pivot item all-->
             <controls:PivotItem Header="all">
-                <WindowsPhone:TaskListBox ItemsSource="{Binding TaskList}"></WindowsPhone:TaskListBox>
+                <WindowsPhone:TaskListBox ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
             </controls:PivotItem>
 
             <!--Pivot item completed-->
@@ -41,10 +41,15 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding}" />
                                 </StackPanel>
-
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cmd:EventToCommand Command="{Binding FilterByContextCommand}"
+                                                PassEventArgsToCommand="True"></cmd:EventToCommand>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </ListBox>
             </controls:PivotItem>
 

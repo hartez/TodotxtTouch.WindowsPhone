@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Windows.Controls;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -31,7 +32,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// <summary>
 		/// The <see cref="TaskList" /> property's name.
 		/// </summary>
-		public const string TaskListPropertyName = "TaskList";
+		public const string AllTasksPropertyName = "AllTasks";
 
 		public const string CompletedTasksPropertyName = "CompletedTasks";
 
@@ -53,39 +54,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public const string ContextsPropertyName = "Contexts";
 		public const string ProjectsPropertyName = "Projects";
 
+		public const string ApplicationTitlePropertyName = "ApplicationTitle";
+
 		#endregion
 
 		#region Backing fields
 
-		private ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
+		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
+		private readonly TaskFileService _taskFileService;
+		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
-		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
-		private readonly TaskFileService _taskFileService;
 
 		#endregion
 
-
-		public IEnumerable<String> Projects
-		{
-			get
-			{
-				return TaskList.SelectMany(task => task.Projects,
-				                    (task, project) => project).Distinct().OrderBy(project => project);
-			}
-		}
-
-		public IEnumerable<String> Contexts
-		{
-			get
-			{
-				return TaskList.SelectMany(task => task.Contexts,
-									(task, context) => context).Distinct().OrderBy(context => context);
-			}
-		}
-
+		private readonly ObservableStack<TaskFilter> _filters = new ObservableStack<TaskFilter>();
 		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
-		private IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+		private IObservable<IEvent<NotifyCollectionChangedEventArgs>> _filterObserver;
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -104,12 +90,23 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			_taskListChangedObserver.Subscribe(e =>
 				{
-					RaisePropertyChanged(TaskListPropertyName);
+					RaisePropertyChanged(AllTasksPropertyName);
 					RaisePropertyChanged(CompletedTasksPropertyName);
 					RaisePropertyChanged(ContextsPropertyName);
 					RaisePropertyChanged(ProjectsPropertyName);
-				}
-				);
+				});
+
+
+			_filterObserver = Observable.FromEvent<NotifyCollectionChangedEventArgs>(_filters, "CollectionChanged");
+
+			_filterObserver.Subscribe(e =>
+				{
+					RaisePropertyChanged(AllTasksPropertyName);
+					RaisePropertyChanged(CompletedTasksPropertyName);
+					RaisePropertyChanged(ApplicationTitlePropertyName);
+				});
+
+			Messenger.Default.Register<DrillUpMessage>(this, message => Filters.Pop());
 
 			if (IsInDesignMode)
 			{
@@ -130,12 +127,27 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				// Code runs "for real"
 				WireUpCommands();
-
-				
 			}
 		}
 
-		
+		public IEnumerable<String> Projects
+		{
+			get
+			{
+				return TaskList.SelectMany(task => task.Projects,
+				                           (task, project) => project).Distinct().OrderBy(project => project);
+			}
+		}
+
+		public IEnumerable<String> Contexts
+		{
+			get
+			{
+				return TaskList.SelectMany(task => task.Contexts,
+				                           (task, context) => context).Distinct().OrderBy(context => context);
+			}
+		}
+
 		/// <summary>
 		/// Gets the LoadingState property.
 		/// This property's value is broadcasted by the Messenger's default instance when it changes.
@@ -151,7 +163,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					return;
 				}
 
-				var oldValue = _loadingState;
+				TaskLoadingState oldValue = _loadingState;
 				_loadingState = value;
 
 				// Update bindings and broadcast change using GalaSoft.MvvmLight.Messenging
@@ -162,7 +174,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public ObservableCollection<String> AvailablePriorities
 		{
 			get { return _availablePriorities; }
-			private set { _availablePriorities = value; }
 		}
 
 		/// <summary>
@@ -214,21 +225,37 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public string ApplicationTitle
 		{
-			get { return "Todo.txt"; }
+			get
+			{
+				string filters = Filters.ToCommaDelimitedList(f => f.Description);
+
+				return "Todo.txt" +
+				       (filters.Length > 0 ? " - " : String.Empty) + filters;
+			}
 		}
 
 		/// <summary>
 		/// Gets the TaskList property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public TaskList TaskList
+		private TaskList TaskList
 		{
 			get { return _taskFileService.TaskList; }
 		}
 
+		public IEnumerable<Task> AllTasks
+		{
+			get { return TaskList.AsEnumerable().ApplyFilters(Filters); }
+		}
+
 		public IEnumerable<Task> CompletedTasks
 		{
-			get { return TaskList.Where(t => t.Completed); }
+			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters); }
+		}
+
+		private ObservableStack<TaskFilter> Filters
+		{
+			get { return _filters; }
 		}
 
 		#region Commands
@@ -239,16 +266,36 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand AddTaskCommand { get; private set; }
 
+		public RelayCommand<SelectionChangedEventArgs> FilterByContextCommand { get; private set; }
+
 		private void WireUpCommands()
 		{
 			ViewTaskDetailsCommand = new RelayCommand(ViewTask, () =>
-																_taskFileService.LoadingState == TaskLoadingState.Ready
+			                                                    _taskFileService.LoadingState == TaskLoadingState.Ready
 			                                                    && SelectedTask != null);
 
 			AddTaskCommand = new RelayCommand(AddTask, () => _taskFileService.LoadingState == TaskLoadingState.Ready);
 
-			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask, () => _taskFileService.LoadingState == TaskLoadingState.Ready
-			                                                                 && SelectedTaskDraft != null);
+			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
+			                                          () => _taskFileService.LoadingState == TaskLoadingState.Ready
+			                                                && SelectedTaskDraft != null);
+
+			FilterByContextCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByContext,
+			                                                                     e =>
+			                                                                     _taskFileService.LoadingState ==
+			                                                                     TaskLoadingState.Ready);
+		}
+
+		private void FilterByContext(SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count > 0)
+			{
+				string context = e.AddedItems[0].ToString();
+
+				Filters.Push(new TaskFilter(t => t.Contexts.Contains(context), string.Format("Context = {0}", context)));
+
+				Messenger.Default.Send(new DrillDownMessage(Filters.Count.ToString()));
+			}
 		}
 
 		private void AddTask()
@@ -273,7 +320,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void SaveCurrentTask()
 		{
-			if(SelectedTask == null)
+			if (SelectedTask == null)
 			{
 				_taskFileService.AddTask(SelectedTaskDraft);
 			}
@@ -303,7 +350,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public void SetState(TombstoneState state)
 		{
-			if(LoadingState != TaskLoadingState.Ready)
+			if (LoadingState != TaskLoadingState.Ready)
 			{
 				// If we're not in a state where we can safely load the state,
 				// wait until we are and then run this method again.
@@ -322,8 +369,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			if (!String.IsNullOrEmpty(state.SelectedTask))
 			{
-				var selectedTask = TaskList.FirstOrDefault(t => t.ToString() == state.SelectedTask);
-				if(selectedTask != null)
+				Task selectedTask = TaskList.FirstOrDefault(t => t.ToString() == state.SelectedTask);
+				if (selectedTask != null)
 				{
 					SelectedTask = selectedTask;
 				}

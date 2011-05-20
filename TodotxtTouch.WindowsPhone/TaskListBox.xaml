@@ -16,7 +16,7 @@
                     <Grid Margin="5,5">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Width="20" Text="{Binding Priority}" />
-                            <TextBlock Text="{Binding Body}" />
+                            <TextBlock Text="{Binding Body}" TextWrapping="Wrap" />
                         </StackPanel>
 
                     </Grid>

@@ -2,7 +2,7 @@
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	public static class TaskExensions
+	public static class TaskExtensions
 	{
 		public static Task Copy(this Task task)
 		{

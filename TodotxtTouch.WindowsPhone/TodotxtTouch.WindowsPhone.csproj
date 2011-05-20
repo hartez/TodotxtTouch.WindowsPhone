@@ -96,6 +96,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\DrillDownMessage.cs" />
     <Compile Include="DropBoxLogin.xaml.cs">
       <DependentUpon>DropBoxLogin.xaml</DependentUpon>
     </Compile>
@@ -120,8 +121,12 @@
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
     <Compile Include="ViewModel\CredentialsUpdatedMessage.cs" />
+    <Compile Include="ViewModel\ObservableStack.cs" />
+    <Compile Include="ViewModel\StringExtensions.cs" />
     <Compile Include="ViewModel\TaskExensions.cs" />
     <Compile Include="Service\TaskFileService.cs" />
+    <Compile Include="ViewModel\TaskFilter.cs" />
+    <Compile Include="ViewModel\TaskListExtensions.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />
     <Compile Include="ViewModel\TombstoneState.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />

@@ -25,6 +25,10 @@ namespace TodotxtTouch.WindowsPhone
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 				this, (message) => HideLogin());
 
+			Messenger.Default.Register<DrillDownMessage>(this, 
+				message => NavigationService.Navigate(
+					new Uri("/MainPivot.xaml?depth=" + message.Depth, UriKind.Relative)));
+				
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
 
 			Loaded += MainPage_Loaded;
@@ -33,6 +37,7 @@ namespace TodotxtTouch.WindowsPhone
 		protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
 		{
 			// Pop a filter off the stack
+			Messenger.Default.Send(new DrillUpMessage());
 			base.OnBackKeyPress(e);
 		}
 
