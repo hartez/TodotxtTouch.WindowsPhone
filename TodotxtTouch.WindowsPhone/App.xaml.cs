@@ -73,20 +73,25 @@ namespace TodotxtTouch.WindowsPhone
 			}
 		}
 
-		// Code to execute when the application is deactivated (sent to background)
-		// This code will not execute when the application is closing
-		private void Application_Deactivated(object sender, DeactivatedEventArgs e)
+		public static void UpdateBindingOnFocusedTextBox()
 		{
 			// Focus kludge to make the binding in the textbox update
 			object focusObj = FocusManager.GetFocusedElement();
 			if (focusObj != null && focusObj is TextBox)
 			{
-				BindingExpression binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
 				if (binding != null)
 				{
 					binding.UpdateSource();
 				}
 			}
+		}
+
+		// Code to execute when the application is deactivated (sent to background)
+		// This code will not execute when the application is closing
+		private void Application_Deactivated(object sender, DeactivatedEventArgs e)
+		{
+			UpdateBindingOnFocusedTextBox();
 
 			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 

@@ -27,11 +27,6 @@
                 <WindowsPhone:TaskListBox ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
             </controls:PivotItem>
 
-            <!--Pivot item completed-->
-            <controls:PivotItem Header="complete">
-                <WindowsPhone:TaskListBox ItemsSource="{Binding CompletedTasks}"></WindowsPhone:TaskListBox>
-            </controls:PivotItem>
-
             <!--Pivot item contexts-->
             <controls:PivotItem Header="contexts">
                 <ListBox ItemsSource="{Binding Contexts}">
@@ -67,6 +62,11 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+            </controls:PivotItem>
+
+            <!--Pivot item completed-->
+            <controls:PivotItem Header="complete">
+                <WindowsPhone:TaskListBox ItemsSource="{Binding CompletedTasks}"></WindowsPhone:TaskListBox>
             </controls:PivotItem>
 
         </controls:Pivot>

@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Controls;
+using EZLibrary;
+using EZLibrary.Collections.Generic;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -264,6 +266,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand SaveCurrentTaskCommand { get; private set; }
 
+		public RelayCommand RevertCurrentTaskCommand { get; private set; }
+
 		public RelayCommand AddTaskCommand { get; private set; }
 
 		public RelayCommand<SelectionChangedEventArgs> FilterByContextCommand { get; private set; }
@@ -284,6 +288,22 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			                                                                     e =>
 			                                                                     _taskFileService.LoadingState ==
 			                                                                     TaskLoadingState.Ready);
+
+			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
+				() => _taskFileService.LoadingState == TaskLoadingState.Ready
+															&& SelectedTaskDraft != null);
+		}
+
+		private void RevertCurrentTask()
+		{
+			if (SelectedTask == null)
+			{
+				SelectedTaskDraft.Empty();
+			}
+			else
+			{
+				SelectedTaskDraft = SelectedTask.Copy();
+			}
 		}
 
 		private void FilterByContext(SelectionChangedEventArgs e)
