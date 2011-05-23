@@ -6,6 +6,7 @@ using System.IO.IsolatedStorage;
 using DropNet;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Reactive;
 using RestSharp;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.ViewModel;
@@ -22,6 +23,22 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private bool _localHasChanges;
 		private DateTime? _localLastModified;
+		private IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
+		private IDisposable _changeSubscription;
+
+		private void DisableChangeObserver()
+		{
+			if (_changeSubscription != null)
+			{
+				_changeSubscription.Dispose();
+			}
+		}
+
+		private void EnableChangeObserver()
+		{
+			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 100))
+				.Subscribe(e => SaveTasks());
+		}
 
 		public TaskFileService(DropBoxCredentialsViewModel dropBoxCredentialsViewModel, string taskFileName)
 		{
@@ -30,18 +47,23 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			_taskList.CollectionChanged += TaskListCollectionChanged;
 
+			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
+
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 				this, message => Sync());
 
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, (message) =>
 					{
-						if (HaveLocalFile)
+						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							LoadTasks();
-						}
+							if (HaveLocalFile)
+							{
+								LoadTasks();
+							}
 
-						Sync();
+							Sync();
+						}
 					});
 		}
 
@@ -104,6 +126,23 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void TaskListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
+			if (e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				foreach (Task item in e.OldItems)
+				{
+					//Removed items
+					item.PropertyChanged -= TaskPropertyChanged;
+				}
+			}
+			else if (e.Action == NotifyCollectionChangedAction.Add)
+			{
+				foreach (Task item in e.NewItems)
+				{
+					//Added items
+					item.PropertyChanged += TaskPropertyChanged;
+				}
+			}
+
 			InvokeTaskListChanged(new TaskListChangedEventArgs());
 		}
 
@@ -128,53 +167,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		public void ContentCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			if (e.Action == NotifyCollectionChangedAction.Remove)
-			{
-				foreach (Task item in e.NewItems)
-				{
-					//Removed items
-					item.PropertyChanged -= TaskPropertyChanged;
-				}
-			}
-			else if (e.Action == NotifyCollectionChangedAction.Add)
-			{
-				foreach (Task item in e.NewItems)
-				{
-					//Added items
-					item.PropertyChanged += TaskPropertyChanged;
-				}
-			}
-		}
-
 		private void TaskPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			InvokeTaskListChanged(new TaskListChangedEventArgs());
 		}
 
-		public void AddTask(Task task)
-		{
-			LoadingState = TaskLoadingState.Syncing;
-
-			TaskList.Add(task);
-			_localHasChanges = true;
-
-			SaveTasks();
-			Sync();
-		}
-
 		public void UpdateTask(Task task, Task oldTask)
 		{
-			LoadingState = TaskLoadingState.Syncing;
-
 			int index = TaskList.IndexOf(oldTask);
-			TaskList[index] = task;
-
-			_localHasChanges = true;
-
-			SaveTasks();
-			Sync();
+			TaskList[index].UpdateTo(task);
 		}
 
 		private void GetRemoteMetaData(Action<RestResponse<MetaData>> metaDataCallback)
@@ -191,13 +192,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Sync()
 		{
+			LoadingState = TaskLoadingState.Syncing;
+
 			if (_dropNetclient == null && _dropBoxCredentials.IsAuthenticated)
 			{
 				_dropNetclient = DropNetExtensions.CreateClient(_dropBoxCredentials.Token, _dropBoxCredentials.Secret);
 			}
 
-			// Check to see if we have a data connection
-			// and whether dropbox is considered accessible
+			// TODO Check to see if we have a data connection
+			// TODO and whether dropbox is considered accessible
 			// If so, get the metadata for the remote file
 			GetRemoteMetaData((metaDataResponse) => Sync(metaDataResponse.Data));
 
@@ -206,6 +209,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Sync(MetaData data)
 		{
+			// TODO - Need to handle the possibility of no remote file existing
 			DateTime remoteLastModified = data.UTCDateModified;
 
 			// See if we have a local task file
@@ -282,7 +286,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.Open, FileAccess.Read))
 				{
+					DisableChangeObserver();
 					TaskList.LoadTasks(file);
+					EnableChangeObserver();
 					LoadingState = TaskLoadingState.Ready;
 				}
 			}
@@ -292,11 +298,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.Open, FileAccess.Write))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.OpenOrCreate, FileAccess.Write))
 				{
 					TaskList.SaveTasks(file);
+					_localHasChanges = true;
 				}
 			}
+
+			Sync();
 		}
 
 		private void OverwriteWithRemoteFile(RestResponse response, DateTime remoteModifiedTime)

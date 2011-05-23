@@ -42,7 +42,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             ////}
 
 			_dropBoxCredentials = new DropBoxCredentialsViewModel();
-			_main = new MainViewModel(new TaskFileService(_dropBoxCredentials, "testingtodo.txt"));
+			_main = new MainViewModel(new TaskFileService(_dropBoxCredentials, "testingtodo.txt"),
+				new TaskFileService(_dropBoxCredentials, "testingdone.txt"));
         }
 
         /// <summary>

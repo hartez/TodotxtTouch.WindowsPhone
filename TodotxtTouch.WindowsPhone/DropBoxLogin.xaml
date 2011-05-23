@@ -9,7 +9,10 @@
     d:DesignHeight="480" d:DesignWidth="480"
     DataContext="{Binding DropBoxCredentials, Source={StaticResource Locator}}">
     
-    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneChromeBrush}" Height="400">
+    <Grid x:Name="LayoutRoot" Background="Transparent" Height="400">
+        <TextBlock HorizontalAlignment="Stretch" 
+                   TextAlignment="Center"
+                   Text="Login to DropBox"></TextBlock>
         <TextBox Height="72" HorizontalAlignment="Stretch" Margin="0,70,0,0" 
                  Name="Username" Text="{Binding Username, Mode=TwoWay}" 
                  VerticalAlignment="Top" Width="Auto" />

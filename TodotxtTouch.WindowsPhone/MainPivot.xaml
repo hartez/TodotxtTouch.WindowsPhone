@@ -1,85 +1,74 @@
-﻿<phone:PhoneApplicationPage 
-    x:Class="TodotxtTouch.WindowsPhone.MainPivot"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
-    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
-    SupportedOrientations="Portrait"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="True"
-    DataContext="{Binding Main, Source={StaticResource Locator}}">
+﻿<phone:PhoneApplicationPage x:Class="TodotxtTouch.WindowsPhone.MainPivot" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone" xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696" FontFamily="{StaticResource PhoneFontFamilyNormal}" FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" SupportedOrientations="Portrait" Orientation="Portrait" shell:SystemTray.IsVisible="True" DataContext="{Binding Main, Source={StaticResource Locator}}">
 
-    <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+	<!--LayoutRoot is the root grid where all page content is placed-->
+	<Grid x:Name="LayoutRoot" Background="Transparent">
 
-        <WindowsPhone:DropBoxLogin x:Name="DropBoxLogin" Visibility="Collapsed" Opacity="1">
-        </WindowsPhone:DropBoxLogin>
+		<WindowsPhone:DropBoxLogin x:Name="DropBoxLogin" Visibility="Collapsed" Opacity="0"></WindowsPhone:DropBoxLogin>
 
-        <!--Pivot Control-->
-        <controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot">
-            <!--Pivot item all-->
-            <controls:PivotItem Header="all">
-                <WindowsPhone:TaskListBox ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
-            </controls:PivotItem>
+		<!--Pivot Control-->
+		<controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot">
+			<!--Pivot item all-->
+			<controls:PivotItem Header="all">
+				<WindowsPhone:TaskListBox ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
+			</controls:PivotItem>
 
-            <!--Pivot item contexts-->
-            <controls:PivotItem Header="contexts">
-                <ListBox ItemsSource="{Binding Contexts}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="5,5">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding}" />
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <cmd:EventToCommand Command="{Binding FilterByContextCommand}"
-                                                PassEventArgsToCommand="True"></cmd:EventToCommand>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </ListBox>
-            </controls:PivotItem>
+			<!--Pivot item contexts-->
+			<controls:PivotItem Header="contexts">
+				<ListBox ItemsSource="{Binding Contexts}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid Margin="5,5">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="{Binding}" />
+								</StackPanel>
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+					<i:Interaction.Triggers>
+						<i:EventTrigger EventName="SelectionChanged">
+							<cmd:EventToCommand Command="{Binding FilterByContextCommand}" PassEventArgsToCommand="True"></cmd:EventToCommand>
+						</i:EventTrigger>
+					</i:Interaction.Triggers>
+				</ListBox>
+			</controls:PivotItem>
 
-            <!--Pivot item projects-->
-            <controls:PivotItem Header="projects">
-                <ListBox ItemsSource="{Binding Projects}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="5,5">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding}" />
-                                </StackPanel>
+			<!--Pivot item projects-->
+			<controls:PivotItem Header="projects">
+				<ListBox ItemsSource="{Binding Projects}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid Margin="5,5">
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="{Binding}" />
+								</StackPanel>
 
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </controls:PivotItem>
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+					<i:Interaction.Triggers>
+						<i:EventTrigger EventName="SelectionChanged">
+							<cmd:EventToCommand Command="{Binding FilterByProjectCommand}" PassEventArgsToCommand="True"></cmd:EventToCommand>
+						</i:EventTrigger>
+					</i:Interaction.Triggers>
 
-            <!--Pivot item completed-->
-            <controls:PivotItem Header="complete">
-                <WindowsPhone:TaskListBox ItemsSource="{Binding CompletedTasks}"></WindowsPhone:TaskListBox>
-            </controls:PivotItem>
+				</ListBox>
+			</controls:PivotItem>
 
-        </controls:Pivot>
-    </Grid>
+			<!--Pivot item completed-->
+			<controls:PivotItem Header="complete">
+				<WindowsPhone:TaskListBox ItemsSource="{Binding CompletedTasks}"></WindowsPhone:TaskListBox>
+			</controls:PivotItem>
 
-    <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="False">
-            <shell:ApplicationBarIconButton IconUri="/Images/add.png" x:Name="fAddButton" Text="add"/>
-            <!--<shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
-                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
-            </shell:ApplicationBar.MenuItems>-->
-        </shell:ApplicationBar>
-    </phone:PhoneApplicationPage.ApplicationBar>
+		</controls:Pivot>
+	</Grid>
+
+	<phone:PhoneApplicationPage.ApplicationBar>
+		<shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+			<shell:ApplicationBarIconButton IconUri="/Images/add.png" x:Name="fAddButton" Text="add" />
+			<shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>
+            </shell:ApplicationBar.MenuItems>
+		</shell:ApplicationBar>
+	</phone:PhoneApplicationPage.ApplicationBar>
 
 </phone:PhoneApplicationPage>

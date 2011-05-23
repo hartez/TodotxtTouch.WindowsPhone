@@ -43,6 +43,7 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)
 		{
+			DropBoxLogin.Opacity = 1;
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
@@ -61,7 +62,6 @@ namespace TodotxtTouch.WindowsPhone
 			DropBoxLogin.Visibility = Visibility.Visible;
 			TaskPivot.Visibility = Visibility.Collapsed;
 			ApplicationBar.IsVisible = false;
-			//SyncButton.Visibility = Visibility.Collapsed;
 		}
 
 		private void HideLogin()
@@ -69,7 +69,6 @@ namespace TodotxtTouch.WindowsPhone
 			DropBoxLogin.Visibility = Visibility.Collapsed;
 			TaskPivot.Visibility = Visibility.Visible;
 			ApplicationBar.IsVisible = true;
-			//SyncButton.Visibility = Visibility.Visible;
 		}
 
 
@@ -79,7 +78,6 @@ namespace TodotxtTouch.WindowsPhone
 			{
 				case TaskLoadingState.NotLoaded:
 					TaskPivot.Visibility = Visibility.Collapsed;
-					//SyncButton.Visibility = Visibility.Collapsed;
 					break;
 				case TaskLoadingState.Syncing:
 					TaskPivot.Visibility = Visibility.Collapsed;
@@ -92,6 +90,11 @@ namespace TodotxtTouch.WindowsPhone
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private void ArchiveClick(object sender, EventArgs e)
+		{
+			((MainViewModel)DataContext).ArchiveTasksCommand.Execute(null);
 		}
 	}
 }

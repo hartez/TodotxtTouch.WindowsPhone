@@ -63,61 +63,33 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		#region Backing fields
 
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
+		private readonly IObservable<IEvent<NotifyCollectionChangedEventArgs>> _filterObserver;
+		private readonly ObservableStack<TaskFilter> _filters = new ObservableStack<TaskFilter>();
+		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private readonly TaskFileService _taskFileService;
+		private readonly TaskFileService _archiveFileService;
+		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
 
 		#endregion
 
-		private readonly ObservableStack<TaskFilter> _filters = new ObservableStack<TaskFilter>();
-		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
-		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
-		private IObservable<IEvent<NotifyCollectionChangedEventArgs>> _filterObserver;
-
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
 		/// </summary>
-		public MainViewModel(TaskFileService taskFileService)
+		public MainViewModel(TaskFileService taskFileService, TaskFileService archiveFileService)
 		{
-			_taskFileService = taskFileService;
-
-			_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
-				_taskFileService, "LoadingStateChanged");
-
-			_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
-
-			_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
-				_taskFileService, "TaskListChanged");
-
-			_taskListChangedObserver.Subscribe(e =>
-				{
-					RaisePropertyChanged(AllTasksPropertyName);
-					RaisePropertyChanged(CompletedTasksPropertyName);
-					RaisePropertyChanged(ContextsPropertyName);
-					RaisePropertyChanged(ProjectsPropertyName);
-				});
-
-
-			_filterObserver = Observable.FromEvent<NotifyCollectionChangedEventArgs>(_filters, "CollectionChanged");
-
-			_filterObserver.Subscribe(e =>
-				{
-					RaisePropertyChanged(AllTasksPropertyName);
-					RaisePropertyChanged(CompletedTasksPropertyName);
-					RaisePropertyChanged(ApplicationTitlePropertyName);
-				});
-
-			Messenger.Default.Register<DrillUpMessage>(this, message => Filters.Pop());
-
 			if (IsInDesignMode)
 			{
 				// Code runs in Blend --> create design time data.
 				Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => _availablePriorities.Add(p));
 
-				TaskList.Add(new Task("A", null, null, "This is a designer task"));
+				TaskList.Add(new Task("A", null, null,
+				                      "This is a designer task that might be really long the quick brown fox jumped over the lazy dogs"));
 				TaskList.Add(new Task("", null, null, "This is a designer task2"));
-				TaskList.Add(new Task("", null, null, "This is a designer task3"));
+				TaskList.Add(new Task("", null, null,
+				                      "This is a designer task3 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."));
 				var b = new Task("B", null, null, "This is a designer task4");
 				b.ToggleCompleted();
 				TaskList.Add(b);
@@ -128,6 +100,38 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			else
 			{
 				// Code runs "for real"
+				_taskFileService = taskFileService;
+				_archiveFileService = archiveFileService;
+
+				_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
+					_taskFileService, "LoadingStateChanged");
+
+				_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
+
+				_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
+					_taskFileService, "TaskListChanged");
+
+				_taskListChangedObserver.Subscribe(e =>
+				{
+					RaisePropertyChanged(AllTasksPropertyName);
+					RaisePropertyChanged(CompletedTasksPropertyName);
+					RaisePropertyChanged(ContextsPropertyName);
+					RaisePropertyChanged(ProjectsPropertyName);
+				});
+
+				_filterObserver = Observable.FromEvent<NotifyCollectionChangedEventArgs>(_filters, "CollectionChanged");
+
+				_filterObserver.Subscribe(e =>
+				{
+					RaisePropertyChanged(AllTasksPropertyName);
+					RaisePropertyChanged(CompletedTasksPropertyName);
+					RaisePropertyChanged(ApplicationTitlePropertyName);
+					RaisePropertyChanged(ContextsPropertyName);
+					RaisePropertyChanged(ProjectsPropertyName);
+				});
+
+				Messenger.Default.Register<DrillUpMessage>(this, message => Filters.Pop());
+
 				WireUpCommands();
 			}
 		}
@@ -260,7 +264,64 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get { return _filters; }
 		}
 
+		private bool FileServiceReady
+		{
+			get
+			{
+				return _taskFileService.LoadingState ==
+				       TaskLoadingState.Ready;
+			}
+		}
+
+		private bool ArchiveFileServiceReady
+		{
+			get
+			{
+				return _archiveFileService.LoadingState ==
+					   TaskLoadingState.Ready;
+			}
+		}
+
 		#region Commands
+
+		private void WireUpCommands()
+		{
+			ViewTaskDetailsCommand = new RelayCommand(ViewTask, () =>
+																FileServiceReady
+																&& SelectedTask != null);
+
+			AddTaskCommand = new RelayCommand(AddTask, () => FileServiceReady);
+
+			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
+													  () => FileServiceReady
+															&& SelectedTaskDraft != null);
+
+			FilterByContextCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByContext,
+																				 e =>
+																				 FileServiceReady);
+
+			FilterByProjectCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByProject,
+																				 e =>
+																				 FileServiceReady);
+
+			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
+														() => FileServiceReady
+															  && SelectedTaskDraft != null);
+
+			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
+														() => FileServiceReady && ArchiveFileServiceReady);
+		}
+
+		private void ArchiveTasks()
+		{
+			// TODO Have setting for preserving line numbers
+			TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
+
+			foreach (var completedTask in completedTasks)
+			{
+				_archiveFileService.TaskList.Add(completedTask);
+			}
+		}
 
 		public RelayCommand ViewTaskDetailsCommand { get; private set; }
 
@@ -272,27 +333,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand<SelectionChangedEventArgs> FilterByContextCommand { get; private set; }
 
-		private void WireUpCommands()
-		{
-			ViewTaskDetailsCommand = new RelayCommand(ViewTask, () =>
-			                                                    _taskFileService.LoadingState == TaskLoadingState.Ready
-			                                                    && SelectedTask != null);
+		public RelayCommand<SelectionChangedEventArgs> FilterByProjectCommand { get; private set; }
 
-			AddTaskCommand = new RelayCommand(AddTask, () => _taskFileService.LoadingState == TaskLoadingState.Ready);
-
-			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
-			                                          () => _taskFileService.LoadingState == TaskLoadingState.Ready
-			                                                && SelectedTaskDraft != null);
-
-			FilterByContextCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByContext,
-			                                                                     e =>
-			                                                                     _taskFileService.LoadingState ==
-			                                                                     TaskLoadingState.Ready);
-
-			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
-				() => _taskFileService.LoadingState == TaskLoadingState.Ready
-															&& SelectedTaskDraft != null);
-		}
+		public RelayCommand ArchiveTasksCommand { get; private set; }
 
 		private void RevertCurrentTask()
 		{
@@ -312,7 +355,19 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				string context = e.AddedItems[0].ToString();
 
-				Filters.Push(new TaskFilter(t => t.Contexts.Contains(context), string.Format("Context = {0}", context)));
+				Filters.Push(new TaskFilter(t => t.Contexts.Contains(context),  context));
+
+				Messenger.Default.Send(new DrillDownMessage(Filters.Count.ToString()));
+			}
+		}
+
+		private void FilterByProject(SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count > 0)
+			{
+				string project = e.AddedItems[0].ToString();
+
+				Filters.Push(new TaskFilter(t => t.Projects.Contains(project), project));
 
 				Messenger.Default.Send(new DrillDownMessage(Filters.Count.ToString()));
 			}
@@ -331,7 +386,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void ViewTask()
 		{
-			SelectedTaskDraft = SelectedTask;
+			SelectedTaskDraft = SelectedTask.Copy();
 
 			UpdateAvailablePriorities();
 
@@ -342,7 +397,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			if (SelectedTask == null)
 			{
-				_taskFileService.AddTask(SelectedTaskDraft);
+				_taskFileService.TaskList.Add(SelectedTaskDraft);
 			}
 			else
 			{

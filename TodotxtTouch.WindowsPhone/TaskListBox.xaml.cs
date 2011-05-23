@@ -30,21 +30,14 @@ namespace TodotxtTouch.WindowsPhone
 			}
 		}
 
-
 		public void SetItemsSource(Object newValue)
 		{
 			TaskList.SetValue(ItemsControl.ItemsSourceProperty, newValue);
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
 		public IEnumerable ItemsSource
-
 		{
 			get { return (IEnumerable)TaskList.GetValue(ItemsControl.ItemsSourceProperty); }
-
-
 			set { TaskList.SetValue(ItemsControl.ItemsSourceProperty, value); }
 		}
 

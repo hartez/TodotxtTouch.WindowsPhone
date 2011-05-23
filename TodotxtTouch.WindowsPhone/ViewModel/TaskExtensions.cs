@@ -8,5 +8,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			return new Task(task.Raw);
 		}
+
+		public static void UpdateTo(this Task task, Task newTask)
+		{
+			task.Body = newTask.Body;
+			task.Completed = newTask.Completed;
+		}
 	}
 }

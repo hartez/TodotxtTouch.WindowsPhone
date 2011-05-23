@@ -115,7 +115,7 @@
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
     <Compile Include="ViewModel\CredentialsUpdatedMessage.cs" />
-    <Compile Include="ViewModel\TaskExensions.cs" />
+    <Compile Include="ViewModel\TaskExtensions.cs" />
     <Compile Include="Service\TaskFileService.cs" />
     <Compile Include="ViewModel\TaskFilter.cs" />
     <Compile Include="ViewModel\TaskListExtensions.cs" />
