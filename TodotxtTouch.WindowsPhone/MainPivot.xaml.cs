@@ -23,19 +23,25 @@ namespace TodotxtTouch.WindowsPhone
 				this, ViewSelectedTask);
 
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
-				this, (message) => HideLogin());
+				this, message => HideLogin());
 
 
 			// TODO Change drill-down to work off of URI instead of Observable Stack
 			// otherwise, reloading the app doesn't work correctly
-			Messenger.Default.Register<DrillDownMessage>(this, 
-				message => NavigationService.Navigate(
-					new Uri("/MainPivot.xaml?depth=" + message.Depth, UriKind.Relative)));
+			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
+
 				
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
 
 			Loaded += MainPage_Loaded;
 		}
+
+		private void DrillDown(DrillDownMessage message)
+		{
+			 NavigationService.Navigate(
+			   new Uri("/MainPivot.xaml?filter=" + message.Filter, UriKind.Relative));
+		}
+
 
 		protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
 		{
@@ -43,15 +49,12 @@ namespace TodotxtTouch.WindowsPhone
 			string filter;
 			if(NavigationContext.QueryString.TryGetValue("filter", out filter))
 			{
-
+				Messenger.Default.Send<DrillDownMessage, MainViewModel>(new DrillDownMessage(filter));
 			}
-		}
-
-		protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
-		{
-			// Pop a filter off the stack
-			Messenger.Default.Send(new DrillUpMessage());
-			base.OnBackKeyPress(e);
+			else
+			{
+				Messenger.Default.Send<DrillDownMessage, MainViewModel>(new DrillDownMessage(String.Empty));
+			}
 		}
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)

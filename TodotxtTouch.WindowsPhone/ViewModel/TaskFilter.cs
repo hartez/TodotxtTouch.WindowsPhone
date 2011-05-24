@@ -3,15 +3,14 @@ using todotxtlib.net;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	public class TaskFilter
+	public abstract class TaskFilter
 	{
-		public TaskFilter(Func<Task, bool> filter, string description)
+		protected TaskFilter(Func<Task, bool> filter)
 		{
 			Filter = filter;
-			Description = description;
 		}
 
 		public Func<Task, bool> Filter { get; private set; }
-		public String Description { get; private set; }
+		public abstract String Description { get; }
 	}
 }

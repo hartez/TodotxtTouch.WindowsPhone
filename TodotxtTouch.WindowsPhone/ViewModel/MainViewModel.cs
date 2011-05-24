@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Controls;
 using EZLibrary;
-using EZLibrary.Collections.Generic;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Controls;
 using Microsoft.Phone.Reactive;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Service;
@@ -64,8 +63,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		#region Backing fields
 
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
-		private readonly IObservable<IEvent<NotifyCollectionChangedEventArgs>> _filterObserver;
-		private readonly ObservableStack<TaskFilter> _filters = new ObservableStack<TaskFilter>();
 		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private readonly TaskFileService _taskFileService;
 		private readonly TaskFileService _archiveFileService;
@@ -120,21 +117,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					RaisePropertyChanged(ProjectsPropertyName);
 				});
 
-				_filterObserver = Observable.FromEvent<NotifyCollectionChangedEventArgs>(_filters, "CollectionChanged");
-
-				_filterObserver.Subscribe(e =>
-				{
-					RaisePropertyChanged(AllTasksPropertyName);
-					RaisePropertyChanged(CompletedTasksPropertyName);
-					RaisePropertyChanged(ApplicationTitlePropertyName);
-					RaisePropertyChanged(ContextsPropertyName);
-					RaisePropertyChanged(ProjectsPropertyName);
-				});
-
-				Messenger.Default.Register<DrillUpMessage>(this, message => Filters.Pop());
+				Messenger.Default.Register<DrillDownMessage>(this, Filter);
 
 				WireUpCommands();
 			}
+		}
+
+		private void Filter(DrillDownMessage message)
+		{
+			Filters = TaskFilterFactory.ParseFilterString(message.Filter);
 		}
 
 		public IEnumerable<String> Projects
@@ -260,9 +251,38 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters); }
 		}
 
-		private ObservableStack<TaskFilter> Filters
+
+		/// <summary>
+		/// The <see cref="Filters" /> property's name.
+		/// </summary>
+		public const string FiltersPropertyName = "Filters";
+
+		private List<TaskFilter> _filters = new List<TaskFilter>();
+
+		/// <summary>
+		/// Gets the Filters property.
+		/// Changes to that property's value raise the PropertyChanged event for:
+		/// AllTasks, CompletedTasks, ApplicationTitle, Contexts, Projects
+		/// </summary>
+		public List<TaskFilter> Filters
 		{
 			get { return _filters; }
+
+			set
+			{
+				if (_filters == value)
+				{
+					return;
+				}
+
+				_filters = value;
+
+				RaisePropertyChanged(AllTasksPropertyName);
+				RaisePropertyChanged(CompletedTasksPropertyName);
+				RaisePropertyChanged(ApplicationTitlePropertyName);
+				RaisePropertyChanged(ContextsPropertyName);
+				RaisePropertyChanged(ProjectsPropertyName);
+			}
 		}
 
 		private bool TaskFileServiceReady
@@ -362,9 +382,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				string context = e.AddedItems[0].ToString();
 
-				Filters.Push(new TaskFilter(t => t.Contexts.Contains(context),  context));
+				Filters.Add(new ContextTaskFilter(t => t.Contexts.Contains(context),  context));
 
-				Messenger.Default.Send(new DrillDownMessage(Filters.Count.ToString()));
+				Messenger.Default.Send<DrillDownMessage, MainPivot>(
+					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
 			}
 		}
 
@@ -374,9 +395,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				string project = e.AddedItems[0].ToString();
 
-				Filters.Push(new TaskFilter(t => t.Projects.Contains(project), project));
+				Filters.Add(new ProjectTaskFilter(t => t.Projects.Contains(project), project));
 
-				Messenger.Default.Send(new DrillDownMessage(Filters.Count.ToString()));
+				Messenger.Default.Send<DrillDownMessage, MainPivot>(
+					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
 			}
 		}
 

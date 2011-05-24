@@ -2,14 +2,11 @@
 {
 	public class DrillDownMessage
 	{
-		public string Depth { get; private set; }
+		public string Filter { get; private set; }
 
-		public DrillDownMessage(string depth)
+		public DrillDownMessage(string filter)
 		{
-			Depth = depth;
+			Filter = filter;
 		}
 	}
-
-	public class DrillUpMessage
-	{}
 }
