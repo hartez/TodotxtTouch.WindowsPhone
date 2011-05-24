@@ -110,6 +110,7 @@
     </Compile>
     <Compile Include="ViewModel\ApplicationReadyMessage.cs" />
     <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
+    <Compile Include="Service\DropBoxService.cs" />
     <Compile Include="ViewModel\DropNetExtensions.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

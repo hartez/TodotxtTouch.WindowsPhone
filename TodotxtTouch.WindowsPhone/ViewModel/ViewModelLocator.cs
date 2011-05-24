@@ -40,10 +40,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             ////{
             ////    // Create run time services and view models
             ////}
-
-			_dropBoxCredentials = new DropBoxCredentialsViewModel();
-			_main = new MainViewModel(new TaskFileService(_dropBoxCredentials, "testingtodo.txt"),
-				new TaskFileService(_dropBoxCredentials, "testingdone.txt"));
+            /// 
+        	var dbs = new DropBoxService();
+			_dropBoxCredentials = new DropBoxCredentialsViewModel(dbs);
+			_main = new MainViewModel(new TaskFileService(dbs, "testingtodo.txt"),
+				new TaskFileService(dbs, "testingdone.txt"));
         }
 
         /// <summary>

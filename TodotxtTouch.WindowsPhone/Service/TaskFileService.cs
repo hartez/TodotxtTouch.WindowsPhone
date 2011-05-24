@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
-using DropNet;
+using System.Linq;
+using System.Text;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Reactive;
@@ -15,56 +17,50 @@ namespace TodotxtTouch.WindowsPhone.Service
 {
 	public class TaskFileService
 	{
-		private readonly DropBoxCredentialsViewModel _dropBoxCredentials;
+		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
 		private readonly TaskList _taskList = new TaskList();
-		private readonly string taskFileName;
+		private readonly string _taskFileName;
+		private IDisposable _changeSubscription;
+		private readonly DropBoxService _dropBoxService;
 
-		private DropNetClient _dropNetclient;
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private bool _localHasChanges;
 		private DateTime? _localLastModified;
-		private IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
-		private IDisposable _changeSubscription;
 
-		private void DisableChangeObserver()
+		public TaskFileService(DropBoxService dropBoxService, string taskFileName)
 		{
-			if (_changeSubscription != null)
-			{
-				_changeSubscription.Dispose();
-			}
-		}
-
-		private void EnableChangeObserver()
-		{
-			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 100))
-				.Subscribe(e => SaveTasks());
-		}
-
-		public TaskFileService(DropBoxCredentialsViewModel dropBoxCredentialsViewModel, string taskFileName)
-		{
-			_dropBoxCredentials = dropBoxCredentialsViewModel;
-			this.taskFileName = taskFileName;
+			_dropBoxService = dropBoxService;
+			this._taskFileName = taskFileName;
 
 			_taskList.CollectionChanged += TaskListCollectionChanged;
 
 			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
 
-			Messenger.Default.Register<CredentialsUpdatedMessage>(
-				this, message => Sync());
+			_dropBoxService.DropBoxServiceConnectedChanged += DropBoxServiceConnectedChanged;
 
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, (message) =>
 					{
 						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							if (HaveLocalFile)
+							Debug.WriteLine("State is NotLoaded; checking for local file");
+
+							if (LocalFileExists)
 							{
+								Debug.WriteLine("Local file exists; loading it up");
 								LoadTasks();
 							}
-
-							Sync();
 						}
 					});
+		}
+
+		void DropBoxServiceConnectedChanged(object sender, DropBoxServiceConnectedChangedEventArgs e)
+		{
+			if(_dropBoxService.Connected)
+			{
+				// We just got connected - synchronize
+				Sync();
+			}
 		}
 
 		/// <summary>
@@ -113,15 +109,29 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private bool HaveLocalFile
+		private bool LocalFileExists
 		{
 			get
 			{
 				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
-					return appStorage.FileExists(taskFileName);
+					return appStorage.FileExists(_taskFileName);
 				}
 			}
+		}
+
+		private void PauseChangeObserver()
+		{
+			if (_changeSubscription != null)
+			{
+				_changeSubscription.Dispose();
+			}
+		}
+
+		private void ResumeChangeObserver()
+		{
+			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 100))
+				.Subscribe(e => SaveTasks());
 		}
 
 		private void TaskListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -146,27 +156,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			InvokeTaskListChanged(new TaskListChangedEventArgs());
 		}
 
-		public event EventHandler<LoadingStateChangedEventArgs> LoadingStateChanged;
-		public event EventHandler<TaskListChangedEventArgs> TaskListChanged;
-
-		public void InvokeTaskListChanged(TaskListChangedEventArgs e)
-		{
-			EventHandler<TaskListChangedEventArgs> handler = TaskListChanged;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
-		}
-
-		public void InvokeLoadingStateChanged(LoadingStateChangedEventArgs e)
-		{
-			EventHandler<LoadingStateChangedEventArgs> handler = LoadingStateChanged;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
-		}
-
 		private void TaskPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			InvokeTaskListChanged(new TaskListChangedEventArgs());
@@ -180,24 +169,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void GetRemoteMetaData(Action<RestResponse<MetaData>> metaDataCallback)
 		{
-			if (!_dropBoxCredentials.IsAuthenticated)
-			{
-				LoginToDropbox(() => GetRemoteMetaData(metaDataCallback));
-			}
-			else
-			{
-				_dropNetclient.GetMetaDataAsync("/todo/" + taskFileName, metaDataCallback);
-			}
+			_dropBoxService.GetMetaData("/todo/" + _taskFileName, metaDataCallback);
 		}
 
 		private void Sync()
 		{
-			LoadingState = TaskLoadingState.Syncing;
+			Debug.WriteLine(string.Format("Changing state to Syncing: {0}", _taskFileName));
 
-			if (_dropNetclient == null && _dropBoxCredentials.IsAuthenticated)
-			{
-				_dropNetclient = DropNetExtensions.CreateClient(_dropBoxCredentials.Token, _dropBoxCredentials.Secret);
-			}
+			LoadingState = TaskLoadingState.Syncing;
 
 			// TODO Check to see if we have a data connection
 			// TODO and whether dropbox is considered accessible
@@ -213,7 +192,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			DateTime remoteLastModified = data.UTCDateModified;
 
 			// See if we have a local task file
-			if (!HaveLocalFile)
+			if (!LocalFileExists)
 			{
 				// We have no local file - just make the remote file the local file
 				UseRemoteFile(remoteLastModified);
@@ -251,13 +230,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.Open, FileAccess.Read))
 				{
 					var bytes = new byte[file.Length];
 					file.Read(bytes, 0, (int) file.Length);
 
-					// Upload the local version, then get metadata to update local last modified
-					_dropNetclient.UploadFileAsync("/todo", taskFileName, bytes, (response) =>
+					_dropBoxService.Upload("/todo", _taskFileName, bytes, (response) =>
 						{
 							if (response.ErrorException == null)
 							{
@@ -265,6 +243,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 									{
 										_localHasChanges = false;
 										LocalLastModified = metaDataResponse.Data.UTCDateModified;
+
+										Debug.WriteLine(string.Format("Changing state to Ready: {0}", _taskFileName));
+
 										LoadingState = TaskLoadingState.Ready;
 									});
 							}
@@ -278,17 +259,52 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private void Merge()
 		{
 			// Get the remote, merge, push local
+
+
+			_dropBoxService.GetFile("/todo/" + _taskFileName,
+			                        (response) =>
+			                        	{
+			                        		if (response.ErrorException == null)
+			                        		{
+			                        			var tl = new TaskList();
+
+			                        			using (var ms = new MemoryStream(
+			                        				Encoding.GetEncoding(
+			                        					response.ContentEncoding).GetBytes(response.Content)))
+			                        			{
+			                        				tl.LoadTasks(ms);
+
+			                        				// Find the tasks in tl which aren't already in the 
+			                        				// current tasklist
+			                        				var tasksToAdd =
+			                        					tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
+			                        				foreach (var task in tasksToAdd)
+			                        				{
+			                        					TaskList.Add(task);
+			                        				}
+
+			                        				PushLocal();
+			                        			}
+			                        		}
+			                        		else
+			                        		{
+			                        			// Handle error
+			                        		}
+			                        	});
 		}
 
 		private void LoadTasks()
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.Open, FileAccess.Read))
 				{
-					DisableChangeObserver();
+					PauseChangeObserver();
 					TaskList.LoadTasks(file);
-					EnableChangeObserver();
+					ResumeChangeObserver();
+
+					Debug.WriteLine(string.Format("Changing state to Ready: {0}", _taskFileName));
+
 					LoadingState = TaskLoadingState.Ready;
 				}
 			}
@@ -298,7 +314,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.OpenOrCreate, FileAccess.Write))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.OpenOrCreate, FileAccess.Write))
 				{
 					TaskList.SaveTasks(file);
 					_localHasChanges = true;
@@ -312,7 +328,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(taskFileName, FileMode.OpenOrCreate))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.OpenOrCreate))
 				{
 					using (var writer = new StreamWriter(file))
 					{
@@ -329,38 +345,33 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void UseRemoteFile(DateTime remoteModifiedTime)
 		{
-			if (!_dropBoxCredentials.IsAuthenticated)
-			{
-				LoginToDropbox(() => UseRemoteFile(remoteModifiedTime));
-			}
-			else
-			{
-				_dropNetclient.GetFileAsync("/todo/" + taskFileName,
-				                            (response) => OverwriteWithRemoteFile(response, remoteModifiedTime));
-			}
+			_dropBoxService.GetFile("/todo/" + _taskFileName,
+			                        (response) => OverwriteWithRemoteFile(response, remoteModifiedTime));
 		}
 
-		private void LoginCallback(RestResponse<UserLogin> response)
+		#region Events
+
+		public event EventHandler<LoadingStateChangedEventArgs> LoadingStateChanged;
+		public event EventHandler<TaskListChangedEventArgs> TaskListChanged;
+
+		public void InvokeTaskListChanged(TaskListChangedEventArgs e)
 		{
-			// Check response for an error
-
-
-			_dropBoxCredentials.Secret = response.Data.Secret;
-			_dropBoxCredentials.Token = response.Data.Token;
-		}
-
-		public void LoginToDropbox(Action loginCallbackAction)
-		{
-			if (_dropBoxCredentials.HasLoginCredentials)
+			EventHandler<TaskListChangedEventArgs> handler = TaskListChanged;
+			if (handler != null)
 			{
-				_dropNetclient = DropNetExtensions.CreateClient();
-				_dropNetclient.LoginAsync(_dropBoxCredentials.Username, _dropBoxCredentials.Password,
-				                          response =>
-				                          	{
-				                          		LoginCallback(response);
-				                          		loginCallbackAction();
-				                          	});
+				handler(this, e);
 			}
 		}
+
+		public void InvokeLoadingStateChanged(LoadingStateChangedEventArgs e)
+		{
+			EventHandler<LoadingStateChangedEventArgs> handler = LoadingStateChanged;
+			if (handler != null)
+			{
+				handler(this, e);
+			}
+		}
+
+		#endregion
 	}
 }

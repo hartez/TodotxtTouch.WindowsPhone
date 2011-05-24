@@ -3,11 +3,14 @@ using System.IO.IsolatedStorage;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
 	public class DropBoxCredentialsViewModel : ViewModelBase
 	{
+		private DropBoxService _dropBoxService;
+
 		/// <summary>
 		/// The <see cref="Username" /> property's name.
 		/// </summary>
@@ -18,35 +21,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string PasswordPropertyName = "Password";
 
-		/// <summary>
-		/// The <see cref="Token" /> property's name.
-		/// </summary>
-		public const string TokenPropertyName = "Token";
-
-		/// <summary>
-		/// The <see cref="Secret" /> property's name.
-		/// </summary>
-		public const string SecretPropertyName = "Secret";
-
-		private String _password = String.Empty;
-		private string _username = String.Empty;
-		private string _token;
-		private string _secret;
-
 		public RelayCommand UpdateCredentialsCommand { get; private set; }
-
-		private void PersistCredentials()
-		{
-			// Save credentials 
-			IsolatedStorageSettings.ApplicationSettings["dropboxUsername"] = Username;
-			IsolatedStorageSettings.ApplicationSettings["dropboxToken"] = Token;
-			IsolatedStorageSettings.ApplicationSettings["dropboxSecret"] = Secret;
-		}
 
 		/// <summary>
 		/// Initializes a new instance of the ApplicationSettingsViewModel class.
 		/// </summary>
-		public DropBoxCredentialsViewModel()
+		public DropBoxCredentialsViewModel(DropBoxService dropBoxService)
 		{
 			if (IsInDesignMode)
 			{
@@ -55,6 +35,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			else
 			{
 				// Code runs "for real"
+				_dropBoxService = dropBoxService;
+
 #if DEBUG
 				Username = "hartez@gmail.com";
 				Password = "23yoink42dropbo";
@@ -66,8 +48,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void UpdateCredentials()
 		{
-			PersistCredentials();
-
 			Messenger.Default.Send(new CredentialsUpdatedMessage());
 		}
 
@@ -79,27 +59,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			get
 			{
-				if(String.IsNullOrEmpty(_username))
-				{
-					String username;
-					if(IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxUsername",
-					                                                        out username))
-					{
-						_username = username;
-					}
-				}
-
-				return _username;
+				return _dropBoxService.Username;
 			}
 
 			set
 			{
-				if (_username == value)
-				{
-					return;
-				}
-
-				_username = value;
+				_dropBoxService.Username = value;
 
 				// Update bindings, no broadcast
 				RaisePropertyChanged(UsernamePropertyName);
@@ -114,108 +79,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			get
 			{
-				return _password;
+				return _dropBoxService.Password;
 			}
 
 			set
 			{
-				if (_password == value)
-				{
-					return;
-				}
-
-				_password = value;
+				_dropBoxService.Password = value;
 
 				// Update bindings, no broadcast
 				RaisePropertyChanged(PasswordPropertyName);
-			}
-		}
-
-		public bool IsAuthenticated
-		{
-			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
-		}
-
-		public bool HasLoginCredentials
-		{
-			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username) && Password != "23yoink42dropbo"; }
-		}
-
-		/// <summary>
-		/// Gets the Token property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Token
-		{
-			get
-			{
-				if (String.IsNullOrEmpty(_token))
-				{
-					String token;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken",
-																			out token))
-					{
-						_token = token;
-					}
-					else
-					{
-						Messenger.Default.Send(new NeedCredentialsMessage());
-					}
-				}
-
-				return _token;
-			}
-
-			set
-			{
-				if (_token == value)
-				{
-					return;
-				}
-
-				_token = value;
-
-				// Update bindings, no broadcast
-				RaisePropertyChanged(TokenPropertyName);
-			}
-		}
-
-		/// <summary>
-		/// Gets the Secret property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Secret
-		{
-			get
-			{
-				if (String.IsNullOrEmpty(_secret))
-				{
-					String secret;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxSecret",
-																			out secret))
-					{
-						_secret = secret;
-					}
-					else
-					{
-						Messenger.Default.Send(new NeedCredentialsMessage());
-					}
-				}
-
-				return _secret;
-			}
-
-			set
-			{
-				if (_secret == value)
-				{
-					return;
-				}
-
-				_secret = value;
-
-				// Update bindings, no broadcast
-				RaisePropertyChanged(SecretPropertyName);
 			}
 		}
 	}

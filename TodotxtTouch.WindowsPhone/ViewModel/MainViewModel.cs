@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Controls;
 using EZLibrary;
@@ -264,7 +265,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get { return _filters; }
 		}
 
-		private bool FileServiceReady
+		private bool TaskFileServiceReady
 		{
 			get
 			{
@@ -284,32 +285,38 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		#region Commands
 
+		private bool CanViewTaskDetailsExecute()
+		{
+			bool canExecute = TaskFileServiceReady && SelectedTask != null;
+			Debug.WriteLine(string.Format("ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot")));
+
+			return canExecute;
+		}
+
 		private void WireUpCommands()
 		{
-			ViewTaskDetailsCommand = new RelayCommand(ViewTask, () =>
-																FileServiceReady
-																&& SelectedTask != null);
-
-			AddTaskCommand = new RelayCommand(AddTask, () => FileServiceReady);
+			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
+			
+			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady);
 
 			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
-													  () => FileServiceReady
+													  () => TaskFileServiceReady
 															&& SelectedTaskDraft != null);
 
 			FilterByContextCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByContext,
 																				 e =>
-																				 FileServiceReady);
+																				 TaskFileServiceReady);
 
 			FilterByProjectCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByProject,
 																				 e =>
-																				 FileServiceReady);
+																				 TaskFileServiceReady);
 
 			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
-														() => FileServiceReady
+														() => TaskFileServiceReady
 															  && SelectedTaskDraft != null);
 
 			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
-														() => FileServiceReady && ArchiveFileServiceReady);
+														() => TaskFileServiceReady && ArchiveFileServiceReady);
 		}
 
 		private void ArchiveTasks()
