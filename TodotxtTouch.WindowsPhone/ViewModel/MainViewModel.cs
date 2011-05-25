@@ -8,7 +8,6 @@ using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Phone.Controls;
 using Microsoft.Phone.Reactive;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Service;
@@ -56,22 +55,34 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public const string ContextsPropertyName = "Contexts";
 		public const string ProjectsPropertyName = "Projects";
 
+		public const string SelectedProjectPropertyName = "SelectedProject";
+		public const string SelectedContextPropertyName = "SelectedContext";
+
 		public const string ApplicationTitlePropertyName = "ApplicationTitle";
 
 		#endregion
 
 		#region Backing fields
 
+		private readonly TaskFileService _archiveFileService;
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
 		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private readonly TaskFileService _taskFileService;
-		private readonly TaskFileService _archiveFileService;
 		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
 
 		#endregion
+
+		/// <summary>
+		/// The <see cref="Filters" /> property's name.
+		/// </summary>
+		public const string FiltersPropertyName = "Filters";
+
+		private List<TaskFilter> _filters = new List<TaskFilter>();
+		private String _selectedContext;
+		private String _selectedProject;
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -110,22 +121,17 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					_taskFileService, "TaskListChanged");
 
 				_taskListChangedObserver.Subscribe(e =>
-				{
-					RaisePropertyChanged(AllTasksPropertyName);
-					RaisePropertyChanged(CompletedTasksPropertyName);
-					RaisePropertyChanged(ContextsPropertyName);
-					RaisePropertyChanged(ProjectsPropertyName);
-				});
+					{
+						RaisePropertyChanged(AllTasksPropertyName);
+						RaisePropertyChanged(CompletedTasksPropertyName);
+						RaisePropertyChanged(ContextsPropertyName);
+						RaisePropertyChanged(ProjectsPropertyName);
+					});
 
 				Messenger.Default.Register<DrillDownMessage>(this, Filter);
 
 				WireUpCommands();
 			}
-		}
-
-		private void Filter(DrillDownMessage message)
-		{
-			Filters = TaskFilterFactory.ParseFilterString(message.Filter);
 		}
 
 		public IEnumerable<String> Projects
@@ -219,6 +225,51 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		}
 
 		/// <summary>
+		/// Gets the SelectedContext property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public String SelectedContext
+		{
+			get { return _selectedContext; }
+
+			set
+			{
+				if (_selectedContext == value)
+				{
+					return;
+				}
+
+				_selectedContext = value;
+
+				// Update bindings, no broadcast
+				RaisePropertyChanged(SelectedContextPropertyName);
+			}
+		}
+
+		/// <summary>
+		/// Gets the SelectedProject property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public String SelectedProject
+		{
+			get { return _selectedProject; }
+
+			set
+			{
+				if (_selectedProject == value)
+				{
+					return;
+				}
+
+				_selectedProject = value;
+
+				// Update bindings, no broadcast
+				RaisePropertyChanged(SelectedProjectPropertyName);
+			}
+		}
+
+
+		/// <summary>
 		/// Gets the ApplicationTitle property.
 		/// </summary>
 		public string ApplicationTitle
@@ -251,13 +302,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters); }
 		}
 
-
-		/// <summary>
-		/// The <see cref="Filters" /> property's name.
-		/// </summary>
-		public const string FiltersPropertyName = "Filters";
-
-		private List<TaskFilter> _filters = new List<TaskFilter>();
 
 		/// <summary>
 		/// Gets the Filters property.
@@ -299,11 +343,25 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get
 			{
 				return _archiveFileService.LoadingState ==
-					   TaskLoadingState.Ready;
+				       TaskLoadingState.Ready;
 			}
 		}
 
 		#region Commands
+
+		public RelayCommand ViewTaskDetailsCommand { get; private set; }
+
+		public RelayCommand SaveCurrentTaskCommand { get; private set; }
+
+		public RelayCommand RevertCurrentTaskCommand { get; private set; }
+
+		public RelayCommand AddTaskCommand { get; private set; }
+
+		public RelayCommand FilterByContextCommand { get; private set; }
+
+		public RelayCommand FilterByProjectCommand { get; private set; }
+
+		public RelayCommand ArchiveTasksCommand { get; private set; }
 
 		private bool CanViewTaskDetailsExecute()
 		{
@@ -316,27 +374,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private void WireUpCommands()
 		{
 			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
-			
+
 			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady);
 
 			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
-													  () => TaskFileServiceReady
-															&& SelectedTaskDraft != null);
+			                                          () => TaskFileServiceReady
+			                                                && SelectedTaskDraft != null);
 
-			FilterByContextCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByContext,
-																				 e =>
-																				 TaskFileServiceReady);
+			FilterByContextCommand = new RelayCommand(FilterByContext, () =>
+			                                                                     TaskFileServiceReady);
 
-			FilterByProjectCommand = new RelayCommand<SelectionChangedEventArgs>(FilterByProject,
-																				 e =>
-																				 TaskFileServiceReady);
+			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady);
 
 			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
-														() => TaskFileServiceReady
-															  && SelectedTaskDraft != null);
+			                                            () => TaskFileServiceReady
+			                                                  && SelectedTaskDraft != null);
 
 			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
-														() => TaskFileServiceReady && ArchiveFileServiceReady);
+			                                       () => TaskFileServiceReady && ArchiveFileServiceReady);
 		}
 
 		private void ArchiveTasks()
@@ -344,25 +399,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			// TODO Have setting for preserving line numbers
 			TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
 
-			foreach (var completedTask in completedTasks)
+			foreach (Task completedTask in completedTasks)
 			{
 				_archiveFileService.TaskList.Add(completedTask);
 			}
 		}
-
-		public RelayCommand ViewTaskDetailsCommand { get; private set; }
-
-		public RelayCommand SaveCurrentTaskCommand { get; private set; }
-
-		public RelayCommand RevertCurrentTaskCommand { get; private set; }
-
-		public RelayCommand AddTaskCommand { get; private set; }
-
-		public RelayCommand<SelectionChangedEventArgs> FilterByContextCommand { get; private set; }
-
-		public RelayCommand<SelectionChangedEventArgs> FilterByProjectCommand { get; private set; }
-
-		public RelayCommand ArchiveTasksCommand { get; private set; }
 
 		private void RevertCurrentTask()
 		{
@@ -376,25 +417,25 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		private void FilterByContext(SelectionChangedEventArgs e)
+		private void FilterByContext()
 		{
-			if (e.AddedItems.Count > 0)
-			{
-				string context = e.AddedItems[0].ToString();
+			string context = SelectedContext;
 
-				Filters.Add(new ContextTaskFilter(t => t.Contexts.Contains(context),  context));
+			if (!String.IsNullOrEmpty(context))
+			{
+				Filters.Add(new ContextTaskFilter(t => t.Contexts.Contains(context), context));
 
 				Messenger.Default.Send<DrillDownMessage, MainPivot>(
 					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
 			}
 		}
 
-		private void FilterByProject(SelectionChangedEventArgs e)
+		private void FilterByProject()
 		{
-			if (e.AddedItems.Count > 0)
-			{
-				string project = e.AddedItems[0].ToString();
+			string project = SelectedProject;
 
+			if (!String.IsNullOrEmpty(project))
+			{
 				Filters.Add(new ProjectTaskFilter(t => t.Projects.Contains(project), project));
 
 				Messenger.Default.Send<DrillDownMessage, MainPivot>(
@@ -422,9 +463,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			Messenger.Default.Send(new ViewTaskMessage());
 		}
 
-	/// <summary>
-	/// <see cref="ViewTask"/>
-	/// </summary>
 		private void SaveCurrentTask()
 		{
 			if (SelectedTask == null)
@@ -438,6 +476,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		}
 
 		#endregion
+
+		private void Filter(DrillDownMessage message)
+		{
+			Filters = TaskFilterFactory.ParseFilterString(message.Filter);
+		}
 
 		private void UpdateAvailablePriorities()
 		{

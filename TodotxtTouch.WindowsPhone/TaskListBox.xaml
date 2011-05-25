@@ -1,25 +1,33 @@
-﻿<UserControl x:Class="TodotxtTouch.WindowsPhone.TaskListBox" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" mc:Ignorable="d" FontFamily="{StaticResource PhoneFontFamilyNormal}" FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" d:DesignHeight="480" d:DesignWidth="480">
+﻿<UserControl x:Class="TodotxtTouch.WindowsPhone.TaskListBox" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:li="clr-namespace:TodotxtTouch.WindowsPhone.Interactivity" mc:Ignorable="d" FontFamily="{StaticResource PhoneFontFamilyNormal}" FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" d:DesignHeight="480" d:DesignWidth="480">
 	<UserControl.Resources></UserControl.Resources>
 
-	<Grid x:Name="LayoutRoot" Background="Transparent" >
-		<ListBox x:Name="TaskList" Margin="4,4" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
+	<Grid x:Name="LayoutRoot" Background="Transparent">
+		<ListBox x:Name="TaskList" Margin="4,4" HorizontalAlignment="Stretch" SelectionMode="Single" SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Grid x:Name="grid" Margin="5,5,5,15" HorizontalAlignment="Stretch">
 						<StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0,0,5,0">
 							<TextBlock Width="20" Text="{Binding Priority}" HorizontalAlignment="Left" />
 							<TextBlock HorizontalAlignment="Stretch" Text="{Binding Body}" TextWrapping="Wrap" Width="{Binding ActualWidth, ElementName=border}" />
+
 						</StackPanel>
-						<Border x:Name="border" HorizontalAlignment="Stretch" Width="Auto" Margin="20,0,0,0" 
-                                BorderThickness="0" />
+						<Border x:Name="border" HorizontalAlignment="Stretch" Width="Auto" Margin="20,0,0,0" BorderThickness="0" />
 					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 
+			<toolkit:GestureService.GestureListener>
+				<toolkit:GestureListener />
+			</toolkit:GestureService.GestureListener>
+
+			<i:Interaction.Behaviors>
+				<li:GestureBehavior />
+			</i:Interaction.Behaviors>
+
 			<i:Interaction.Triggers>
-				<i:EventTrigger EventName="SelectionChanged">
+				<li:TapTrigger>
 					<cmd:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
-				</i:EventTrigger>
+				</li:TapTrigger>
 			</i:Interaction.Triggers>
 		</ListBox>
 	</Grid>

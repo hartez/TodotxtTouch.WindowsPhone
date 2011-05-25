@@ -93,6 +93,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interactivity\GestureBehavior.cs" />
+    <Compile Include="Interactivity\TapTrigger.cs" />
+    <Compile Include="Interactivity\GestureTrigger.cs" />
     <Compile Include="ViewModel\ContextTaskFilter.cs" />
     <Compile Include="ViewModel\DrillDownMessage.cs" />
     <Compile Include="DropBoxLogin.xaml.cs">
