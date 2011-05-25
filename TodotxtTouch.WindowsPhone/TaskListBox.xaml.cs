@@ -18,7 +18,14 @@ namespace TodotxtTouch.WindowsPhone
 		/// Identifies the ItemsSource dependency property.
 		/// </summary>
 		public static DependencyProperty ItemsSourceProperty =
-			DependencyProperty.Register("ItemsSource", typeof (IEnumerable), typeof (TaskListBox), new PropertyMetadata(new PropertyChangedCallback(ItemsSourceChanged)));
+			DependencyProperty.Register("ItemsSource", typeof (IEnumerable), typeof (TaskListBox),
+			                            new PropertyMetadata(new PropertyChangedCallback(ItemsSourceChanged)));
+
+		public IEnumerable ItemsSource
+		{
+			get { return (IEnumerable) TaskList.GetValue(ItemsControl.ItemsSourceProperty); }
+			set { TaskList.SetValue(ItemsControl.ItemsSourceProperty, value); }
+		}
 
 		private static void ItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -33,12 +40,6 @@ namespace TodotxtTouch.WindowsPhone
 		public void SetItemsSource(Object newValue)
 		{
 			TaskList.SetValue(ItemsControl.ItemsSourceProperty, newValue);
-		}
-
-		public IEnumerable ItemsSource
-		{
-			get { return (IEnumerable)TaskList.GetValue(ItemsControl.ItemsSourceProperty); }
-			set { TaskList.SetValue(ItemsControl.ItemsSourceProperty, value); }
 		}
 
 		#endregion public IEnumerable ItemsSource

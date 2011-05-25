@@ -8,8 +8,8 @@
 		<!--Pivot Control-->
 		<controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot">
 			<!--Pivot item all-->
-			<controls:PivotItem Header="all">
-				<WindowsPhone:TaskListBox ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
+			<controls:PivotItem Header="all" x:Name="AllTasksPivotItem">
+				<WindowsPhone:TaskListBox x:Name="AllTasksList" ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
 			</controls:PivotItem>
 
 			<!--Pivot item contexts-->
@@ -86,7 +86,10 @@
 	<phone:PhoneApplicationPage.ApplicationBar>
 		<shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
 			<shell:ApplicationBarIconButton IconUri="/Images/add.png" x:Name="fAddButton" Text="add" />
-			<shell:ApplicationBar.MenuItems>
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.manage.rest.png"
+                                            x:Name="MultiSelect"
+                                            Text="select" />
+            <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>
             </shell:ApplicationBar.MenuItems>
 		</shell:ApplicationBar>

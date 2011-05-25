@@ -28,8 +28,14 @@ namespace TodotxtTouch.WindowsPhone
 			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
 				
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
+			((ApplicationBarIconButton)ApplicationBar.Buttons[1]).Click += MultiSelect_Click;
 
 			Loaded += MainPage_Loaded;
+		}
+
+		private void MultiSelect_Click(object sender, EventArgs e)
+		{
+			((MainViewModel)DataContext).ToggleMultiSelectCommand.Execute(null);
 		}
 
 		private void DrillDown(DrillDownMessage message)
@@ -82,7 +88,6 @@ namespace TodotxtTouch.WindowsPhone
 			TaskPivot.Visibility = Visibility.Visible;
 			ApplicationBar.IsVisible = true;
 		}
-
 
 		private void LoadingStateChanged(TaskLoadingState taskLoadingState)
 		{

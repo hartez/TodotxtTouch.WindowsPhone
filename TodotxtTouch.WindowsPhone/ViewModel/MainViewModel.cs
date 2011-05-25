@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Controls;
 using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -60,6 +59,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public const string ApplicationTitlePropertyName = "ApplicationTitle";
 
+		/// <summary>
+		/// The <see cref="Filters" /> property's name.
+		/// </summary>
+		public const string FiltersPropertyName = "Filters";
+
 		#endregion
 
 		#region Backing fields
@@ -69,20 +73,14 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private readonly TaskFileService _taskFileService;
 		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+		private List<TaskFilter> _filters = new List<TaskFilter>();
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
+		private String _selectedContext;
+		private String _selectedProject;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
 
 		#endregion
-
-		/// <summary>
-		/// The <see cref="Filters" /> property's name.
-		/// </summary>
-		public const string FiltersPropertyName = "Filters";
-
-		private List<TaskFilter> _filters = new List<TaskFilter>();
-		private String _selectedContext;
-		private String _selectedProject;
 
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
@@ -268,7 +266,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-
 		/// <summary>
 		/// Gets the ApplicationTitle property.
 		/// </summary>
@@ -292,6 +289,37 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get { return _taskFileService.TaskList; }
 		}
 
+		/// <summary>
+		/// The <see cref="MultiSelectMode" /> property's name.
+		/// </summary>
+		public const string MultiSelectModePropertyName = "MultiSelectMode";
+
+		private bool _multiSelectMode = false;
+
+		/// <summary>
+		/// Gets the MultiSelectMode property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public bool MultiSelectMode
+		{
+			get { return _multiSelectMode; }
+
+			set
+			{
+				if (_multiSelectMode == value)
+				{
+					return;
+				}
+
+				_multiSelectMode = value;
+
+				// Update bindings, no broadcast
+				RaisePropertyChanged(MultiSelectModePropertyName);
+
+				Debug.WriteLine("MultiSelectMode changed to " + _multiSelectMode);
+			}
+		}
+
 		public IEnumerable<Task> AllTasks
 		{
 			get { return TaskList.AsEnumerable().ApplyFilters(Filters); }
@@ -301,7 +329,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters); }
 		}
-
 
 		/// <summary>
 		/// Gets the Filters property.
@@ -363,9 +390,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand ArchiveTasksCommand { get; private set; }
 
+		public RelayCommand ToggleMultiSelectCommand { get; private set; }
+
 		private bool CanViewTaskDetailsExecute()
 		{
-			bool canExecute = TaskFileServiceReady && SelectedTask != null;
+			bool canExecute = TaskFileServiceReady && SelectedTask != null && !MultiSelectMode;
 			Debug.WriteLine(string.Format("ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot")));
 
 			return canExecute;
@@ -375,23 +404,25 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
 
-			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady);
+			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady && !MultiSelectMode);
 
 			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
 			                                          () => TaskFileServiceReady
 			                                                && SelectedTaskDraft != null);
 
 			FilterByContextCommand = new RelayCommand(FilterByContext, () =>
-			                                                                     TaskFileServiceReady);
+			                                                           TaskFileServiceReady && !MultiSelectMode);
 
-			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady);
+			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady && !MultiSelectMode);
 
 			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
 			                                            () => TaskFileServiceReady
 			                                                  && SelectedTaskDraft != null);
 
 			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
-			                                       () => TaskFileServiceReady && ArchiveFileServiceReady);
+			                                       () => TaskFileServiceReady && ArchiveFileServiceReady && !MultiSelectMode);
+
+			ToggleMultiSelectCommand = new RelayCommand(() => MultiSelectMode = !MultiSelectMode, () => TaskFileServiceReady);
 		}
 
 		private void ArchiveTasks()
