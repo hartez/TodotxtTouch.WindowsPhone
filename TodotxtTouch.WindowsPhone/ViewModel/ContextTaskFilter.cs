@@ -22,5 +22,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			get { return _context; }
 		}
+
+		public override string Target
+		{
+			get { return _context; }
+		}
 	}
 }

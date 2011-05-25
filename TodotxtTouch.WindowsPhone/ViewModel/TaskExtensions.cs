@@ -13,6 +13,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			task.Body = newTask.Body;
 			task.Completed = newTask.Completed;
+			task.Priority = newTask.Priority;
 		}
 	}
 }

@@ -121,6 +121,7 @@
     <Compile Include="ViewModel\TaskExtensions.cs" />
     <Compile Include="Service\TaskFileService.cs" />
     <Compile Include="ViewModel\TaskFilter.cs" />
+    <Compile Include="ViewModel\TaskFilterExtensions.cs" />
     <Compile Include="ViewModel\TaskFilterFactory.cs" />
     <Compile Include="ViewModel\TaskListExtensions.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />

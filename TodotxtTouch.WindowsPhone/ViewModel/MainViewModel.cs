@@ -406,7 +406,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			SelectedTask = null;
 
-			SelectedTaskDraft = new Task(String.Empty, null, null, String.Empty);
+			SelectedTaskDraft = new Task(String.Empty, null, null, Filters.CreateDefaultBodyText());
 
 			UpdateAvailablePriorities();
 
@@ -422,6 +422,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			Messenger.Default.Send(new ViewTaskMessage());
 		}
 
+	/// <summary>
+	/// <see cref="ViewTask"/>
+	/// </summary>
 		private void SaveCurrentTask()
 		{
 			if (SelectedTask == null)

@@ -15,10 +15,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		
 		public override string ToString()
 		{
-			return "context:" + _project;
+			return "project:" + _project;
 		}
 
 		public override string Description
+		{
+			get { return _project; }
+		}
+
+		public override string Target
 		{
 			get { return _project; }
 		}

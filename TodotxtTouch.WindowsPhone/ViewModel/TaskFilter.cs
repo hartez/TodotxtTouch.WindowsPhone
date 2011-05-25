@@ -12,5 +12,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public Func<Task, bool> Filter { get; private set; }
 		public abstract String Description { get; }
+
+		public abstract String Target { get; }
 	}
 }

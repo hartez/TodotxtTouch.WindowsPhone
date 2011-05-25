@@ -25,11 +25,7 @@ namespace TodotxtTouch.WindowsPhone
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 				this, message => HideLogin());
 
-
-			// TODO Change drill-down to work off of URI instead of Observable Stack
-			// otherwise, reloading the app doesn't work correctly
 			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
-
 				
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
 
