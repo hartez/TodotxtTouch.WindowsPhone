@@ -12,5 +12,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			return filters.Aggregate(filterResults, (current, taskFilter) => current.Where(taskFilter.Filter));
 		}
+
+		public static IEnumerable<Task> ApplySorts(this IEnumerable<Task> taskList)
+		{
+			return taskList.OrderByDescending(task => task.IsPriority)
+				.ThenBy(task => task.Priority)
+				.ThenBy(task => task.Completed)
+				.ThenBy(task => task.Body.ToLower()); ;
+		}
 	}
 }

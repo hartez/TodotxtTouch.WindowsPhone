@@ -322,12 +322,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public IEnumerable<Task> AllTasks
 		{
-			get { return TaskList.AsEnumerable().ApplyFilters(Filters); }
+			get { return TaskList.AsEnumerable().ApplyFilters(Filters).ApplySorts(); }
 		}
 
 		public IEnumerable<Task> CompletedTasks
 		{
-			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters); }
+			get { return TaskList.Where(t => t.Completed).ApplyFilters(Filters).ApplySorts(); }
 		}
 
 		/// <summary>
