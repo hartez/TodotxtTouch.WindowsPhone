@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" mc:Ignorable="d"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:pt="clr-namespace:AgiliTrain.PhoneyTools;assembly=AgiliTrain.PhoneyTools" mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -13,12 +13,23 @@
         <TextBlock HorizontalAlignment="Stretch" 
                    TextAlignment="Center"
                    Text="Login to DropBox"></TextBlock>
-        <TextBox Height="72" HorizontalAlignment="Stretch" Margin="0,70,0,0" 
-                 Name="Username" Text="{Binding Username, Mode=TwoWay}" 
-                 VerticalAlignment="Top" Width="Auto" />
+        <TextBox Height="72"
+                 HorizontalAlignment="Stretch"
+                 Margin="0,70,0,0"
+                 Name="Username"
+                 Text="{Binding Username, Mode=TwoWay}"
+                 VerticalAlignment="Top"
+                 Width="Auto">
+
+            <pt:InputPanelProvider.Requirements>
+                <pt:InputPanelRequirements  SpecialKeys="Email"
+                                             />
+            </pt:InputPanelProvider.Requirements>
+
+        </TextBox>
         <TextBox Height="72" HorizontalAlignment="Stretch" Margin="0,181,0,0" 
                  Name="Password" Text="{Binding Password, Mode=TwoWay}" 
-                 VerticalAlignment="Top" Width="Auto" />
+                 VerticalAlignment="Top" Width="Auto"  />
         <Button Content="Go" Height="72" HorizontalAlignment="Center" 
                     Margin="0,294,0,0" Name="LoginButton" VerticalAlignment="Top" Width="160">
             <i:Interaction.Triggers>
