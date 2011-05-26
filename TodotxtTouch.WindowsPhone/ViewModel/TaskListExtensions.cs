@@ -18,7 +18,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			return taskList.OrderByDescending(task => task.IsPriority)
 				.ThenBy(task => task.Priority)
 				.ThenBy(task => task.Completed)
-				.ThenBy(task => task.Body.ToLower()); ;
+				.ThenBy(task => task.Body.ToLower()); 
 		}
 	}
 }

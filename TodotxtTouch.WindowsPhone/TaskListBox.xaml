@@ -7,12 +7,12 @@
              xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" 
              xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" 
              xmlns:li="clr-namespace:TodotxtTouch.WindowsPhone.Interactivity" 
-             xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools" 
-             mc:Ignorable="d" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
+             xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools" xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" mc:Ignorable="d" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
              FontSize="{StaticResource PhoneFontSizeNormal}" 
              Foreground="{StaticResource PhoneForegroundBrush}" d:DesignHeight="480" d:DesignWidth="480">
 	<UserControl.Resources>
         <Converters:VisibilityConverter x:Key="VisibilityConverter"></Converters:VisibilityConverter>
+        <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
 	</UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot" Background="Transparent">
@@ -30,9 +30,9 @@
                                       Visibility="{Binding ElementName=TaskList, Path=DataContext.MultiSelectMode, Converter={StaticResource VisibilityConverter}}"
                                       ></CheckBox>
 
-                            <TextBlock Width="20" Text="{Binding Priority}" HorizontalAlignment="Left" />
-							<TextBlock HorizontalAlignment="Stretch" Text="{Binding Body}" 
-                                       TextWrapping="Wrap" Width="{Binding ActualWidth, ElementName=border}" />
+							<TextBlock HorizontalAlignment="Stretch" Text="{Binding Converter={StaticResource TaskValueConverter}}" 
+                                       TextWrapping="Wrap" Width="{Binding ActualWidth, ElementName=border}"
+                                       Foreground="{Binding Converter={StaticResource TaskValueConverter}}"/>
 
 						</StackPanel>
 						<Border x:Name="border" HorizontalAlignment="Stretch" Width="Auto" Margin="20,0,0,0" BorderThickness="0" />
