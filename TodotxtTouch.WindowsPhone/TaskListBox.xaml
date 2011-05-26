@@ -16,27 +16,26 @@
 	</UserControl.Resources>
 
 	<Grid x:Name="LayoutRoot" Background="Transparent">
-		<ListBox x:Name="TaskList" Margin="4,4" HorizontalAlignment="Stretch"
-                 
-                 SelectionMode="Single" SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
+		<ListBox x:Name="TaskList"               
+                 SelectionMode="Single" 
+                 SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
+                 VirtualizingStackPanel.VirtualizationMode="Recycling">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-                   
-					<Grid x:Name="grid" Margin="5,5,5,15" HorizontalAlignment="Stretch">
-                        
-						<StackPanel Grid.Column="1" HorizontalAlignment="Stretch" 
-                                    Orientation="Horizontal" Margin="0,0,5,0">
-                            <CheckBox Grid.Column="0"
-                                      Visibility="{Binding ElementName=TaskList, Path=DataContext.MultiSelectMode, Converter={StaticResource VisibilityConverter}}"
-                                      ></CheckBox>
+						<StackPanel 
+                                    Orientation="Horizontal" Margin="10,10"
+                               >
+                 
+                            <CheckBox 
+                                      Visibility="{Binding ElementName=TaskList, 
+                                        Path=DataContext.MultiSelectMode, 
+                                        Converter={StaticResource VisibilityConverter}}"/>
 
-							<TextBlock HorizontalAlignment="Stretch" Text="{Binding Converter={StaticResource TaskValueConverter}}" 
-                                       TextWrapping="Wrap" Width="{Binding ActualWidth, ElementName=border}"
-                                       Foreground="{Binding Converter={StaticResource TaskValueConverter}}"/>
-
-						</StackPanel>
-						<Border x:Name="border" HorizontalAlignment="Stretch" Width="Auto" Margin="20,0,0,0" BorderThickness="0" />
-					</Grid>
+                            <TextBlock Text="{Binding Converter={StaticResource TaskValueConverter}}"
+                                   TextWrapping="Wrap"
+                                   Width="400"
+                                   Foreground="{Binding Converter={StaticResource TaskValueConverter}}"/>
+                    </StackPanel>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 

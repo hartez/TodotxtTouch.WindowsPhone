@@ -10,6 +10,12 @@ namespace TodotxtTouch.WindowsPhone
 		public TaskListBox()
 		{
 			InitializeComponent();
+			Loaded += new RoutedEventHandler(TaskListBox_Loaded);
+		}
+
+		void TaskListBox_Loaded(object sender, RoutedEventArgs e)
+		{
+			this.TaskList.Width = System.Windows.Application.Current.Host.Content.ActualWidth;
 		}
 
 		#region public IEnumerable ItemsSource
