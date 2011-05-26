@@ -6,7 +6,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	{
 		public static Task Copy(this Task task)
 		{
-			return new Task(task.Raw);
+			return new Task(task.ToString());
 		}
 
 		public static void UpdateTo(this Task task, Task newTask)

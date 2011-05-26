@@ -6,6 +6,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using TodotxtTouch.WindowsPhone.ViewModel;
@@ -21,6 +22,8 @@ namespace TodotxtTouch.WindowsPhone
 		/// </summary>
 		public App()
 		{
+			Startup += new StartupEventHandler(App_Startup);
+
 			// Global handler for uncaught exceptions. 
 			UnhandledException += Application_UnhandledException;
 
@@ -43,6 +46,11 @@ namespace TodotxtTouch.WindowsPhone
 
 			// Phone-specific initialization
 			InitializePhoneApplication();
+		}
+
+		void App_Startup(object sender, StartupEventArgs e)
+		{
+			DispatcherHelper.Initialize();
 		}
 
 		/// <summary>

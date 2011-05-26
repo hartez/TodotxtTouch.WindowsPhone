@@ -130,7 +130,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void ResumeChangeObserver()
 		{
-			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 100))
+			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 50))
 				.Subscribe(e => SaveTasks());
 		}
 
@@ -317,6 +317,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.OpenOrCreate, FileAccess.Write))
 				{
 					TaskList.SaveTasks(file);
+
+					// TODO Make local has changes get tombstoned so we can sync anything we missed
+					// last time we got deactivated
 					_localHasChanges = true;
 				}
 			}

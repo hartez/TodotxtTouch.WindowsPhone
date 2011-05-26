@@ -15,7 +15,6 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 		{
 			var task = value as Task;
 
-
 			if (task != null)
 			{
 				if (targetType == typeof (String))
@@ -56,7 +55,7 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			throw new NotImplementedException();
+			return value;
 		}
 
 		#endregion

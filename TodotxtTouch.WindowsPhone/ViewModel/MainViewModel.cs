@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Reactive;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Service;
@@ -170,6 +172,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 				// Update bindings and broadcast change using GalaSoft.MvvmLight.Messenging
 				RaisePropertyChanged(LoadingStatePropertyName, oldValue, value, true);
+
+				Busy = _loadingState == TaskLoadingState.Syncing;
 			}
 		}
 
@@ -555,6 +559,36 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				{
 					SelectedTask = selectedTask;
 				}
+			}
+		}
+
+		/// <summary>
+		/// The <see cref="Busy" /> property's name.
+		/// </summary>
+		public const string BusyPropertyName = "Busy";
+
+		private bool _busy = false;
+
+		/// <summary>
+		/// Gets the Busy property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public bool Busy
+		{
+			get { return _busy; }
+
+			set
+			{
+				if (_busy == value)
+				{
+					return;
+				}
+
+				_busy = value;
+
+				// Update bindings, no broadcast
+				// On UI thread, so the "busy" indicator can do it's thing
+				DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(BusyPropertyName));
 			}
 		}
 	}

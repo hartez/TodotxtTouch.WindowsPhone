@@ -96,6 +96,7 @@
     <Compile Include="Interactivity\GestureBehavior.cs" />
     <Compile Include="Interactivity\TapTrigger.cs" />
     <Compile Include="Interactivity\GestureTrigger.cs" />
+    <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
     <Compile Include="ViewModel\ContextTaskFilter.cs" />
     <Compile Include="ViewModel\DrillDownMessage.cs" />
