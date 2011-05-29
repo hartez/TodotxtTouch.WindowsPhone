@@ -22,10 +22,7 @@
                  VirtualizingStackPanel.VirtualizationMode="Recycling">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-						<StackPanel 
-                                    Orientation="Horizontal" Margin="10,10"
-                               >
-                 
+						<StackPanel Orientation="Horizontal" Margin="10,10">
                             <CheckBox 
                                       Visibility="{Binding ElementName=TaskList, 
                                         Path=DataContext.MultiSelectMode, 

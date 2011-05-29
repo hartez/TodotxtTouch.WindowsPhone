@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using EZLibrary;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
-namespace TodotxtTouch.WindowsPhone.ViewModel
+namespace TodotxtTouch.WindowsPhone.Tasks
 {
 	public class TaskFilterFactory
 	{

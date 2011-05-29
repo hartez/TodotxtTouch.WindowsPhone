@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -12,6 +11,7 @@ using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Reactive;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Service;
+using TodotxtTouch.WindowsPhone.Tasks;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
@@ -70,11 +70,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		#region Backing fields
 
-		private readonly TaskFileService _archiveFileService;
+		private TaskFileService _archiveFileService;
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
-		private readonly IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
-		private readonly TaskFileService _taskFileService;
-		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+		private IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
+		private TaskFileService _taskFileService;
+		private IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
 		private List<TaskFilter> _filters = new List<TaskFilter>();
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
 		private String _selectedContext;
@@ -87,7 +87,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
 		/// </summary>
-		public MainViewModel(TaskFileService taskFileService, TaskFileService archiveFileService)
+		public MainViewModel(PrimaryTaskFileService taskFileService, ArchiveTaskFileService archiveFileService)
 		{
 			if (IsInDesignMode)
 			{
@@ -109,29 +109,35 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			else
 			{
 				// Code runs "for real"
-				_taskFileService = taskFileService;
-				_archiveFileService = archiveFileService;
-
-				_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
-					_taskFileService, "LoadingStateChanged");
-
-				_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
-
-				_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
-					_taskFileService, "TaskListChanged");
-
-				_taskListChangedObserver.Subscribe(e =>
-					{
-						RaisePropertyChanged(AllTasksPropertyName);
-						RaisePropertyChanged(CompletedTasksPropertyName);
-						RaisePropertyChanged(ContextsPropertyName);
-						RaisePropertyChanged(ProjectsPropertyName);
-					});
+				WireupTaskFileServices(taskFileService, archiveFileService);
 
 				Messenger.Default.Register<DrillDownMessage>(this, Filter);
 
 				WireUpCommands();
 			}
+		}
+
+		public void WireupTaskFileServices(PrimaryTaskFileService ptfs, ArchiveTaskFileService atfs)
+		{
+			_archiveFileService = atfs;
+
+			_taskFileService = ptfs;
+
+			_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
+				_taskFileService, "LoadingStateChanged");
+
+			_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
+
+			_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
+				_taskFileService, "TaskListChanged");
+
+			_taskListChangedObserver.Subscribe(e =>
+			{
+				RaisePropertyChanged(AllTasksPropertyName);
+				RaisePropertyChanged(CompletedTasksPropertyName);
+				RaisePropertyChanged(ContextsPropertyName);
+				RaisePropertyChanged(ProjectsPropertyName);
+			});
 		}
 
 		public IEnumerable<String> Projects

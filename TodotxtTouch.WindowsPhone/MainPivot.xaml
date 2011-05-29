@@ -13,7 +13,7 @@
 
         <!--Pivot Control-->
 		<controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot" 
-                        Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.5}">
+                        Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.2}">
 			<!--Pivot item all-->
 			<controls:PivotItem Header="all" x:Name="AllTasksPivotItem">
 				<WindowsPhone:TaskListBox x:Name="AllTasksList" ItemsSource="{Binding AllTasks}"></WindowsPhone:TaskListBox>
@@ -97,6 +97,8 @@
                                             x:Name="MultiSelect"
                                             Text="select" />
             <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Click="SettingsClick"
+                                              Text="Settings" />
                 <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>
             </shell:ApplicationBar.MenuItems>
 		</shell:ApplicationBar>

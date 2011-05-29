@@ -68,6 +68,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			if (IsAuthenticated)
 			{
 				_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+				Connected = true;
 			}
 			else if (HasLoginCredentials)
 			{
@@ -243,10 +244,5 @@ namespace TodotxtTouch.WindowsPhone.Service
 				_dropNetClient.GetFileAsync(path, callback);
 			}
 		}
-	}
-
-	public class DropBoxServiceConnectedChangedEventArgs : EventArgs
-	{
-		
 	}
 }

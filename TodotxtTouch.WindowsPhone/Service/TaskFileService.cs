@@ -15,22 +15,37 @@ using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
-	public class TaskFileService
+	public abstract class TaskFileService
 	{
 		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
 		private readonly TaskList _taskList = new TaskList();
-		private readonly string _taskFileName;
 		private IDisposable _changeSubscription;
 		private readonly DropBoxService _dropBoxService;
+		protected readonly ApplicationSettings Settings;
 
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
-		private bool _localHasChanges;
+		// TODO Local last modified should work like LocalHasChanges - needs to survive deactivate/reactivate
 		private DateTime? _localLastModified;
 
-		public TaskFileService(DropBoxService dropBoxService, string taskFileName)
+		private bool LocalHasChanges
+		{
+			get
+			{
+				bool hasChanges;
+				if(IsolatedStorageSettings.ApplicationSettings.TryGetValue(GetFileName() + "haschanges", out hasChanges))
+				{
+					return hasChanges;
+				}
+
+				return false;
+			}
+			set { IsolatedStorageSettings.ApplicationSettings[GetFileName() + "haschanges"] = value; }
+		}
+
+		public TaskFileService(DropBoxService dropBoxService, ApplicationSettings settings)
 		{
 			_dropBoxService = dropBoxService;
-			this._taskFileName = taskFileName;
+			Settings = settings;
 
 			_taskList.CollectionChanged += TaskListCollectionChanged;
 
@@ -43,20 +58,27 @@ namespace TodotxtTouch.WindowsPhone.Service
 					{
 						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							Debug.WriteLine("State is NotLoaded; checking for local file");
+							Debug.WriteLine(string.Format("State is NotLoaded; checking for local file {0}", GetFileName()));
 
 							if (LocalFileExists)
 							{
-								Debug.WriteLine("Local file exists; loading it up");
+								Debug.WriteLine(string.Format("Local file {0} exists; loading it up", GetFileName()));
 								LoadTasks();
 							}
+
+							InitiateSync();
 						}
 					});
 		}
 
 		void DropBoxServiceConnectedChanged(object sender, DropBoxServiceConnectedChangedEventArgs e)
 		{
-			if(_dropBoxService.Connected)
+			InitiateSync();
+		}
+
+		private void InitiateSync()
+		{
+			if (_dropBoxService.Connected && LoadingState != TaskLoadingState.Syncing)
 			{
 				// We just got connected - synchronize
 				Sync();
@@ -115,10 +137,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
-					return appStorage.FileExists(_taskFileName);
+					return appStorage.FileExists(GetFileName());
 				}
 			}
 		}
+
+		protected abstract String GetFilePath();
+		protected abstract String GetFileName();
 
 		private void PauseChangeObserver()
 		{
@@ -169,12 +194,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void GetRemoteMetaData(Action<RestResponse<MetaData>> metaDataCallback)
 		{
-			_dropBoxService.GetMetaData("/todo/" + _taskFileName, metaDataCallback);
+			_dropBoxService.GetMetaData(GetFilePath() + GetFileName(), metaDataCallback);
 		}
 
 		private void Sync()
 		{
-			Debug.WriteLine(string.Format("Changing state to Syncing: {0}", _taskFileName));
+			Debug.WriteLine(string.Format("Changing state to Syncing: {0}", GetFileName()));
 
 			LoadingState = TaskLoadingState.Syncing;
 
@@ -204,17 +229,17 @@ namespace TodotxtTouch.WindowsPhone.Service
 			if (LocalLastModified.HasValue)
 			{
 				//	If local.Retrieved <= remote.LastUpdated and local has no changes, replace local with remote (local.Retrieved = remote.LastUpdated)
-				if (LocalLastModified.Value.CompareTo(remoteLastModified) < 1 && !_localHasChanges)
+				if (LocalLastModified.Value.CompareTo(remoteLastModified) < 1 && !LocalHasChanges)
 				{
 					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteLastModified;
 					UseRemoteFile(remoteLastModified);
 				}
-				else if (LocalLastModified.Value.CompareTo(remoteLastModified) < 0 && _localHasChanges)
+				else if (LocalLastModified.Value.CompareTo(remoteLastModified) < 0 && LocalHasChanges)
 				{
 					//If local.Retrieved < remote.LastUpdated and local has changes, merge (???) or maybe just upload local to conflicted file?
 					Merge();
 				}
-				else if (LocalLastModified.Value.CompareTo(remoteLastModified) == 0 && _localHasChanges)
+				else if (LocalLastModified.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
 				{
 					//If local.Retrieved == remote.LastUpdate and local has changes, upload local
 					PushLocal();
@@ -230,21 +255,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
 				{
 					var bytes = new byte[file.Length];
 					file.Read(bytes, 0, (int) file.Length);
 
-					_dropBoxService.Upload("/todo", _taskFileName, bytes, (response) =>
+					_dropBoxService.Upload("/todo", GetFileName(), bytes, (response) =>
 						{
 							if (response.ErrorException == null)
 							{
 								GetRemoteMetaData((metaDataResponse) =>
 									{
-										_localHasChanges = false;
+										LocalHasChanges = false;
 										LocalLastModified = metaDataResponse.Data.UTCDateModified;
 
-										Debug.WriteLine(string.Format("Changing state to Ready: {0}", _taskFileName));
+										Debug.WriteLine(string.Format("Changing state to Ready: {0}", GetFileName()));
 
 										LoadingState = TaskLoadingState.Ready;
 									});
@@ -261,7 +286,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			// Get the remote, merge, push local
 
 
-			_dropBoxService.GetFile("/todo/" + _taskFileName,
+			_dropBoxService.GetFile(GetFilePath() + GetFileName(),
 			                        (response) =>
 			                        	{
 			                        		if (response.ErrorException == null)
@@ -297,13 +322,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
 				{
 					PauseChangeObserver();
 					TaskList.LoadTasks(file);
 					ResumeChangeObserver();
 
-					Debug.WriteLine(string.Format("Changing state to Ready: {0}", _taskFileName));
+					Debug.WriteLine(string.Format("Changing state to Ready: {0}", GetFileName()));
 
 					LoadingState = TaskLoadingState.Ready;
 				}
@@ -314,16 +339,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.OpenOrCreate, FileAccess.Write))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.OpenOrCreate, FileAccess.Write))
 				{
 					TaskList.SaveTasks(file);
-
-					// TODO Make local has changes get tombstoned so we can sync anything we missed
-					// last time we got deactivated
-					_localHasChanges = true;
 				}
 			}
 
+			LocalHasChanges = true;
 			Sync();
 		}
 
@@ -331,7 +353,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(_taskFileName, FileMode.OpenOrCreate))
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.OpenOrCreate))
 				{
 					using (var writer = new StreamWriter(file))
 					{
@@ -342,13 +364,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 
 			LocalLastModified = remoteModifiedTime;
-			_localHasChanges = false;
+			LocalHasChanges = false;
 			LoadTasks();
 		}
 
 		private void UseRemoteFile(DateTime remoteModifiedTime)
 		{
-			_dropBoxService.GetFile("/todo/" + _taskFileName,
+			_dropBoxService.GetFile(GetFilePath() + GetFileName(),
 			                        (response) => OverwriteWithRemoteFile(response, remoteModifiedTime));
 		}
 
@@ -376,5 +398,39 @@ namespace TodotxtTouch.WindowsPhone.Service
 		}
 
 		#endregion
+	}
+
+	public class PrimaryTaskFileService : TaskFileService
+	{
+		public PrimaryTaskFileService(DropBoxService dropBoxService, ApplicationSettings settings) : base(dropBoxService, settings)
+		{
+		}
+
+		protected override string GetFilePath()
+		{
+			return Settings.TodoFilePath;
+		}
+
+		protected override string GetFileName()
+		{
+			return Settings.TodoFileName;
+		}
+	}
+
+	public class ArchiveTaskFileService : TaskFileService
+	{
+		public ArchiveTaskFileService(DropBoxService dropBoxService, ApplicationSettings settings) : base(dropBoxService, settings)
+		{
+		}
+
+		protected override string GetFilePath()
+		{
+			return Settings.ArchiveFilePath;
+		}
+
+		protected override string GetFileName()
+		{
+			return Settings.ArchiveFileName;
+		}
 	}
 }

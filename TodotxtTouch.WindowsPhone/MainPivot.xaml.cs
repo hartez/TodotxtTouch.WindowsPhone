@@ -113,6 +113,11 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			((MainViewModel)DataContext).ArchiveTasksCommand.Execute(null);
 		}
+
+		private void SettingsClick(object sender, EventArgs e)
+		{
+			NavigationService.Navigate(new Uri("/ApplicationSettingsPage.xaml", UriKind.Relative));
+		}
 	}
 }
 

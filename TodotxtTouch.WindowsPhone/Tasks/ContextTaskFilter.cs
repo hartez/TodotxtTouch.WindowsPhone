@@ -1,7 +1,7 @@
 ﻿using System;
 using todotxtlib.net;
 
-namespace TodotxtTouch.WindowsPhone.ViewModel
+namespace TodotxtTouch.WindowsPhone.Tasks
 {
 	public class ContextTaskFilter : TaskFilter
 	{
