@@ -12,40 +12,38 @@
   See http://www.galasoft.ch/mvvm
 */
 
-using System;
-using System.Collections.ObjectModel;
-using GalaSoft.MvvmLight;
+using System.Diagnostics.CodeAnalysis;
 using GalaSoft.MvvmLight.Messaging;
 using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-    /// <summary>
-    /// This class contains static references to all the view models in the
-    /// application and provides an entry point for the bindings.
-    /// </summary>
-    public class ViewModelLocator
-    {
-        private static MainViewModel _main;
-    	private static DropBoxCredentialsViewModel _dropBoxCredentials;
+	/// <summary>
+	/// This class contains static references to all the view models in the
+	/// application and provides an entry point for the bindings.
+	/// </summary>
+	public class ViewModelLocator
+	{
+		private static MainViewModel _main;
+		private static DropBoxCredentialsViewModel _dropBoxCredentials;
 		private static ApplicationSettingsViewModel _applicationSettingsViewModel;
-    	private static DropBoxService _dropBoxService;
+		private static DropBoxService _dropBoxService;
 
-        /// <summary>
-        /// Initializes a new instance of the ViewModelLocator class.
-        /// </summary>
-        public ViewModelLocator()
-        {
-            ////if (ViewModelBase.IsInDesignModeStatic)
-            ////{
-            ////    // Create design time services and viewmodels
-            ////}
-            ////else
-            ////{
-            ////    // Create run time services and view models
-            ////}
+		/// <summary>
+		/// Initializes a new instance of the ViewModelLocator class.
+		/// </summary>
+		public ViewModelLocator()
+		{
+			////if (ViewModelBase.IsInDesignModeStatic)
+			////{
+			////    // Create design time services and viewmodels
+			////}
+			////else
+			////{
+			////    // Create run time services and view models
+			////}
 			_dropBoxService = new DropBoxService();
-        	var settings = new ApplicationSettings();
+			var settings = new ApplicationSettings();
 
 			_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
 
@@ -53,64 +51,55 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			_dropBoxCredentials = new DropBoxCredentialsViewModel(_dropBoxService);
 
-        	Initialize(settings);
-        }
+			Initialize(settings);
+		}
 
-    	private void Initialize(ApplicationSettings settings)
-    	{
-			var ptfs = new PrimaryTaskFileService(_dropBoxService, settings);
-			var atfs = new ArchiveTaskFileService(_dropBoxService, settings);
-
-			if(_main == null)
-			{
-				_main = new MainViewModel(ptfs, atfs);
-			}
-			else
-			{
-				_main.WireupTaskFileServices(ptfs, atfs);	
-			}
-    	}
-
-    	/// <summary>
-        /// Gets the Main property which defines the main viewmodel.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
-            "CA1822:MarkMembersAsStatic",
-            Justification = "This non-static member is needed for data binding purposes.")]
-        public MainViewModel Main
-        {
-            get
-            {
-                return _main;
-            }
-        }
+		/// <summary>
+		/// Gets the Main property which defines the main viewmodel.
+		/// </summary>
+		[SuppressMessage("Microsoft.Performance",
+			"CA1822:MarkMembersAsStatic",
+			Justification = "This non-static member is needed for data binding purposes.")]
+		public MainViewModel Main
+		{
+			get { return _main; }
+		}
 
 		/// <summary>
 		/// Gets the ApplicationSettings property which defines the dropbox credentials viewmodel.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
 		public DropBoxCredentialsViewModel DropBoxCredentials
 		{
-			get
-			{
-				return _dropBoxCredentials;
-			}
+			get { return _dropBoxCredentials; }
 		}
 
 		/// <summary>
 		/// Gets the ApplicationSettings property which defines the application settings viewmodel.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
 		public ApplicationSettingsViewModel ApplicationSettings
 		{
-			get
+			get { return _applicationSettingsViewModel; }
+		}
+
+		private void Initialize(ApplicationSettings settings)
+		{
+			var ptfs = new PrimaryTaskFileService(_dropBoxService, settings);
+			var atfs = new ArchiveTaskFileService(_dropBoxService, settings);
+
+			if (_main == null)
 			{
-				return _applicationSettingsViewModel;
+				_main = new MainViewModel(ptfs, atfs);
+			}
+			else
+			{
+				_main.WireupTaskFileServices(ptfs, atfs);
 			}
 		}
-    }
+	}
 }

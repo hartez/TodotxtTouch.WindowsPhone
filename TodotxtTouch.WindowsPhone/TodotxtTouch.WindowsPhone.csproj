@@ -48,9 +48,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgiliTrain.PhoneyTools">
-      <HintPath>..\packages\PhoneyTools.1.0.3\lib\AgiliTrain.PhoneyTools.dll</HintPath>
-    </Reference>
     <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DropNet.1.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
@@ -99,6 +96,9 @@
     <Compile Include="Interactivity\GestureBehavior.cs" />
     <Compile Include="Interactivity\TapTrigger.cs" />
     <Compile Include="Interactivity\GestureTrigger.cs" />
+    <Compile Include="LogViewPage.xaml.cs">
+      <DependentUpon>LogViewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Service\DropBoxServiceConnectedChangedEventArgs.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
@@ -138,6 +138,7 @@
     <Compile Include="Tasks\TaskListExtensions.cs" />
     <Compile Include="ViewModel\TaskLoadingState.cs" />
     <Compile Include="ViewModel\TombstoneState.cs" />
+    <Compile Include="ViewModel\Trace.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\ViewTaskMessage.cs" />
   </ItemGroup>
@@ -151,6 +152,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="DropBoxLogin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LogViewPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -188,7 +193,12 @@
     <Content Include="Images\save.png" />
     <Content Include="SplashScreenImage.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\PhoneyFork\PhoneyTools\PhoneyTools.csproj">
+      <Project>{EDAE21BD-9396-4016-8E18-0BD10BE5DD53}</Project>
+      <Name>PhoneyTools</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

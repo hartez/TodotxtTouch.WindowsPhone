@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using AgiliTrain.PhoneyTools;
 using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -326,7 +327,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Update bindings, no broadcast
 				RaisePropertyChanged(MultiSelectModePropertyName);
 
-				Debug.WriteLine("MultiSelectMode changed to " + _multiSelectMode);
+				Trace.Write(PhoneLogger.LogLevel.Debug, "MultiSelectMode changed to {0}", _multiSelectMode);		
 			}
 		}
 
@@ -405,8 +406,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private bool CanViewTaskDetailsExecute()
 		{
 			bool canExecute = TaskFileServiceReady && SelectedTask != null && !MultiSelectMode;
-			Debug.WriteLine(string.Format("ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot")));
 
+			Trace.Write(PhoneLogger.LogLevel.Debug, "ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot"));		
+			
 			return canExecute;
 		}
 
