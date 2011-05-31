@@ -57,31 +57,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 					{
 						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded; checking for local file {0}", GetFileName());		
-
-							if (LocalFileExists)
-							{
-								Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());		
-								LoadTasks();
-							}
-
-							InitiateSync();
+							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; starting sync", GetFileName());		
+							Sync();
 						}
 					});
 		}
 
-		void DropBoxServiceConnectedChanged(object sender, DropBoxServiceConnectedChangedEventArgs e)
+		void DropBoxServiceConnectedChanged(object sender, DropBoxServiceAvailableChangedEventArgs e)
 		{
-			InitiateSync();
-		}
-
-		private void InitiateSync()
-		{
-			if (_dropBoxService.Connected && LoadingState != TaskLoadingState.Syncing)
-			{
-				// We just got connected - synchronize
-				Sync();
-			}
+			Sync();
 		}
 
 		/// <summary>
@@ -198,16 +182,31 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Sync()
 		{
-			Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Syncing: {0}", GetFileName());		
+			if (_dropBoxService.Accessible)
+			{
+				if(LoadingState != TaskLoadingState.Syncing)
+				{
+					Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Syncing: {0}", GetFileName());
 
-			LoadingState = TaskLoadingState.Syncing;
+					LoadingState = TaskLoadingState.Syncing;
 
-			// TODO Check to see if we have a data connection
-			// TODO and whether dropbox is considered accessible
-			// If so, get the metadata for the remote file
-			GetRemoteMetaData(metaDataResponse => Sync(metaDataResponse.Data));
+					// If so, get the metadata for the remote file
+					GetRemoteMetaData(metaDataResponse => Sync(metaDataResponse.Data));
+				}
+			}
+			else if(LoadingState == TaskLoadingState.NotLoaded)
+			{
+				// Check for a local file
+				if (!LocalFileExists)
+				{
+					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+					SaveTasks();
+				}
 
-			// If not, do nothing right now
+				Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+				LoadTasks();
+				PushLocal();
+			}
 		}
 
 		private void Sync(MetaData data)
@@ -271,74 +270,79 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void PushLocal()
 		{
-			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			if (_dropBoxService.Accessible)
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
-					var bytes = new byte[file.Length];
-					file.Read(bytes, 0, (int) file.Length);
+					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
+					{
+						var bytes = new byte[file.Length];
+						file.Read(bytes, 0, (int) file.Length);
 
-					_dropBoxService.Upload("/todo", GetFileName(), bytes, response =>
-						{
-							if (response.ErrorException == null)
+						_dropBoxService.Upload("/todo", GetFileName(), bytes, response =>
 							{
-								GetRemoteMetaData(metaDataResponse =>
-									{
-										LocalHasChanges = false;
-										LocalLastModified = metaDataResponse.Data.UTCDateModified;
+								if (response.ErrorException == null)
+								{
+									GetRemoteMetaData(metaDataResponse =>
+										{
+											LocalHasChanges = false;
+											LocalLastModified = metaDataResponse.Data.UTCDateModified;
 
-										Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", GetFileName());					
+											Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", GetFileName());
 
-										LoadingState = TaskLoadingState.Ready;
-									});
-							}
-							else
-							{
-								// Handle error
-								Trace.Write(PhoneLogger.LogLevel.Error, response.ErrorMessage);
+											LoadingState = TaskLoadingState.Ready;
+										});
+								}
+								else
+								{
+									// Handle error
+									Trace.Write(PhoneLogger.LogLevel.Error, response.ErrorMessage);
 
-								LoadingState = TaskLoadingState.Ready;
-							}
-						});
+									LoadingState = TaskLoadingState.Ready;
+								}
+							});
+					}
 				}
 			}
 		}
 
 		private void Merge()
 		{
-			// Get the remote, merge, push local
+			if (_dropBoxService.Accessible)
+			{
+				_dropBoxService.GetFile(GetFilePath() + GetFileName(),
+				                        response =>
+				                        	{
+				                        		if (response.ErrorException == null)
+				                        		{
+				                        			var tl = new TaskList();
 
+				                        			using (var ms = new MemoryStream(
+				                        				Encoding.GetEncoding(
+				                        					response.ContentEncoding).GetBytes(response.Content)))
+				                        			{
+				                        				tl.LoadTasks(ms);
 
-			_dropBoxService.GetFile(GetFilePath() + GetFileName(),
-			                        response =>
-			                        	{
-			                        		if (response.ErrorException == null)
-			                        		{
-			                        			var tl = new TaskList();
+				                        				// Find the tasks in tl which aren't already in the 
+				                        				// current tasklist
+				                        				var tasksToAdd =
+				                        					tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
+				                        				foreach (var task in tasksToAdd)
+				                        				{
+				                        					TaskList.Add(task);
+				                        				}
 
-			                        			using (var ms = new MemoryStream(
-			                        				Encoding.GetEncoding(
-			                        					response.ContentEncoding).GetBytes(response.Content)))
-			                        			{
-			                        				tl.LoadTasks(ms);
+				                        				PushLocal();
+				                        			}
+				                        		}
+				                        		else
+				                        		{
+				                        			Trace.Write(PhoneLogger.LogLevel.Error, response.ErrorMessage);
 
-			                        				// Find the tasks in tl which aren't already in the 
-			                        				// current tasklist
-			                        				var tasksToAdd =
-			                        					tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
-			                        				foreach (var task in tasksToAdd)
-			                        				{
-			                        					TaskList.Add(task);
-			                        				}
-
-			                        				PushLocal();
-			                        			}
-			                        		}
-			                        		else
-			                        		{
-			                        			// Handle error
-			                        		}
-			                        	});
+				                        			LoadingState = TaskLoadingState.Ready;
+				                        		}
+				                        	});
+			}
 		}
 
 		private void LoadTasks()

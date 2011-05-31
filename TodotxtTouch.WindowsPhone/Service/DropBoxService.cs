@@ -5,6 +5,7 @@ using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using RestSharp;
 using TodotxtTouch.WindowsPhone.ViewModel;
+using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
@@ -17,26 +18,29 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private String _secret = String.Empty;
 		private String _token = String.Empty;
 
-		public event EventHandler<DropBoxServiceConnectedChangedEventArgs> DropBoxServiceConnectedChanged;
+		public event EventHandler<DropBoxServiceAvailableChangedEventArgs> DropBoxServiceConnectedChanged;
 
-		public void InvokeDropBoxServiceConnectedChanged(DropBoxServiceConnectedChangedEventArgs e)
+		public void InvokeDropBoxServiceConnectedChanged(DropBoxServiceAvailableChangedEventArgs e)
 		{
-			EventHandler<DropBoxServiceConnectedChangedEventArgs> handler = DropBoxServiceConnectedChanged;
+			EventHandler<DropBoxServiceAvailableChangedEventArgs> handler = DropBoxServiceConnectedChanged;
 			if (handler != null)
 			{
 				handler(this, e);
 			}
 		}
 
-		private bool _connected = false;
+		private bool _authenticated = false;
 
-		public bool Connected
+		public bool Authenticated
 		{
-			get { return _connected; }
+			get
+			{
+				return _authenticated;
+			}
 			set
 			{
-				_connected = value;
-				InvokeDropBoxServiceConnectedChanged(new DropBoxServiceConnectedChangedEventArgs());
+				_authenticated = value;
+				InvokeDropBoxServiceConnectedChanged(new DropBoxServiceAvailableChangedEventArgs());
 			}
 		}
 
@@ -45,7 +49,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, (message) =>
 					{
-						if(!Connected)
+						if(!Authenticated)
 						{
 							Connect();
 						}
@@ -54,7 +58,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 					this, (message) =>
 					{
-						if (!Connected)
+						if (!Authenticated)
 						{
 							Connect();
 						}
@@ -65,28 +69,35 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Connect()
 		{
-			if (IsAuthenticated)
+			if (NetworkInterface.GetIsNetworkAvailable())
 			{
-				_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
-				Connected = true;
-			}
-			else if (HasLoginCredentials)
-			{
-				_dropNetClient = DropNetExtensions.CreateClient();
-				_dropNetClient.LoginAsync(Username, Password, (response) =>
-					{
-						if(response.ErrorException == null)
+				if (IsAuthenticated)
+				{
+					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+					Authenticated = true;
+				}
+				else if (HasLoginCredentials)
+				{
+					_dropNetClient = DropNetExtensions.CreateClient();
+					_dropNetClient.LoginAsync(Username, Password, (response) =>
 						{
-							Token = response.Data.Token;
-							Secret = response.Data.Secret;
-							Connected = true;
+							if (response.ErrorException == null)
+							{
+								Token = response.Data.Token;
+								Secret = response.Data.Secret;
+								Authenticated = true;
+							}
+							else
+							{
+								Authenticated = false;
+							}
 						}
-					}
-					);
-			}
-			else
-			{
-				Messenger.Default.Send(new NeedCredentialsMessage());
+						);
+				}
+				else
+				{
+					Messenger.Default.Send(new NeedCredentialsMessage());
+				}
 			}
 		}
 
@@ -221,9 +232,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
+		public bool Accessible
+		{
+			get { return NetworkInterface.GetIsNetworkAvailable() && Authenticated; } 
+		}
+
 		public void GetMetaData(string path, Action<RestResponse<MetaData>> callback)
 		{
-			if (Connected)
+			if (Accessible)
 			{
 				_dropNetClient.GetMetaDataAsync(path, callback);
 			}
@@ -231,7 +247,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> callback)
 		{
-			if (Connected)
+			if (Accessible)
 			{
 				_dropNetClient.UploadFileAsync(path, filename, bytes, callback);
 			}
@@ -239,7 +255,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public void GetFile(string path, Action<RestResponse> callback)
 		{
-			if(Connected)
+			if (Accessible)
 			{
 				_dropNetClient.GetFileAsync(path, callback);
 			}
