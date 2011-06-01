@@ -1,0 +1,95 @@
+﻿<WindowsPhone:TaskFilterPage 
+    x:Class="TodotxtTouch.WindowsPhone.MultiSelectPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:li="clr-namespace:TodotxtTouch.WindowsPhone.Interactivity" FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
+                            shell:SystemTray.IsVisible="True"
+                            DataContext="{Binding Main, Source={StaticResource Locator}}">
+
+    <WindowsPhone:TaskFilterPage.Resources>
+        <ValueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter"></ValueConverters:BooleanOpacityConverter>
+        <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
+    </WindowsPhone:TaskFilterPage.Resources>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+
+        <toolkit:PerformanceProgressBar x:Name="performanceProgressBar"
+                                        IsIndeterminate="{Binding Busy}" />
+
+            <controls:Pivot Title="{Binding ApplicationTitle}"
+                            x:Name="TaskPivot"
+                            Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.2}">
+                <!--Pivot item all-->
+                <controls:PivotItem Header="all" x:Name="AllTasksPivotItem">
+                <ListBox x:Name="AllTasksList"
+                         VirtualizingStackPanel.VirtualizationMode="Recycling"
+                         SelectionMode="Multiple"                                              
+                                              ItemsSource="{Binding AllTasks}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource TaskValueConverter}}"
+                                       TextWrapping="Wrap"
+                                       Foreground="{Binding Converter={StaticResource TaskValueConverter}}" Width="381.2" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox Margin="0,0,15,0"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsSelected, Mode=TwoWay}" Width="57" />
+                                            <ContentControl x:Name="ContentContainer"
+                                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                            Content="{TemplateBinding Content}"
+                                                            Foreground="{TemplateBinding Foreground}"
+                                                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                            Margin="{TemplateBinding Padding}"
+                                                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <i:Interaction.Triggers>
+                      
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cmd:EventToCommand Command="{Binding SelectionChangedCommand}"
+                                                PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                        
+                </ListBox>
+                </controls:PivotItem>
+            </controls:Pivot>
+
+    </Grid>
+ 
+    <!--Sample code showing usage of ApplicationBar-->
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/check.png" Click="MarkComplete_Click"  Text="mark complete"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/delete.png" Click="Delete_Click" Text="delete"/>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
+                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</WindowsPhone:TaskFilterPage>

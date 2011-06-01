@@ -99,8 +99,13 @@
     <Compile Include="LogViewPage.xaml.cs">
       <DependentUpon>LogViewPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MultiSelectPage.xaml.cs">
+      <DependentUpon>MultiSelectPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Service\DropBoxServiceConnectedChangedEventArgs.cs" />
+    <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
+    <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
     <Compile Include="Tasks\ContextTaskFilter.cs" />
     <Compile Include="ViewModel\ApplicationSettings.cs" />
@@ -117,9 +122,6 @@
     <Compile Include="Service\TaskListChangedEventArgs.cs" />
     <Compile Include="TaskDetail.xaml.cs">
       <DependentUpon>TaskDetail.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="TaskListBox.xaml.cs">
-      <DependentUpon>TaskListBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ApplicationReadyMessage.cs" />
     <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
@@ -163,11 +165,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TaskDetail.xaml">
+    <Page Include="MultiSelectPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TaskListBox.xaml">
+    <Page Include="TaskDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -179,6 +181,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\appbar.manage.rest.png" />
+    <Content Include="Images\check.png" />
+    <Content Include="Images\delete.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
     <Resource Include="apikeys.txt" />

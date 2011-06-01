@@ -13,6 +13,7 @@
 */
 
 using System.Diagnostics.CodeAnalysis;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using TodotxtTouch.WindowsPhone.Service;
 
@@ -34,24 +35,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public ViewModelLocator()
 		{
-			////if (ViewModelBase.IsInDesignModeStatic)
-			////{
-			////    // Create design time services and viewmodels
-			////}
-			////else
-			////{
-			////    // Create run time services and view models
-			////}
-			_dropBoxService = new DropBoxService();
-			var settings = new ApplicationSettings();
+			if (ViewModelBase.IsInDesignModeStatic)
+			{
+			    // Create design time services and viewmodels
+				_main = new MainViewModel(null, null);
+			}
+			else
+			{
+				_dropBoxService = new DropBoxService();
+				var settings = new ApplicationSettings();
 
-			_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
+				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
 
-			Messenger.Default.Register<ApplicationSettingsChanged>(this, asc => Initialize(asc.Settings));
+				Messenger.Default.Register<ApplicationSettingsChanged>(this, asc => Initialize(asc.Settings));
 
-			_dropBoxCredentials = new DropBoxCredentialsViewModel(_dropBoxService);
+				_dropBoxCredentials = new DropBoxCredentialsViewModel(_dropBoxService);
 
-			Initialize(settings);
+				Initialize(settings);
+			}
 		}
 
 		/// <summary>

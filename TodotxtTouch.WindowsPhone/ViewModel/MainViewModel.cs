@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
+using System.Windows.Controls;
 using AgiliTrain.PhoneyTools;
 using EZLibrary;
 using GalaSoft.MvvmLight;
@@ -71,17 +71,197 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		#region Backing fields
 
-		private TaskFileService _archiveFileService;
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
-		private IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
-		private TaskFileService _taskFileService;
-		private IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+		private TaskFileService _archiveFileService;
 		private List<TaskFilter> _filters = new List<TaskFilter>();
 		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
+		private IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private String _selectedContext;
 		private String _selectedProject;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
+		private TaskFileService _taskFileService;
+		private IObservable<IEvent<TaskListChangedEventArgs>> _taskListChangedObserver;
+
+		#endregion
+
+		/// <summary>
+		/// The <see cref="Busy" /> property's name.
+		/// </summary>
+		public const string BusyPropertyName = "Busy";
+
+		private readonly List<Task> _selectedTasks = new List<Task>();
+		private bool _busy;
+		private TaskList _taskList;
+
+		#region Commands
+
+		private bool _workingWithSelectedTasks;
+		public RelayCommand ViewTaskDetailsCommand { get; private set; }
+
+		public RelayCommand SaveCurrentTaskCommand { get; private set; }
+
+		public RelayCommand RevertCurrentTaskCommand { get; private set; }
+
+		public RelayCommand AddTaskCommand { get; private set; }
+
+		public RelayCommand FilterByContextCommand { get; private set; }
+
+		public RelayCommand FilterByProjectCommand { get; private set; }
+
+		public RelayCommand ArchiveTasksCommand { get; private set; }
+
+		public RelayCommand MarkSelectedTasksCompleteCommand { get; private set; }
+
+		public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; private set; }
+
+		private bool CanViewTaskDetailsExecute()
+		{
+			bool canExecute = TaskFileServiceReady && SelectedTask != null;
+
+			Trace.Write(PhoneLogger.LogLevel.Debug, "ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot"));
+
+			return canExecute;
+		}
+
+		private void WireUpCommands()
+		{
+			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
+
+			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady);
+
+			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
+			                                          () => TaskFileServiceReady
+			                                                && SelectedTaskDraft != null);
+
+			FilterByContextCommand = new RelayCommand(FilterByContext, () =>
+			                                                           TaskFileServiceReady);
+
+			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady);
+
+			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
+			                                            () => TaskFileServiceReady
+			                                                  && SelectedTaskDraft != null);
+
+			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
+			                                       () => TaskFileServiceReady && ArchiveFileServiceReady);
+
+			SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(args =>
+				{
+					if (args != null)
+					{
+						foreach (object task in args.AddedItems)
+						{
+							_selectedTasks.Add(task as Task);
+						}
+
+						foreach (object task in args.RemovedItems)
+						{
+							_selectedTasks.Remove(task as Task);
+						}
+					}
+
+					return;
+				}, args => !_workingWithSelectedTasks);
+
+			MarkSelectedTasksCompleteCommand = new RelayCommand(MarkSelectedTasksComplete, () => TaskFileServiceReady);
+		}
+
+		private void MarkSelectedTasksComplete()
+		{
+			_workingWithSelectedTasks = true;
+
+			foreach (Task task in _selectedTasks)
+			{
+				if (task != null)
+				{
+					task.Completed = true;
+				}
+			}
+
+			_workingWithSelectedTasks = false;
+		}
+
+		private void ArchiveTasks()
+		{
+			// TODO Have setting for preserving line numbers
+			TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
+
+			foreach (Task completedTask in completedTasks)
+			{
+				_archiveFileService.TaskList.Add(completedTask);
+			}
+		}
+
+		private void RevertCurrentTask()
+		{
+			if (SelectedTask == null)
+			{
+				SelectedTaskDraft.Empty();
+			}
+			else
+			{
+				SelectedTaskDraft = SelectedTask.Copy();
+			}
+		}
+
+		private void FilterByContext()
+		{
+			string context = SelectedContext;
+
+			if (!String.IsNullOrEmpty(context))
+			{
+				Filters.Add(new ContextTaskFilter(t => t.Contexts.Contains(context), context));
+
+				Messenger.Default.Send<DrillDownMessage, MainPivot>(
+					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
+			}
+		}
+
+		private void FilterByProject()
+		{
+			string project = SelectedProject;
+
+			if (!String.IsNullOrEmpty(project))
+			{
+				Filters.Add(new ProjectTaskFilter(t => t.Projects.Contains(project), project));
+
+				Messenger.Default.Send<DrillDownMessage, MainPivot>(
+					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
+			}
+		}
+
+		private void AddTask()
+		{
+			SelectedTask = null;
+
+			SelectedTaskDraft = new Task(String.Empty, null, null, Filters.CreateDefaultBodyText());
+
+			UpdateAvailablePriorities();
+
+			Messenger.Default.Send(new ViewTaskMessage());
+		}
+
+		private void ViewTask()
+		{
+			SelectedTaskDraft = SelectedTask.Copy();
+
+			UpdateAvailablePriorities();
+
+			Messenger.Default.Send(new ViewTaskMessage());
+		}
+
+		private void SaveCurrentTask()
+		{
+			if (SelectedTask == null)
+			{
+				_taskFileService.TaskList.Add(SelectedTaskDraft);
+			}
+			else
+			{
+				_taskFileService.UpdateTask(SelectedTaskDraft, SelectedTask);
+			}
+		}
 
 		#endregion
 
@@ -95,6 +275,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Code runs in Blend --> create design time data.
 				Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => _availablePriorities.Add(p));
 
+				_taskList = new TaskList();
+
 				TaskList.Add(new Task("A", null, null,
 				                      "This is a designer task that might be really long the quick brown fox jumped over the lazy dogs"));
 				TaskList.Add(new Task("", null, null, "This is a designer task2"));
@@ -104,6 +286,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				b.ToggleCompleted();
 				TaskList.Add(b);
 				TaskList.Add(new Task("C", null, null, "This is a designer task5"));
+
+				TaskList.Add(new Task("This task has two contexts @home @work"));
+				TaskList.Add(new Task("This task has two projects +planvacation +fixstove"));
+				TaskList.Add(new Task("This task has one of each @home +fixstove"));
 
 				_selectedTask = TaskList[3];
 			}
@@ -116,29 +302,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 				WireUpCommands();
 			}
-		}
-
-		public void WireupTaskFileServices(PrimaryTaskFileService ptfs, ArchiveTaskFileService atfs)
-		{
-			_archiveFileService = atfs;
-
-			_taskFileService = ptfs;
-
-			_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
-				_taskFileService, "LoadingStateChanged");
-
-			_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
-
-			_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
-				_taskFileService, "TaskListChanged");
-
-			_taskListChangedObserver.Subscribe(e =>
-			{
-				RaisePropertyChanged(AllTasksPropertyName);
-				RaisePropertyChanged(CompletedTasksPropertyName);
-				RaisePropertyChanged(ContextsPropertyName);
-				RaisePropertyChanged(ProjectsPropertyName);
-			});
 		}
 
 		public IEnumerable<String> Projects
@@ -297,38 +460,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		private TaskList TaskList
 		{
-			get { return _taskFileService.TaskList; }
-		}
-
-		/// <summary>
-		/// The <see cref="MultiSelectMode" /> property's name.
-		/// </summary>
-		public const string MultiSelectModePropertyName = "MultiSelectMode";
-
-		private bool _multiSelectMode = false;
-
-		/// <summary>
-		/// Gets the MultiSelectMode property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public bool MultiSelectMode
-		{
-			get { return _multiSelectMode; }
-
-			set
-			{
-				if (_multiSelectMode == value)
-				{
-					return;
-				}
-
-				_multiSelectMode = value;
-
-				// Update bindings, no broadcast
-				RaisePropertyChanged(MultiSelectModePropertyName);
-
-				Trace.Write(PhoneLogger.LogLevel.Debug, "MultiSelectMode changed to {0}", _multiSelectMode);		
-			}
+			get { return _taskList; }
 		}
 
 		public IEnumerable<Task> AllTasks
@@ -385,140 +517,53 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		#region Commands
-
-		public RelayCommand ViewTaskDetailsCommand { get; private set; }
-
-		public RelayCommand SaveCurrentTaskCommand { get; private set; }
-
-		public RelayCommand RevertCurrentTaskCommand { get; private set; }
-
-		public RelayCommand AddTaskCommand { get; private set; }
-
-		public RelayCommand FilterByContextCommand { get; private set; }
-
-		public RelayCommand FilterByProjectCommand { get; private set; }
-
-		public RelayCommand ArchiveTasksCommand { get; private set; }
-
-		public RelayCommand ToggleMultiSelectCommand { get; private set; }
-
-		private bool CanViewTaskDetailsExecute()
+		/// <summary>
+		/// Gets the Busy property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public bool Busy
 		{
-			bool canExecute = TaskFileServiceReady && SelectedTask != null && !MultiSelectMode;
+			get { return _busy; }
 
-			Trace.Write(PhoneLogger.LogLevel.Debug, "ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot"));		
-			
-			return canExecute;
-		}
-
-		private void WireUpCommands()
-		{
-			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
-
-			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady && !MultiSelectMode);
-
-			SaveCurrentTaskCommand = new RelayCommand(SaveCurrentTask,
-			                                          () => TaskFileServiceReady
-			                                                && SelectedTaskDraft != null);
-
-			FilterByContextCommand = new RelayCommand(FilterByContext, () =>
-			                                                           TaskFileServiceReady && !MultiSelectMode);
-
-			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady && !MultiSelectMode);
-
-			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
-			                                            () => TaskFileServiceReady
-			                                                  && SelectedTaskDraft != null);
-
-			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
-			                                       () => TaskFileServiceReady && ArchiveFileServiceReady && !MultiSelectMode);
-
-			ToggleMultiSelectCommand = new RelayCommand(() => MultiSelectMode = !MultiSelectMode, () => TaskFileServiceReady);
-		}
-
-		private void ArchiveTasks()
-		{
-			// TODO Have setting for preserving line numbers
-			TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
-
-			foreach (Task completedTask in completedTasks)
+			set
 			{
-				_archiveFileService.TaskList.Add(completedTask);
+				if (_busy == value)
+				{
+					return;
+				}
+
+				_busy = value;
+
+				// Update bindings, no broadcast
+				// On UI thread, so the "busy" indicator can do it's thing
+				DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(BusyPropertyName));
 			}
 		}
 
-		private void RevertCurrentTask()
+		public void WireupTaskFileServices(PrimaryTaskFileService ptfs, ArchiveTaskFileService atfs)
 		{
-			if (SelectedTask == null)
-			{
-				SelectedTaskDraft.Empty();
-			}
-			else
-			{
-				SelectedTaskDraft = SelectedTask.Copy();
-			}
+			_archiveFileService = atfs;
+
+			_taskFileService = ptfs;
+
+			_taskList = _taskFileService.TaskList;
+
+			_loadingStateObserver = Observable.FromEvent<LoadingStateChangedEventArgs>(
+				_taskFileService, "LoadingStateChanged");
+
+			_loadingStateObserver.Subscribe(e => LoadingState = e.EventArgs.LoadingState);
+
+			_taskListChangedObserver = Observable.FromEvent<TaskListChangedEventArgs>(
+				_taskFileService, "TaskListChanged");
+
+			_taskListChangedObserver.Subscribe(e =>
+				{
+					RaisePropertyChanged(AllTasksPropertyName);
+					RaisePropertyChanged(CompletedTasksPropertyName);
+					RaisePropertyChanged(ContextsPropertyName);
+					RaisePropertyChanged(ProjectsPropertyName);
+				});
 		}
-
-		private void FilterByContext()
-		{
-			string context = SelectedContext;
-
-			if (!String.IsNullOrEmpty(context))
-			{
-				Filters.Add(new ContextTaskFilter(t => t.Contexts.Contains(context), context));
-
-				Messenger.Default.Send<DrillDownMessage, MainPivot>(
-					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
-			}
-		}
-
-		private void FilterByProject()
-		{
-			string project = SelectedProject;
-
-			if (!String.IsNullOrEmpty(project))
-			{
-				Filters.Add(new ProjectTaskFilter(t => t.Projects.Contains(project), project));
-
-				Messenger.Default.Send<DrillDownMessage, MainPivot>(
-					new DrillDownMessage(TaskFilterFactory.CreateFilterString(Filters)));
-			}
-		}
-
-		private void AddTask()
-		{
-			SelectedTask = null;
-
-			SelectedTaskDraft = new Task(String.Empty, null, null, Filters.CreateDefaultBodyText());
-
-			UpdateAvailablePriorities();
-
-			Messenger.Default.Send(new ViewTaskMessage());
-		}
-
-		private void ViewTask()
-		{
-			SelectedTaskDraft = SelectedTask.Copy();
-
-			UpdateAvailablePriorities();
-
-			Messenger.Default.Send(new ViewTaskMessage());
-		}
-
-		private void SaveCurrentTask()
-		{
-			if (SelectedTask == null)
-			{
-				_taskFileService.TaskList.Add(SelectedTaskDraft);
-			}
-			else
-			{
-				_taskFileService.UpdateTask(SelectedTaskDraft, SelectedTask);
-			}
-		}
-
-		#endregion
 
 		private void Filter(DrillDownMessage message)
 		{
@@ -567,36 +612,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				{
 					SelectedTask = selectedTask;
 				}
-			}
-		}
-
-		/// <summary>
-		/// The <see cref="Busy" /> property's name.
-		/// </summary>
-		public const string BusyPropertyName = "Busy";
-
-		private bool _busy = false;
-
-		/// <summary>
-		/// Gets the Busy property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public bool Busy
-		{
-			get { return _busy; }
-
-			set
-			{
-				if (_busy == value)
-				{
-					return;
-				}
-
-				_busy = value;
-
-				// Update bindings, no broadcast
-				// On UI thread, so the "busy" indicator can do it's thing
-				DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(BusyPropertyName));
 			}
 		}
 	}

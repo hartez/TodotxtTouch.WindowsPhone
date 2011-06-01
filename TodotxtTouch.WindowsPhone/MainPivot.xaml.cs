@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
 {
-	public partial class MainPivot : PhoneApplicationPage
+	public partial class MainPivot : TaskFilterPage
 	{
 		public MainPivot()
 		{
@@ -35,7 +34,17 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void MultiSelect_Click(object sender, EventArgs e)
 		{
-			((MainViewModel)DataContext).ToggleMultiSelectCommand.Execute(null);
+			string filter;
+			if (NavigationContext.QueryString.TryGetValue("filter", out filter))
+			{
+				NavigationService.Navigate(
+			   new Uri("/MultiSelectPage.xaml?filter=" + filter, UriKind.Relative));
+			}
+			else
+			{
+				NavigationService.Navigate(
+			   new Uri("/MultiSelectPage.xaml", UriKind.Relative));
+			}
 		}
 
 		private void DrillDown(DrillDownMessage message)
@@ -44,19 +53,10 @@ namespace TodotxtTouch.WindowsPhone
 			   new Uri("/MainPivot.xaml?filter=" + message.Filter, UriKind.Relative));
 		}
 
-
 		protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
 		{
 			base.OnNavigatedTo(e);
-			string filter;
-			if(NavigationContext.QueryString.TryGetValue("filter", out filter))
-			{
-				Messenger.Default.Send<DrillDownMessage, MainViewModel>(new DrillDownMessage(filter));
-			}
-			else
-			{
-				Messenger.Default.Send<DrillDownMessage, MainViewModel>(new DrillDownMessage(String.Empty));
-			}
+			BroadCastFilter();
 		}
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -98,7 +98,6 @@ namespace TodotxtTouch.WindowsPhone
 					break;
 				case TaskLoadingState.Syncing:
 					TaskPivot.Visibility = Visibility.Collapsed;
-					// Todo display loading message or something
 					break;
 				case TaskLoadingState.Ready:
 					DropBoxLogin.Visibility = Visibility.Collapsed;
