@@ -5,10 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
+using AgiliTrain.PhoneyTools;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Microsoft.Phone.Tasks;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
@@ -153,6 +155,32 @@ namespace TodotxtTouch.WindowsPhone
 				// An unhandled exception has occurred; break into the debugger
 				Debugger.Break();
 			}
+			else
+			{
+				Deployment.Current.Dispatcher.BeginInvoke(
+					() =>
+						{
+							string errorMsg = string.Format(
+								"Exception caught. Message: {0} \r\nTrace: {1}",
+								e.ExceptionObject.Message,
+								e.ExceptionObject.StackTrace);
+							MessageBox.Show(errorMsg);
+							SendEmailOfException(errorMsg);
+						}
+					);
+			}
+		}
+
+		private static void SendEmailOfException(string msg)
+		{
+			var emailComposeTask = new EmailComposeTask
+				{
+					To = "hartez@gmail.com;",
+					Subject = "TodoTxt Error",
+					Body = msg + "\n\n" + PhoneLogger.LogContents
+			};
+
+			emailComposeTask.Show();
 		}
 
 		#region Phone application initialization
