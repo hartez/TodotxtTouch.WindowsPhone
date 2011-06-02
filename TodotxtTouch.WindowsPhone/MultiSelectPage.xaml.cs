@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Navigation;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
@@ -25,7 +26,13 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void Delete_Click(object sender, EventArgs e)
 		{
-			throw new NotImplementedException();
+			var result = MessageBox.Show("Are you sure?", "Delete Tasks", MessageBoxButton.OKCancel);
+
+			if (result == MessageBoxResult.OK)
+			{
+				((MainViewModel) DataContext).RemoveSelectedTasksCommand.Execute(null);
+				NavigationService.GoBack();
+			}
 		}
 	}
 }
