@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
+using AgiliTrain.PhoneyTools;
 using DropNet;
+using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using RestSharp;
@@ -79,19 +81,19 @@ namespace TodotxtTouch.WindowsPhone.Service
 				else if (HasLoginCredentials)
 				{
 					_dropNetClient = DropNetExtensions.CreateClient();
-					_dropNetClient.LoginAsync(Username, Password, (response) =>
+					_dropNetClient.LoginAsync(Username, Password, 
+						(response) =>
 						{
-							if (response.ErrorException == null)
+							Token = response.Token;
+							Secret = response.Secret;
+							Authenticated = true;
+						},
+						(exception) =>
 							{
-								Token = response.Data.Token;
-								Secret = response.Data.Secret;
-								Authenticated = true;
-							}
-							else
-							{
+								Trace.Write(PhoneLogger.LogLevel.Error,
+								            exception.Message);
 								Authenticated = false;
 							}
-						}
 						);
 				}
 				else
@@ -237,27 +239,27 @@ namespace TodotxtTouch.WindowsPhone.Service
 			get { return NetworkInterface.GetIsNetworkAvailable() && Authenticated; } 
 		}
 
-		public void GetMetaData(string path, Action<RestResponse<MetaData>> callback)
+		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)
 		{
 			if (Accessible)
 			{
-				_dropNetClient.GetMetaDataAsync(path, callback);
+				_dropNetClient.GetMetaDataAsync(path, success, failure);
 			}
 		}
 
-		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> callback)
+		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> success, Action<DropboxException> failure)
 		{
 			if (Accessible)
 			{
-				_dropNetClient.UploadFileAsync(path, filename, bytes, callback);
+				_dropNetClient.UploadFileAsync(path, filename, bytes, success, failure);
 			}
 		}
 
-		public void GetFile(string path, Action<RestResponse> callback)
+		public void GetFile(string path, Action<RestResponse> success, Action<DropboxException> failure)
 		{
 			if (Accessible)
 			{
-				_dropNetClient.GetFileAsync(path, callback);
+				_dropNetClient.GetFileAsync(path, success, failure);
 			}
 		}
 	}

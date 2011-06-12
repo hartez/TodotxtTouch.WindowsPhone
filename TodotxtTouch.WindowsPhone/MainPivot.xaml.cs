@@ -26,10 +26,16 @@ namespace TodotxtTouch.WindowsPhone
 
 			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
 				
-			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += AddButton_Click;
+			((ApplicationBarIconButton)ApplicationBar.Buttons[0]).Click += AddButton_Click;
 			((ApplicationBarIconButton)ApplicationBar.Buttons[1]).Click += MultiSelect_Click;
+			((ApplicationBarIconButton)ApplicationBar.Buttons[2]).Click += SyncButton_Click;
 
 			Loaded += MainPage_Loaded;
+		}
+
+		private void SyncButton_Click(object sender, EventArgs e)
+		{
+			((MainViewModel)DataContext).SyncCommand.Execute(null);
 		}
 
 		private void MultiSelect_Click(object sender, EventArgs e)
@@ -61,6 +67,8 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)
 		{
+			LittleWatson.CheckForPreviousException();	
+
 			DropBoxLogin.Opacity = 1;
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}

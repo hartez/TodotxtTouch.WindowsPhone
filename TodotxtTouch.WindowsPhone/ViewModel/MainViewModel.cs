@@ -97,6 +97,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		#region Commands
 
 		private bool _workingWithSelectedTasks;
+
 		public RelayCommand RemoveSelectedTasksCommand { get; private set; }
 
 		public RelayCommand ViewTaskDetailsCommand { get; private set; }
@@ -116,6 +117,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public RelayCommand MarkSelectedTasksCompleteCommand { get; private set; }
 
 		public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; private set; }
+
+		public RelayCommand SyncCommand { get; private set; }
 
 		private bool CanViewTaskDetailsExecute()
 		{
@@ -169,6 +172,14 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			MarkSelectedTasksCompleteCommand = new RelayCommand(MarkSelectedTasksComplete, () => TaskFileServiceReady);
 
 			RemoveSelectedTasksCommand = new RelayCommand(RemoveSelectedTasks, () => TaskFileServiceReady);
+
+			SyncCommand = new RelayCommand(Sync, () => TaskFileServiceReady);
+		}
+
+		private void Sync()
+		{
+			_taskFileService.Sync();
+			_archiveFileService.Sync();
 		}
 
 		private void RemoveSelectedTasks()

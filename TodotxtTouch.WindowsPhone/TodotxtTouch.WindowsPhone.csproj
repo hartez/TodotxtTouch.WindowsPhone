@@ -49,7 +49,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
+      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="EZLibrary.WindowsPhone">
       <HintPath>..\lib\EZLibrary.WindowsPhone.dll</HintPath>
@@ -68,10 +68,13 @@
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="Microsoft.Phone.Reactive" />
     <Reference Include="Newtonsoft.Json.WindowsPhone, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.4\lib\sl3-wp\Newtonsoft.Json.WindowsPhone.dll</HintPath>
+      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\Newtonsoft.Json.WindowsPhone.dll</HintPath>
+    </Reference>
+    <Reference Include="PhonePerformance">
+      <HintPath>..\packages\PhonePerformance.1.2.0\lib\sl4\PhonePerformance.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp.WindowsPhone, Version=101.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.4\lib\sl3-wp\RestSharp.WindowsPhone.dll</HintPath>
+      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\RestSharp.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="System.Observable" />
     <Reference Include="System.Windows" />
@@ -96,6 +99,7 @@
     <Compile Include="Interactivity\GestureBehavior.cs" />
     <Compile Include="Interactivity\TapTrigger.cs" />
     <Compile Include="Interactivity\GestureTrigger.cs" />
+    <Compile Include="LittleWatson.cs" />
     <Compile Include="LogViewPage.xaml.cs">
       <DependentUpon>LogViewPage.xaml</DependentUpon>
     </Compile>
@@ -183,6 +187,8 @@
     <Content Include="Images\appbar.manage.rest.png" />
     <Content Include="Images\check.png" />
     <Content Include="Images\delete.png" />
+    <Content Include="Images\refresh.png" />
+    <Content Include="README_Phoney.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
     <Resource Include="apikeys.txt" />

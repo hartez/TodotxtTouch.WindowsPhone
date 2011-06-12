@@ -6,3 +6,4 @@ packages/*
 packages.config
 *.vsmdi
 TodotxtTouch.WindowsPhone/apikeys.txt
+*.pdb
