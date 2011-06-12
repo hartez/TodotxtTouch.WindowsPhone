@@ -150,37 +150,13 @@ namespace TodotxtTouch.WindowsPhone
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
 		{
-			//if (Debugger.IsAttached)
-			//{
-			//    // An unhandled exception has occurred; break into the debugger
-			//    Debugger.Break();
-			//}
-			//else
-			//{
-				Deployment.Current.Dispatcher.BeginInvoke(
-					() =>
-						{
-							string errorMsg = string.Format(
-								"Exception caught. Message: {0} \r\nTrace: {1}",
-								e.ExceptionObject.Message,
-								e.ExceptionObject.StackTrace);
-							MessageBox.Show(errorMsg);
-							SendEmailOfException(errorMsg);
-						}
-					);
-			//}
-		}
+			LittleWatson.ReportException(e.ExceptionObject, "");
 
-		private static void SendEmailOfException(string msg)
-		{
-			var emailComposeTask = new EmailComposeTask
-				{
-					To = "hartez@gmail.com;",
-					Subject = "TodoTxt Error",
-					Body = msg + "\n\n" + PhoneLogger.LogContents
-			};
-
-			emailComposeTask.Show();
+			if (Debugger.IsAttached)
+			{
+			    // An unhandled exception has occurred; break into the debugger
+			    Debugger.Break();
+			}
 		}
 
 		#region Phone application initialization

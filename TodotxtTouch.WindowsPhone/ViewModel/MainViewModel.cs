@@ -97,6 +97,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		#region Commands
 
 		private bool _workingWithSelectedTasks;
+
 		public RelayCommand RemoveSelectedTasksCommand { get; private set; }
 
 		public RelayCommand ViewTaskDetailsCommand { get; private set; }

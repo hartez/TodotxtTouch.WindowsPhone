@@ -67,6 +67,8 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)
 		{
+			LittleWatson.CheckForPreviousException();	
+
 			DropBoxLogin.Opacity = 1;
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}

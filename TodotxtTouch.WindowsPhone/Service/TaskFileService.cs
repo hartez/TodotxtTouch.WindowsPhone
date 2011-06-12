@@ -265,7 +265,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 				{
 					Trace.Write(PhoneLogger.LogLevel.Debug,
 								   "{0}: No local changes and the last time it was retrieved is the same as the last time the Dropbox file was modified (so don't do anything)", GetFileName());
-					LoadingState = TaskLoadingState.Ready;
+					if(TaskList.Count == 0)
+					{
+						// We might be coming back from an error state and not have the local file loaded yet
+						LoadTasks();
+					}
+					else
+					{
+						LoadingState = TaskLoadingState.Ready;
+					}
 				}
 				else if (LocalLastModified.Value.CompareTo(remoteLastModified) < 0 && !LocalHasChanges)
 				{
@@ -281,6 +289,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 					//If local.Retrieved < remote.LastUpdated and local has changes, merge (???) or maybe just upload local to conflicted file?
 					Trace.Write(PhoneLogger.LogLevel.Debug,
 								"{0}: The dropbox file has changed since last time we retrieved it and the local one has changes", GetFileName());
+
 					Merge();
 				}
 				else if (LocalLastModified.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
@@ -289,6 +298,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 					Trace.Write(PhoneLogger.LogLevel.Debug,
 								"{0}: Dropbox file hasn't changed since last time we retrieved it, and the local one has changes", GetFileName());
+
+					if (TaskList.Count == 0)
+					{
+						// We might be coming back from an error state and not have the local file loaded yet
+						LoadTasks();
+					}
 
 					PushLocal();
 				}
