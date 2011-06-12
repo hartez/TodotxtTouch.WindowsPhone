@@ -117,6 +117,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand<SelectionChangedEventArgs> SelectionChangedCommand { get; private set; }
 
+		public RelayCommand SyncCommand { get; private set; }
+
 		private bool CanViewTaskDetailsExecute()
 		{
 			bool canExecute = TaskFileServiceReady && SelectedTask != null;
@@ -169,6 +171,14 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			MarkSelectedTasksCompleteCommand = new RelayCommand(MarkSelectedTasksComplete, () => TaskFileServiceReady);
 
 			RemoveSelectedTasksCommand = new RelayCommand(RemoveSelectedTasks, () => TaskFileServiceReady);
+
+			SyncCommand = new RelayCommand(Sync, () => TaskFileServiceReady);
+		}
+
+		private void Sync()
+		{
+			_taskFileService.Sync();
+			_archiveFileService.Sync();
 		}
 
 		private void RemoveSelectedTasks()

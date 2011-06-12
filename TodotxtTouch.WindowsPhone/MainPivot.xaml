@@ -174,7 +174,12 @@
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.manage.rest.png"
                                             x:Name="MultiSelect"
                                             Text="select" />
-            <shell:ApplicationBar.MenuItems>
+
+			<shell:ApplicationBarIconButton IconUri="/Images/refresh.png"
+											x:Name="Sync"
+											Text="sync" />
+
+			<shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Click="SettingsClick"
                                               Text="Settings" />
                 <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>

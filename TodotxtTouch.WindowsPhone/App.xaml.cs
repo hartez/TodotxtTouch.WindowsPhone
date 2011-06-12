@@ -150,13 +150,13 @@ namespace TodotxtTouch.WindowsPhone
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
 		{
-			if (Debugger.IsAttached)
-			{
-				// An unhandled exception has occurred; break into the debugger
-				Debugger.Break();
-			}
-			else
-			{
+			//if (Debugger.IsAttached)
+			//{
+			//    // An unhandled exception has occurred; break into the debugger
+			//    Debugger.Break();
+			//}
+			//else
+			//{
 				Deployment.Current.Dispatcher.BeginInvoke(
 					() =>
 						{
@@ -168,7 +168,7 @@ namespace TodotxtTouch.WindowsPhone
 							SendEmailOfException(errorMsg);
 						}
 					);
-			}
+			//}
 		}
 
 		private static void SendEmailOfException(string msg)
