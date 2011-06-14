@@ -6,7 +6,7 @@ using System.Windows.Resources;
 using DropNet;
 using Newtonsoft.Json;
 
-namespace TodotxtTouch.WindowsPhone.ViewModel
+namespace TodotxtTouch.WindowsPhone.Service
 {
 	public static class DropNetExtensions
 	{

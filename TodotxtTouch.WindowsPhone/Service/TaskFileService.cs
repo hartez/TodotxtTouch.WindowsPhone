@@ -43,8 +43,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 					{
 						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; starting sync", GetFileName());
-							Sync();
+							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; loading...", GetFileName());
+							if (!LocalFileExists)
+							{
+								Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+								SaveTasks();
+							}
+
+							Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+							LoadTasks();
 						}
 					});
 		}
@@ -210,19 +217,19 @@ namespace TodotxtTouch.WindowsPhone.Service
 					                  	}
 						);
 				}
-			}
-			else if (LoadingState == TaskLoadingState.NotLoaded)
-			{
-				// Check for a local file
-				if (!LocalFileExists)
+				else if (LoadingState == TaskLoadingState.NotLoaded)
 				{
-					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
-					SaveTasks();
-				}
+					// Check for a local file
+					if (!LocalFileExists)
+					{
+						Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+						SaveTasks();
+					}
 
-				Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
-				LoadTasks();
-				PushLocal();
+					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+					LoadTasks();
+					PushLocal();
+				}
 			}
 		}
 

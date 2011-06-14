@@ -12,10 +12,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public ApplicationSettings()
 		{
-			_todoFilePath = "/todo";
+			_todoFileName = "todo.txt";
+			_archiveFileName = "done.txt";
+#if DEBUG	
 			_todoFileName = "testingtodo.txt";
-			_archiveFilePath = "/todo";
 			_archiveFileName = "testingdone.txt";
+#endif
+			_todoFilePath = "/todo";
+			_archiveFilePath = "/todo";
+			
 		}
 
 		public string ArchiveFilePath
