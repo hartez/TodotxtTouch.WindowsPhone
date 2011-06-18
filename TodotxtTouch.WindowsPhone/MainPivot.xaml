@@ -8,9 +8,8 @@
                             xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone"
                             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
                             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" 
-                            xmlns:li="clr-namespace:TodotxtTouch.WindowsPhone.Interactivity"
                             xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-                            xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" mc:Ignorable="d" 
+                            xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" xmlns:Interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone" mc:Ignorable="d" 
                             d:DesignWidth="480" d:DesignHeight="696" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
                             FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" 
                             SupportedOrientations="Portrait" Orientation="Portrait" shell:SystemTray.IsVisible="True" 
@@ -57,13 +56,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <li:GestureBehavior />
+                        <Interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <li:TapTrigger>
+                        <Interactivity:TapTrigger>
                             <cmd:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
-                        </li:TapTrigger>
+                        </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
 
@@ -89,13 +88,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <li:GestureBehavior />
+                        <Interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <li:TapTrigger>
+                        <Interactivity:TapTrigger>
                             <cmd:EventToCommand Command="{Binding FilterByContextCommand}" />
-                        </li:TapTrigger>
+                        </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
 			</controls:PivotItem>
@@ -121,13 +120,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <li:GestureBehavior />
+                        <Interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <li:TapTrigger>
+                        <Interactivity:TapTrigger>
                             <cmd:EventToCommand Command="{Binding FilterByProjectCommand}" />
-                        </li:TapTrigger>
+                        </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
 
 				</ListBox>
@@ -154,13 +153,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <li:GestureBehavior />
+                        <Interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <li:TapTrigger>
+                        <Interactivity:TapTrigger>
                             <cmd:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
-                        </li:TapTrigger>
+                        </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
 			</controls:PivotItem>

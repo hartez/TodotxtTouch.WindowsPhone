@@ -36,8 +36,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
 
-			_dropBoxService.DropBoxServiceConnectedChanged += DropBoxServiceConnectedChanged;
-
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, message =>
 					{
@@ -136,11 +134,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private String FullPath
 		{
 			get { return GetFilePath() + "/" + GetFileName(); }
-		}
-
-		private void DropBoxServiceConnectedChanged(object sender, DropBoxServiceAvailableChangedEventArgs e)
-		{
-			Sync();
 		}
 
 		protected abstract String GetFilePath();

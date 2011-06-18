@@ -96,9 +96,6 @@
     <Compile Include="ApplicationSettingsPage.xaml.cs">
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interactivity\GestureBehavior.cs" />
-    <Compile Include="Interactivity\TapTrigger.cs" />
-    <Compile Include="Interactivity\GestureTrigger.cs" />
     <Compile Include="LittleWatson.cs" />
     <Compile Include="LogViewPage.xaml.cs">
       <DependentUpon>LogViewPage.xaml</DependentUpon>
