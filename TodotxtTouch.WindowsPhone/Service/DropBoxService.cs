@@ -110,7 +110,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public bool HasLoginCredentials
 		{
-			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username) && Password != "23yoink42dropbo"; }
+			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username); }
 		}
 
 		/// <summary>

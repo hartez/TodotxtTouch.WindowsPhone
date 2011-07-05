@@ -182,8 +182,7 @@
                 <shell:ApplicationBarMenuItem Click="SettingsClick"
                                               Text="Settings" />
                 <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>
-                <shell:ApplicationBarMenuItem Click="LogClick"
-                                              Text="View Log" />
+                
             </shell:ApplicationBar.MenuItems>
 		</shell:ApplicationBar>
 

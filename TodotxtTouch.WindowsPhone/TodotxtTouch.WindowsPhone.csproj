@@ -48,6 +48,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AgiliTrain.PhoneyTools, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.dll</HintPath>
+    </Reference>
+    <Reference Include="AgiliTrain.PhoneyTools.Microphone">
+      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Microphone.dll</HintPath>
+    </Reference>
+    <Reference Include="AgiliTrain.PhoneyTools.Net">
+      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
+    </Reference>
     <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
@@ -97,9 +107,6 @@
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="LittleWatson.cs" />
-    <Compile Include="LogViewPage.xaml.cs">
-      <DependentUpon>LogViewPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MultiSelectPage.xaml.cs">
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
@@ -158,10 +165,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LogViewPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainPivot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -185,6 +188,7 @@
     <Content Include="Images\check.png" />
     <Content Include="Images\delete.png" />
     <Content Include="Images\refresh.png" />
+    <Content Include="README_Phoney.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
     <Resource Include="apikeys.txt" />
@@ -198,12 +202,6 @@
     <Content Include="Images\cancel.png" />
     <Content Include="Images\save.png" />
     <Content Include="SplashScreenImage.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\PhoneyFork\PhoneyTools\PhoneyTools.csproj">
-      <Project>{EDAE21BD-9396-4016-8E18-0BD10BE5DD53}</Project>
-      <Name>PhoneyTools</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />

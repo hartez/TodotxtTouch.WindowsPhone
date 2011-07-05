@@ -37,11 +37,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Code runs "for real"
 				_dropBoxService = dropBoxService;
 
-#if DEBUG
-				Username = "hartez@gmail.com";
-				Password = "23yoink42dropbo";
-#endif
-
 				UpdateCredentialsCommand = new RelayCommand(UpdateCredentials);
 			}
 		}

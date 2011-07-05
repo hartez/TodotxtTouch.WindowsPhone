@@ -125,11 +125,6 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			NavigationService.Navigate(new Uri("/ApplicationSettingsPage.xaml", UriKind.Relative));
 		}
-
-		private void LogClick(object sender, EventArgs e)
-		{
-			NavigationService.Navigate(new Uri("/LogViewPage.xaml", UriKind.Relative));
-		}
 	}
 }
 

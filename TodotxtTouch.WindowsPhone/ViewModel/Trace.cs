@@ -8,7 +8,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	{
 		internal static void Write(PhoneLogger.LogLevel logLevel, string message, params object[] args)
 		{
-			PhoneLogger.MinimumLogLevel = PhoneLogger.LogLevel.Error;
 			Debug.WriteLine(message, args);
 			
 			switch(logLevel)
