@@ -96,9 +96,6 @@
     <Compile Include="ApplicationSettingsPage.xaml.cs">
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interactivity\GestureBehavior.cs" />
-    <Compile Include="Interactivity\TapTrigger.cs" />
-    <Compile Include="Interactivity\GestureTrigger.cs" />
     <Compile Include="LittleWatson.cs" />
     <Compile Include="LogViewPage.xaml.cs">
       <DependentUpon>LogViewPage.xaml</DependentUpon>
@@ -107,6 +104,7 @@
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Service\DropBoxServiceConnectedChangedEventArgs.cs" />
+    <Compile Include="Service\DropNetExtensions.cs" />
     <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
@@ -130,7 +128,6 @@
     <Compile Include="ViewModel\ApplicationReadyMessage.cs" />
     <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
     <Compile Include="Service\DropBoxService.cs" />
-    <Compile Include="ViewModel\DropNetExtensions.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NeedCredentialsMessage.cs" />

@@ -36,15 +36,20 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
 
-			_dropBoxService.DropBoxServiceConnectedChanged += DropBoxServiceConnectedChanged;
-
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, message =>
 					{
 						if (LoadingState == TaskLoadingState.NotLoaded)
 						{
-							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; starting sync", GetFileName());
-							Sync();
+							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; loading...", GetFileName());
+							if (!LocalFileExists)
+							{
+								Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+								SaveTasks();
+							}
+
+							Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+							LoadTasks();
 						}
 					});
 		}
@@ -131,11 +136,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			get { return GetFilePath() + "/" + GetFileName(); }
 		}
 
-		private void DropBoxServiceConnectedChanged(object sender, DropBoxServiceAvailableChangedEventArgs e)
-		{
-			Sync();
-		}
-
 		protected abstract String GetFilePath();
 		protected abstract String GetFileName();
 
@@ -210,19 +210,19 @@ namespace TodotxtTouch.WindowsPhone.Service
 					                  	}
 						);
 				}
-			}
-			else if (LoadingState == TaskLoadingState.NotLoaded)
-			{
-				// Check for a local file
-				if (!LocalFileExists)
+				else if (LoadingState == TaskLoadingState.NotLoaded)
 				{
-					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
-					SaveTasks();
-				}
+					// Check for a local file
+					if (!LocalFileExists)
+					{
+						Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+						SaveTasks();
+					}
 
-				Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
-				LoadTasks();
-				PushLocal();
+					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+					LoadTasks();
+					PushLocal();
+				}
 			}
 		}
 
@@ -336,6 +336,68 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
+		/// <summary>
+		/// Reads data from a stream until the end is reached. The
+		/// data is returned as a byte array. An IOException is
+		/// thrown if any of the underlying IO calls fail.
+		/// </summary>
+		/// <param name="stream">The stream to read data from</param>
+		/// <param name="initialLength">The initial buffer length</param>
+		public static byte[] ReadFully(Stream stream, int initialLength)
+		{
+			// If we've been passed an unhelpful initial length, just
+			// use 32K.
+			if (initialLength < 1)
+			{
+				initialLength = 32768;
+			}
+
+			byte[] buffer = new byte[initialLength];
+			int read = 0;
+
+			int chunk;
+			while ((chunk = stream.Read(buffer, read, buffer.Length - read)) > 0)
+			{
+				read += chunk;
+
+				// If we've reached the end of our buffer, check to see if there's
+				// any more information
+				if (read == buffer.Length)
+				{
+					int nextByte = stream.ReadByte();
+
+					// End of stream? If so, we're done
+					if (nextByte == -1)
+					{
+						return buffer;
+					}
+
+					// Nope. Resize the buffer, put in the byte we've just
+					// read, and continue
+					byte[] newBuffer = new byte[buffer.Length * 2];
+					Array.Copy(buffer, newBuffer, buffer.Length);
+					newBuffer[read] = (byte)nextByte;
+					buffer = newBuffer;
+					read++;
+				}
+			}
+			// Buffer is now too big. Shrink it.
+			byte[] ret = new byte[read];
+			Array.Copy(buffer, ret, read);
+			return ret;
+		}
+
+		private static byte[] ReadLocalFile(string fileName)
+		{
+			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			{
+				using (IsolatedStorageFileStream file = appStorage.OpenFile(fileName, FileMode.Open, FileAccess.Read))
+				{
+					return ReadFully(file, 0);
+				}
+			}
+		}
+
 		private void PushLocal()
 		{
 			if (_dropBoxService.Accessible)
@@ -343,26 +405,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 				Trace.Write(PhoneLogger.LogLevel.Debug,
 				            "Pushing up local version of {0}", GetFileName());
 
-				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-				{
-					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
+				var localFile = GetFileName();
+
+				byte[] bytes = ReadLocalFile(localFile);
+
+				_dropBoxService.Upload(GetFilePath(), localFile, bytes, response => GetRemoteMetaData(metaDataResponse =>
 					{
-						var bytes = new byte[file.Length];
-						file.Read(bytes, 0, (int) file.Length);
+						LocalHasChanges = false;
+						LocalLastModified = metaDataResponse.UTCDateModified;
 
-						_dropBoxService.Upload(GetFilePath(), GetFileName(), bytes, response => GetRemoteMetaData(metaDataResponse =>
-							{
-								LocalHasChanges = false;
-								LocalLastModified = metaDataResponse.UTCDateModified;
+						Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", localFile);
 
-								Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", GetFileName());
-
-								LoadingState = TaskLoadingState.Ready;
-							}, LogExceptionAndReadyUp),
-						                       LogExceptionAndReadyUp
-							);
-					}
-				}
+						LoadingState = TaskLoadingState.Ready;
+					}, LogExceptionAndReadyUp),
+				                       LogExceptionAndReadyUp
+					);
 			}
 		}
 
@@ -378,7 +435,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			if (_dropBoxService.Accessible)
 			{
 				Trace.Write(PhoneLogger.LogLevel.Debug,
-				            "Going to attempt to merge the files ({0})", GetFileName());
+				            "Going to attempt to merge the files");
 
 				_dropBoxService.GetFile(FullPath,
 				                        response =>
@@ -394,7 +451,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 				                        			// current tasklist
 				                        			IEnumerable<Task> tasksToAdd =
 				                        				tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
-				                        			foreach (Task task in tasksToAdd)
+				                        			
+													foreach (Task task in tasksToAdd)
 				                        			{
 				                        				TaskList.Add(task);
 				                        			}

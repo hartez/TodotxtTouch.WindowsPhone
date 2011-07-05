@@ -178,8 +178,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void Sync()
 		{
-			_taskFileService.Sync();
 			_archiveFileService.Sync();
+			_taskFileService.Sync();
 		}
 
 		private void RemoveSelectedTasks()
