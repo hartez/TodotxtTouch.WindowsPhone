@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodotxtTouch.WindowsPhone",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EZLibrary.WindowsPhone", "lib\EZLibrary\EZLibrary.WindowsPhone\EZLibrary.WindowsPhone.csproj", "{C04B3D51-3C88-4095-9D2E-72225F660E16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodotxtLib.WindowsPhone", "lib\todotxtlib.net\TodotxtLib.WindowsPhone\TodotxtLib.WindowsPhone.csproj", "{72B34FDD-937F-4687-B990-37C859561D90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C04B3D51-3C88-4095-9D2E-72225F660E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C04B3D51-3C88-4095-9D2E-72225F660E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C04B3D51-3C88-4095-9D2E-72225F660E16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B34FDD-937F-4687-B990-37C859561D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B34FDD-937F-4687-B990-37C859561D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B34FDD-937F-4687-B990-37C859561D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B34FDD-937F-4687-B990-37C859561D90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

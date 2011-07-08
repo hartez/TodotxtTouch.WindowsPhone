@@ -1,3 +1,6 @@
 [submodule "lib/EZLibrary"]
 	path = lib/EZLibrary
 	url = https://github.com/hartez/EZLibrary
+[submodule "lib/todotxtlib.net"]
+	path = lib/todotxtlib.net
+	url = https://github.com/hartez/todotxtlib.net

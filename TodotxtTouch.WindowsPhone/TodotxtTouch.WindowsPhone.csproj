@@ -92,9 +92,6 @@
       <HintPath>..\packages\MvvmLight.3.0.2\lib\sl3-wp\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="TodotxtLib.WindowsPhone">
-      <HintPath>..\lib\TodotxtLib.WindowsPhone.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -204,6 +201,10 @@
     <ProjectReference Include="..\lib\EZLibrary\EZLibrary.WindowsPhone\EZLibrary.WindowsPhone.csproj">
       <Project>{C04B3D51-3C88-4095-9D2E-72225F660E16}</Project>
       <Name>EZLibrary.WindowsPhone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\todotxtlib.net\TodotxtLib.WindowsPhone\TodotxtLib.WindowsPhone.csproj">
+      <Project>{72B34FDD-937F-4687-B990-37C859561D90}</Project>
+      <Name>TodotxtLib.WindowsPhone</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
