@@ -61,9 +61,6 @@
     <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
-    <Reference Include="EZLibrary.WindowsPhone">
-      <HintPath>..\lib\EZLibrary.WindowsPhone.dll</HintPath>
-    </Reference>
     <Reference Include="GalaSoft.MvvmLight.Extras.WP7">
       <HintPath>..\packages\MvvmLight.3.0.2\lib\sl3-wp\GalaSoft.MvvmLight.Extras.WP7.dll</HintPath>
     </Reference>
@@ -202,6 +199,12 @@
     <Content Include="Images\cancel.png" />
     <Content Include="Images\save.png" />
     <Content Include="SplashScreenImage.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\EZLibrary\EZLibrary.WindowsPhone\EZLibrary.WindowsPhone.csproj">
+      <Project>{C04B3D51-3C88-4095-9D2E-72225F660E16}</Project>
+      <Name>EZLibrary.WindowsPhone</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
