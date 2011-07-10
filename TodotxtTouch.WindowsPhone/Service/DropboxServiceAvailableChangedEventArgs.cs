@@ -2,7 +2,7 @@
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
-	public class DropBoxServiceAvailableChangedEventArgs : EventArgs
+	public class DropboxServiceAvailableChangedEventArgs : EventArgs
 	{
 		
 	}

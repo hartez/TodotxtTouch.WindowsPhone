@@ -28,7 +28,7 @@
 	<!--LayoutRoot is the root grid where all page content is placed-->
 	<Grid x:Name="LayoutRoot" Background="Transparent">
 
-		<WindowsPhone:DropBoxLogin x:Name="DropBoxLogin" Visibility="Collapsed" Opacity="0"></WindowsPhone:DropBoxLogin>
+		<WindowsPhone:DropboxLogin x:Name="DropboxLogin" Visibility="Collapsed" Opacity="0"></WindowsPhone:DropboxLogin>
 
         <toolkit:PerformanceProgressBar x:Name="performanceProgressBar" IsIndeterminate="{Binding Busy}" />
 

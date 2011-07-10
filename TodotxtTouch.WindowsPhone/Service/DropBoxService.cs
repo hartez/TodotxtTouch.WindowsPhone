@@ -11,7 +11,7 @@ using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
-	public class DropBoxService
+	public class DropboxService
 	{
 		private DropNetClient _dropNetClient;
 

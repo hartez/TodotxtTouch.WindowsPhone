@@ -23,13 +23,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		protected readonly ApplicationSettings Settings;
 		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
-		private readonly DropBoxService _dropBoxService;
+		private readonly DropboxService _dropBoxService;
 		private readonly TaskList _taskList = new TaskList();
 		private IDisposable _changeSubscription;
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private DateTime? _localLastModified;
 
-		protected TaskFileService(DropBoxService dropBoxService, ApplicationSettings settings)
+		protected TaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 		{
 			_dropBoxService = dropBoxService;
 			Settings = settings;
@@ -547,7 +547,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 	public class PrimaryTaskFileService : TaskFileService
 	{
-		public PrimaryTaskFileService(DropBoxService dropBoxService, ApplicationSettings settings)
+		public PrimaryTaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 			: base(dropBoxService, settings)
 		{
 		}
@@ -565,7 +565,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 	public class ArchiveTaskFileService : TaskFileService
 	{
-		public ArchiveTaskFileService(DropBoxService dropBoxService, ApplicationSettings settings)
+		public ArchiveTaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 			: base(dropBoxService, settings)
 		{
 		}

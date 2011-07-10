@@ -7,9 +7,9 @@ using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	public class DropBoxCredentialsViewModel : ViewModelBase
+	public class DropboxCredentialsViewModel : ViewModelBase
 	{
-		private DropBoxService _dropBoxService;
+		private DropboxService _dropBoxService;
 
 		/// <summary>
 		/// The <see cref="Username" /> property's name.
@@ -26,7 +26,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// <summary>
 		/// Initializes a new instance of the ApplicationSettingsViewModel class.
 		/// </summary>
-		public DropBoxCredentialsViewModel(DropBoxService dropBoxService)
+		public DropboxCredentialsViewModel(DropboxService dropBoxService)
 		{
 			if (IsInDesignMode)
 			{

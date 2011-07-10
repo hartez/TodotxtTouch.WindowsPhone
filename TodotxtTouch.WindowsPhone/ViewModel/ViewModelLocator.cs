@@ -27,9 +27,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	public class ViewModelLocator
 	{
 		private static MainViewModel _main;
-		private static DropBoxCredentialsViewModel _dropBoxCredentials;
+		private static DropboxCredentialsViewModel _dropBoxCredentials;
 		private static ApplicationSettingsViewModel _applicationSettingsViewModel;
-		private static DropBoxService _dropBoxService;
+		private static DropboxService _dropBoxService;
 
 		/// <summary>
 		/// Initializes a new instance of the ViewModelLocator class.
@@ -43,14 +43,14 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 			else
 			{
-				_dropBoxService = new DropBoxService();
+				_dropBoxService = new DropboxService();
 				var settings = new ApplicationSettings();
 
 				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
 
 				Messenger.Default.Register<ApplicationSettingsChangedMessage>(this, asc => Initialize(asc.Settings));
 
-				_dropBoxCredentials = new DropBoxCredentialsViewModel(_dropBoxService);
+				_dropBoxCredentials = new DropboxCredentialsViewModel(_dropBoxService);
 
 				Initialize(settings);
 			}
@@ -73,7 +73,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
-		public DropBoxCredentialsViewModel DropBoxCredentials
+		public DropboxCredentialsViewModel DropboxCredentials
 		{
 			get { return _dropBoxCredentials; }
 		}

@@ -2,9 +2,9 @@
 
 namespace TodotxtTouch.WindowsPhone
 {
-	public partial class DropBoxLogin : UserControl
+	public partial class DropboxLogin : UserControl
 	{
-		public DropBoxLogin()
+		public DropboxLogin()
 		{
 			InitializeComponent();
 		}

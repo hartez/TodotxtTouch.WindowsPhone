@@ -70,7 +70,7 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			LittleWatson.CheckForPreviousException();	
 
-			DropBoxLogin.Opacity = 1;
+			DropboxLogin.Opacity = 1;
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
@@ -86,14 +86,14 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void ShowLogin()
 		{
-			DropBoxLogin.Visibility = Visibility.Visible;
+			DropboxLogin.Visibility = Visibility.Visible;
 			TaskPivot.Visibility = Visibility.Collapsed;
 			ApplicationBar.IsVisible = false;
 		}
 
 		private void HideLogin()
 		{
-			DropBoxLogin.Visibility = Visibility.Collapsed;
+			DropboxLogin.Visibility = Visibility.Collapsed;
 			TaskPivot.Visibility = Visibility.Visible;
 			ApplicationBar.IsVisible = true;
 		}
@@ -106,7 +106,7 @@ namespace TodotxtTouch.WindowsPhone
 					TaskPivot.Visibility = Visibility.Collapsed;
 					break;
 				case TaskLoadingState.Ready:
-					DropBoxLogin.Visibility = Visibility.Collapsed;
+					DropboxLogin.Visibility = Visibility.Collapsed;
 					TaskPivot.Visibility = Visibility.Visible;
 					break;
 				default:
