@@ -74,7 +74,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
 		private TaskFileService _archiveFileService;
 		private List<TaskFilter> _filters = new List<TaskFilter>();
-		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
+		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
 		private String _selectedContext;
 		private String _selectedProject;

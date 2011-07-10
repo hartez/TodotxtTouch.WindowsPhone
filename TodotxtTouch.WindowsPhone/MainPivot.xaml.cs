@@ -101,9 +101,6 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			switch (taskLoadingState)
 			{
-				case TaskLoadingState.NotLoaded:
-					TaskPivot.Visibility = Visibility.Collapsed;
-					break;
 				case TaskLoadingState.Syncing:
 					TaskPivot.Visibility = Visibility.Collapsed;
 					break;

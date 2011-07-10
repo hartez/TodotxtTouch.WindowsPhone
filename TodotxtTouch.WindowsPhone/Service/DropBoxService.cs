@@ -30,8 +30,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 							Connect();
 						}
 					});
-
-			Connect();
 		}
 
 		public void Connect()
@@ -41,7 +39,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public void Connect(Action connectCallback)
 		{
-			if (NetworkInterface.GetIsNetworkAvailable())
+			if (NetworkHelper.GetIsNetworkAvailable())
 			{
 				if (WeHaveTokens)
 				{
@@ -209,7 +207,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public bool Accessible
 		{
-			get { return NetworkInterface.GetIsNetworkAvailable() && WeHaveTokens; } 
+			get { return NetworkHelper.GetIsNetworkAvailable() && WeHaveTokens; } 
 		}
 
 		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)

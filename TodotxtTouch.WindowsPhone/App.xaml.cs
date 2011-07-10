@@ -9,15 +9,20 @@ using AgiliTrain.PhoneyTools;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Net.NetworkInformation;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Tasks;
+using TodotxtTouch.WindowsPhone.Service;
 using TodotxtTouch.WindowsPhone.ViewModel;
+using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
 
 namespace TodotxtTouch.WindowsPhone
 {
 	public partial class App : Application
 	{
 		private string StateKey = "State";
+
+		public NetworkHelper NetworkHelper;
 
 		/// <summary>
 		/// Constructor for the Application object.
@@ -48,6 +53,9 @@ namespace TodotxtTouch.WindowsPhone
 
 			// Phone-specific initialization
 			InitializePhoneApplication();
+
+			// Uncomment the next line to test the app without network connectivity
+			//NetworkHelper.Intialize(() => false);
 		}
 
 		void App_Startup(object sender, StartupEventArgs e)

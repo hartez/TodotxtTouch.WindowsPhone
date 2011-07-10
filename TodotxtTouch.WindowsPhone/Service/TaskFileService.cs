@@ -24,7 +24,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private readonly DropBoxService _dropBoxService;
 		private readonly TaskList _taskList = new TaskList();
 		private IDisposable _changeSubscription;
-		private TaskLoadingState _loadingState = TaskLoadingState.NotLoaded;
+		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private DateTime? _localLastModified;
 
 		protected TaskFileService(DropBoxService dropBoxService, ApplicationSettings settings)
@@ -39,8 +39,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, message =>
 					{
-						if (LoadingState == TaskLoadingState.NotLoaded)
-						{
 							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; loading...", GetFileName());
 							if (!LocalFileExists)
 							{
@@ -50,7 +48,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 							Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
 							LoadTasks();
-						}
 					});
 		}
 
@@ -98,7 +95,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			get { return GetFileName() + "LocalLastModified"; }
 		}
 
-		private DateTime? LocalLastModified
+		private DateTime? LocalLastSynced
 		{
 			get
 			{
@@ -210,19 +207,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 					                  	}
 						);
 				}
-				else if (LoadingState == TaskLoadingState.NotLoaded)
-				{
-					// Check for a local file
-					if (!LocalFileExists)
-					{
-						Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
-						SaveTasks();
-					}
-
-					Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
-					LoadTasks();
-					PushLocal();
-				}
 			}
 			else
 			{
@@ -275,12 +259,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			// Use the metadata to make a decision about whether to 
 			// get/merge the remote file
-			if (LocalLastModified.HasValue)
+			if (LocalLastSynced.HasValue)
 			{
 				Trace.Write(PhoneLogger.LogLevel.Debug,
-				            "We have a local version of {0} last modified at {1}", GetFileName(), LocalLastModified);
+				            "We have a local version of {0} last modified at {1}", GetFileName(), LocalLastSynced);
 
-				if (LocalLastModified.Value.CompareTo(remoteLastModified) == 0 && !LocalHasChanges)
+				if (LocalLastSynced.Value.CompareTo(remoteLastModified) == 0 && !LocalHasChanges)
 				{
 					Trace.Write(PhoneLogger.LogLevel.Debug,
 					            "{0}: No local changes and the last time it was retrieved is the same as the last time the Dropbox file was modified (so don't do anything)",
@@ -295,7 +279,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 						LoadingState = TaskLoadingState.Ready;
 					}
 				}
-				else if (LocalLastModified.Value.CompareTo(remoteLastModified) < 0 && !LocalHasChanges)
+				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) < 0 && !LocalHasChanges)
 				{
 					//	If local.Retrieved < remote.LastUpdated and local has no changes, replace local with remote (local.Retrieved = remote.LastUpdated)
 					Trace.Write(PhoneLogger.LogLevel.Debug,
@@ -305,7 +289,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteLastModified;
 					UseRemoteFile(remoteLastModified);
 				}
-				else if (LocalLastModified.Value.CompareTo(remoteLastModified) < 0 && LocalHasChanges)
+				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) < 0 && LocalHasChanges)
 				{
 					//If local.Retrieved < remote.LastUpdated and local has changes, merge (???) or maybe just upload local to conflicted file?
 					Trace.Write(PhoneLogger.LogLevel.Debug,
@@ -314,7 +298,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 					Merge();
 				}
-				else if (LocalLastModified.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
+				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
 				{
 					//If local.Retrieved == remote.LastUpdate and local has changes, upload local
 
@@ -336,7 +320,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 				Trace.Write(PhoneLogger.LogLevel.Debug,
 				            "We have a local version of {0}, but no idea when it was last modified", GetFileName());
 
-				UseRemoteFile(remoteLastModified);
+				// The only reason for this to happen would be that a local file was created before any 
+				// synchronization was done. So we should merge any local stuff with whatever is in the remote
+				Merge();
 			}
 		}
 
@@ -416,7 +402,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				_dropBoxService.Upload(GetFilePath(), localFile, bytes, response => GetRemoteMetaData(metaDataResponse =>
 					{
 						LocalHasChanges = false;
-						LocalLastModified = metaDataResponse.UTCDateModified;
+						LocalLastSynced = metaDataResponse.UTCDateModified;
 
 						Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", localFile);
 
@@ -516,7 +502,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				}
 			}
 
-			LocalLastModified = remoteModifiedTime;
+			LocalLastSynced = remoteModifiedTime;
 			LocalHasChanges = false;
 			LoadTasks();
 		}

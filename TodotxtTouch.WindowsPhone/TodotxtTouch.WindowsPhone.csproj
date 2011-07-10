@@ -106,6 +106,7 @@
     </Compile>
     <Compile Include="Service\DropBoxServiceConnectedChangedEventArgs.cs" />
     <Compile Include="Service\DropNetExtensions.cs" />
+    <Compile Include="Service\NetworkHelper.cs" />
     <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
