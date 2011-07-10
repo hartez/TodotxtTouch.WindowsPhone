@@ -35,7 +35,7 @@
 		<controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot" 
                         Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.2}">
 			<!--Pivot item all-->
-			<controls:PivotItem Header="all" x:Name="AllTasksPivotItem">
+			<controls:PivotItem Header="tasks" x:Name="AllTasksPivotItem">
 
                 <ListBox x:Name="AllTasks"
                          ItemsSource="{Binding AllTasks}"
@@ -130,38 +130,6 @@
                     </i:Interaction.Triggers>
 
 				</ListBox>
-			</controls:PivotItem>
-
-			<!--Pivot item completed-->
-			<controls:PivotItem x:Name="CompletedTasksPivotItem" Header="complete">
-                <ListBox x:Name="CompletedTasks"
-                         ItemsSource="{Binding CompletedTasks}"
-                         SelectionMode="Single"
-                         SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling">
-
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Converter={StaticResource TaskValueConverter}}"
-                                      
-                                       Foreground="{Binding Converter={StaticResource TaskValueConverter}}" Style="{StaticResource PrimaryTaskStyle}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-
-                    <toolkit:GestureService.GestureListener>
-                        <toolkit:GestureListener />
-                    </toolkit:GestureService.GestureListener>
-
-                    <i:Interaction.Behaviors>
-                        <Interactivity:GestureBehavior />
-                    </i:Interaction.Behaviors>
-
-                    <i:Interaction.Triggers>
-                        <Interactivity:TapTrigger>
-                            <cmd:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
-                        </Interactivity:TapTrigger>
-                    </i:Interaction.Triggers>
-                </ListBox>
 			</controls:PivotItem>
 
 		</controls:Pivot>
