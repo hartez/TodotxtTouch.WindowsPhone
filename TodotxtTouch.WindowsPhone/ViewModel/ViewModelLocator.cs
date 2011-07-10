@@ -47,7 +47,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
 
-				Messenger.Default.Register<ApplicationSettingsChanged>(this, asc => Initialize(asc.Settings));
+				Messenger.Default.Register<ApplicationSettingsChangedMessage>(this, asc => Initialize(asc.Settings));
 
 				_dropBoxCredentials = new DropBoxCredentialsViewModel(_dropBoxService);
 

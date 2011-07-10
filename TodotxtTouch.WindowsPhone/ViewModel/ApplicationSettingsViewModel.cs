@@ -35,7 +35,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			_settings = settings;
 
-			BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChanged(_settings)));
+			BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
 
 			if (IsInDesignMode)
 			{
