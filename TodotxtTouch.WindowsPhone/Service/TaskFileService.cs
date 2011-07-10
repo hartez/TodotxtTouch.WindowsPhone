@@ -224,6 +224,10 @@ namespace TodotxtTouch.WindowsPhone.Service
 					PushLocal();
 				}
 			}
+			else
+			{
+				_dropBoxService.Connect(Sync);
+			}
 		}
 
 		private void Sync(MetaData data)

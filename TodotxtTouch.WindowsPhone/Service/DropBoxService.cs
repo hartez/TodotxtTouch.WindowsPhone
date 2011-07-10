@@ -20,47 +20,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private String _secret = String.Empty;
 		private String _token = String.Empty;
 
-		public event EventHandler<DropBoxServiceAvailableChangedEventArgs> DropBoxServiceConnectedChanged;
-
-		public void InvokeDropBoxServiceConnectedChanged(DropBoxServiceAvailableChangedEventArgs e)
-		{
-			EventHandler<DropBoxServiceAvailableChangedEventArgs> handler = DropBoxServiceConnectedChanged;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
-		}
-
-		private bool _authenticated = false;
-
-		public bool Authenticated
-		{
-			get
-			{
-				return _authenticated;
-			}
-			set
-			{
-				_authenticated = value;
-				InvokeDropBoxServiceConnectedChanged(new DropBoxServiceAvailableChangedEventArgs());
-			}
-		}
-
 		public DropBoxService()
 		{
-			Messenger.Default.Register<ApplicationReadyMessage>(
-				this, (message) =>
-					{
-						if(!Authenticated)
-						{
-							Connect();
-						}
-					});
-
 			Messenger.Default.Register<CredentialsUpdatedMessage>(
 					this, (message) =>
 					{
-						if (!Authenticated)
+						if (!WeHaveTokens)
 						{
 							Connect();
 						}
@@ -69,14 +34,23 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Connect();
 		}
 
-		private void Connect()
+		public void Connect()
+		{
+			Connect(null);
+		}
+
+		public void Connect(Action connectCallback)
 		{
 			if (NetworkInterface.GetIsNetworkAvailable())
 			{
-				if (IsAuthenticated)
+				if (WeHaveTokens)
 				{
 					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
-					Authenticated = true;
+
+					if (connectCallback != null)
+					{
+						connectCallback();
+					}
 				}
 				else if (HasLoginCredentials)
 				{
@@ -86,15 +60,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 						{
 							Token = response.Token;
 							Secret = response.Secret;
-							Authenticated = true;
-						},
-						(exception) =>
+
+							if(connectCallback != null)
 							{
-								Trace.Write(PhoneLogger.LogLevel.Error,
-								            exception.Message);
-								Authenticated = false;
+								connectCallback();
 							}
-						);
+						},
+						(exception) => Trace.Write(PhoneLogger.LogLevel.Error,
+						                           exception.Message));
 				}
 				else
 				{
@@ -103,7 +76,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		public bool IsAuthenticated
+		public bool WeHaveTokens
 		{
 			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
 		}
@@ -236,14 +209,22 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public bool Accessible
 		{
-			get { return NetworkInterface.GetIsNetworkAvailable() && Authenticated; } 
+			get { return NetworkInterface.GetIsNetworkAvailable() && WeHaveTokens; } 
 		}
 
 		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)
 		{
 			if (Accessible)
 			{
-				_dropNetClient.GetMetaDataAsync(path, success, failure);
+				try
+				{
+					_dropNetClient.GetMetaDataAsync(path, success, failure);
+				}
+				catch (Exception ex)
+				{
+					// TODO Figure out why done.txt keeps giving us metadata issues
+					Trace.Write(PhoneLogger.LogLevel.Error, ex.ToString());
+				}
 			}
 		}
 
