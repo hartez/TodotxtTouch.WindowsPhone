@@ -1,4 +1,6 @@
-﻿namespace TodotxtTouch.WindowsPhone.ViewModel
+﻿using TodotxtTouch.WindowsPhone.ViewModel;
+
+namespace TodotxtTouch.WindowsPhone.Messages
 {
 	public class ApplicationSettingsChangedMessage
 	{

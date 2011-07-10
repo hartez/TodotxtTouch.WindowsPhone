@@ -11,6 +11,7 @@ using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Reactive;
 using todotxtlib.net;
+using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.Service;
 using TodotxtTouch.WindowsPhone.Tasks;
 

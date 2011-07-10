@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using TodotxtTouch.WindowsPhone.Messages;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {

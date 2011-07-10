@@ -114,7 +114,7 @@
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
     <Compile Include="Tasks\ContextTaskFilter.cs" />
     <Compile Include="ViewModel\ApplicationSettings.cs" />
-    <Compile Include="ViewModel\ApplicationSettingsChanged.cs" />
+    <Compile Include="Messages\ApplicationSettingsChangedMessage.cs" />
     <Compile Include="ViewModel\ApplicationSettingsViewModel.cs" />
     <Compile Include="Messages\DrillDownMessage.cs" />
     <Compile Include="DropBoxLogin.xaml.cs">

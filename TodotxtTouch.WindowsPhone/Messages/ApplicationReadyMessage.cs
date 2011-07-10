@@ -1,4 +1,4 @@
-﻿namespace TodotxtTouch.WindowsPhone.ViewModel
+﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
 	public class ApplicationReadyMessage
 	{}
