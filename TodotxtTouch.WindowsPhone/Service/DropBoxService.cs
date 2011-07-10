@@ -6,73 +6,19 @@ using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using RestSharp;
+using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.ViewModel;
-using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
 	public class DropBoxService
 	{
-		private String _username = String.Empty;
 		private DropNetClient _dropNetClient;
 
 		private String _password = String.Empty;
 		private String _secret = String.Empty;
 		private String _token = String.Empty;
-
-		public DropBoxService()
-		{
-			Messenger.Default.Register<CredentialsUpdatedMessage>(
-					this, (message) =>
-					{
-						if (!WeHaveTokens)
-						{
-							Connect();
-						}
-					});
-		}
-
-		public void Connect()
-		{
-			Connect(null);
-		}
-
-		public void Connect(Action connectCallback)
-		{
-			if (NetworkHelper.GetIsNetworkAvailable())
-			{
-				if (WeHaveTokens)
-				{
-					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
-
-					if (connectCallback != null)
-					{
-						connectCallback();
-					}
-				}
-				else if (HasLoginCredentials)
-				{
-					_dropNetClient = DropNetExtensions.CreateClient();
-					_dropNetClient.LoginAsync(Username, Password, 
-						(response) =>
-						{
-							Token = response.Token;
-							Secret = response.Secret;
-
-							if(connectCallback != null)
-							{
-								connectCallback();
-							}
-						},
-						(exception) => Trace.Write(PhoneLogger.LogLevel.Error,
-						                           exception.Message));
-				}
-				else
-				{
-					Messenger.Default.Send(new NeedCredentialsMessage());
-				}
-			}
-		}
+		private String _username = String.Empty;
 
 		public bool WeHaveTokens
 		{
@@ -162,7 +108,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				{
 					String username;
 					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxUsername",
-																			out username))
+					                                                            out username))
 					{
 						_username = username;
 					}
@@ -189,10 +135,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		/// </summary>
 		public String Password
 		{
-			get
-			{
-				return _password;
-			}
+			get { return _password; }
 
 			set
 			{
@@ -207,39 +150,85 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public bool Accessible
 		{
-			get { return NetworkHelper.GetIsNetworkAvailable() && WeHaveTokens; } 
+			get { return NetworkHelper.GetIsNetworkAvailable() && WeHaveTokens; }
+		}
+
+		private void ExecuteDropboxAction(Action dropboxAction)
+		{
+			if (NetworkHelper.GetIsNetworkAvailable())
+			{
+				if (WeHaveTokens)
+				{
+					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+
+					if (dropboxAction != null)
+					{
+						dropboxAction();
+					}
+				}
+				else if (HasLoginCredentials)
+				{
+					_dropNetClient = DropNetExtensions.CreateClient();
+					_dropNetClient.LoginAsync(Username, Password,
+					                          (response) =>
+					                          	{
+					                          		Token = response.Token;
+					                          		Secret = response.Secret;
+
+					                          		if (dropboxAction != null)
+					                          		{
+					                          			dropboxAction();
+					                          		}
+					                          	},
+					                          (exception) => Trace.Write(PhoneLogger.LogLevel.Error,
+					                                                     exception.Message));
+				}
+				else
+				{
+					Messenger.Default.Register<CredentialsUpdatedMessage>(
+						this, (message) =>
+							{
+								Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
+								ExecuteDropboxAction(dropboxAction);
+							});
+
+					Messenger.Default.Send(new NeedCredentialsMessage());
+				}
+			}
+			else
+			{
+				Messenger.Default.Send(new NetworkUnavailableMessage());
+			}
 		}
 
 		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)
 		{
-			if (Accessible)
-			{
-				try
-				{
-					_dropNetClient.GetMetaDataAsync(path, success, failure);
-				}
-				catch (Exception ex)
-				{
-					// TODO Figure out why done.txt keeps giving us metadata issues
-					Trace.Write(PhoneLogger.LogLevel.Error, ex.ToString());
-				}
-			}
+			ExecuteDropboxAction(
+				() =>
+					{
+						try
+						{
+							_dropNetClient.GetMetaDataAsync(path, success, failure);
+						}
+						catch (Exception ex)
+						{
+							// TODO Figure out why done.txt keeps giving us metadata issues
+							Trace.Write(PhoneLogger.LogLevel.Error, ex.ToString());
+						}
+					});
 		}
 
-		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> success, Action<DropboxException> failure)
+		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> success,
+		                   Action<DropboxException> failure)
 		{
-			if (Accessible)
-			{
-				_dropNetClient.UploadFileAsync(path, filename, bytes, success, failure);
-			}
+			ExecuteDropboxAction(
+				() => _dropNetClient.UploadFileAsync(path, filename, bytes, success, failure));
 		}
 
 		public void GetFile(string path, Action<RestResponse> success, Action<DropboxException> failure)
 		{
-			if (Accessible)
-			{
-				_dropNetClient.GetFileAsync(path, success, failure);
-			}
+			ExecuteDropboxAction(
+				() => _dropNetClient.GetFileAsync(path, success, failure));
 		}
 	}
 }

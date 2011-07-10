@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using AgiliTrain.PhoneyTools;
 using DropNet.Exceptions;
 using DropNet.Models;
@@ -13,6 +14,7 @@ using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Reactive;
 using RestSharp;
 using todotxtlib.net;
+using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
@@ -190,27 +192,27 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public void Sync()
 		{
-			if (_dropBoxService.Accessible)
+			if (LoadingState != TaskLoadingState.Syncing)
 			{
-				if (LoadingState != TaskLoadingState.Syncing)
-				{
-					Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Syncing: {0}", GetFileName());
+				Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Syncing: {0}", GetFileName());
 
-					LoadingState = TaskLoadingState.Syncing;
+				LoadingState = TaskLoadingState.Syncing;
 
-					// Get the metadata for the remote file
-					GetRemoteMetaData(Sync,
-					                  exception =>
-					                  	{
-					                  		Trace.Write(PhoneLogger.LogLevel.Error, exception.Message);
-					                  		Sync(null);
-					                  	}
-						);
-				}
-			}
-			else
-			{
-				_dropBoxService.Connect(Sync);
+				Messenger.Default.Register<NetworkUnavailableMessage>(this,
+					msg =>
+				    {
+				        LoadingState = TaskLoadingState.Ready;
+				        Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
+				    });
+
+				// Get the metadata for the remote file
+				GetRemoteMetaData(Sync,
+				                  exception =>
+				                  	{
+				                  		Trace.Write(PhoneLogger.LogLevel.Error, exception.Message);
+				                  		Sync(null);
+				                  	}
+					);
 			}
 		}
 

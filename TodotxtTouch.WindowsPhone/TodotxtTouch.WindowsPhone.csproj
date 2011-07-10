@@ -101,6 +101,7 @@
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="LittleWatson.cs" />
+    <Compile Include="Messages\NetworkUnavailableMessage.cs" />
     <Compile Include="MultiSelectPage.xaml.cs">
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
@@ -115,7 +116,7 @@
     <Compile Include="ViewModel\ApplicationSettings.cs" />
     <Compile Include="ViewModel\ApplicationSettingsChanged.cs" />
     <Compile Include="ViewModel\ApplicationSettingsViewModel.cs" />
-    <Compile Include="ViewModel\DrillDownMessage.cs" />
+    <Compile Include="Messages\DrillDownMessage.cs" />
     <Compile Include="DropBoxLogin.xaml.cs">
       <DependentUpon>DropBoxLogin.xaml</DependentUpon>
     </Compile>
@@ -127,13 +128,13 @@
     <Compile Include="TaskDetail.xaml.cs">
       <DependentUpon>TaskDetail.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\ApplicationReadyMessage.cs" />
+    <Compile Include="Messages\ApplicationReadyMessage.cs" />
     <Compile Include="ViewModel\DropBoxCredentialsViewModel.cs" />
     <Compile Include="Service\DropBoxService.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\NeedCredentialsMessage.cs" />
-    <Compile Include="ViewModel\CredentialsUpdatedMessage.cs" />
+    <Compile Include="Messages\NeedCredentialsMessage.cs" />
+    <Compile Include="Messages\CredentialsUpdatedMessage.cs" />
     <Compile Include="Tasks\ProjectTaskFilter.cs" />
     <Compile Include="ViewModel\TaskExtensions.cs" />
     <Compile Include="Service\TaskFileService.cs" />
@@ -145,7 +146,7 @@
     <Compile Include="ViewModel\TombstoneState.cs" />
     <Compile Include="ViewModel\Trace.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="ViewModel\ViewTaskMessage.cs" />
+    <Compile Include="Messages\ViewTaskMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -208,6 +209,7 @@
       <Name>TodotxtLib.WindowsPhone</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -12,6 +12,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Net.NetworkInformation;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Tasks;
+using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.Service;
 using TodotxtTouch.WindowsPhone.ViewModel;
 using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
@@ -55,12 +56,17 @@ namespace TodotxtTouch.WindowsPhone
 			InitializePhoneApplication();
 
 			// Uncomment the next line to test the app without network connectivity
-			//NetworkHelper.Intialize(() => false);
+			NetworkHelper.TestNeverAvailable();
+
+			Messenger.Default.Register<NetworkUnavailableMessage>(this,
+				(msg) => MessageBox.Show("The network is currently unavailable", "Error", MessageBoxButton.OK));
 		}
 
 		void App_Startup(object sender, StartupEventArgs e)
 		{
 			DispatcherHelper.Initialize();
+			
+			
 		}
 
 		/// <summary>
