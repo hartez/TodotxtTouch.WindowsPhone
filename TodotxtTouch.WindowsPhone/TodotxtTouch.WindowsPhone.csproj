@@ -101,13 +101,16 @@
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="LittleWatson.cs" />
+    <Compile Include="Messages\CannotAccessDropboxMessage.cs" />
     <Compile Include="Messages\NetworkUnavailableMessage.cs" />
+    <Compile Include="Messages\SynchronizationErrorMessage.cs" />
     <Compile Include="MultiSelectPage.xaml.cs">
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Service\DropboxServiceAvailableChangedEventArgs.cs" />
     <Compile Include="Service\DropNetExtensions.cs" />
     <Compile Include="Service\NetworkHelper.cs" />
+    <Compile Include="Service\SynchronizationErrorEventArgs.cs" />
     <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />

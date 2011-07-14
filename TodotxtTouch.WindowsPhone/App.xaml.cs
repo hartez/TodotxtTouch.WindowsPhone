@@ -56,17 +56,20 @@ namespace TodotxtTouch.WindowsPhone
 			InitializePhoneApplication();
 
 			// Uncomment the next line to test the app without network connectivity
-			NetworkHelper.TestNeverAvailable();
+			//NetworkHelper.TestChaoticallyAvailable();
 
 			Messenger.Default.Register<NetworkUnavailableMessage>(this,
-				(msg) => MessageBox.Show("The network is currently unavailable", "Error", MessageBoxButton.OK));
+				msg => MessageBox.Show("The network is currently unavailable", "Error", MessageBoxButton.OK));
+
+			Messenger.Default.Register<SynchronizationErrorMessage>(this, msg => 
+				MessageBox.Show(
+					"An error occurred while syncing; you may need to try again later\n" + msg.Exception.Message, 
+					"Error", MessageBoxButton.OK));
 		}
 
 		void App_Startup(object sender, StartupEventArgs e)
 		{
 			DispatcherHelper.Initialize();
-			
-			
 		}
 
 		/// <summary>

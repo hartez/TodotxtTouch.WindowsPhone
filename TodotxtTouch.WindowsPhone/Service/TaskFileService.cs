@@ -6,7 +6,6 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using AgiliTrain.PhoneyTools;
 using DropNet.Exceptions;
 using DropNet.Models;
@@ -41,15 +40,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Messenger.Default.Register<ApplicationReadyMessage>(
 				this, message =>
 					{
-							Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; loading...", GetFileName());
-							if (!LocalFileExists)
-							{
-								Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
-								SaveTasks();
-							}
+						Trace.Write(PhoneLogger.LogLevel.Debug, "State is NotLoaded for file {0}; loading...", GetFileName());
+						if (!LocalFileExists)
+						{
+							Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} does not exist; creating it", GetFileName());
+							SaveTasks();
+						}
 
-							Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
-							LoadTasks();
+						Trace.Write(PhoneLogger.LogLevel.Debug, "Local file {0} exists; loading it up", GetFileName());
+						LoadTasks();
 					});
 		}
 
@@ -187,7 +186,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void GetRemoteMetaData(Action<MetaData> success, Action<DropboxException> failure)
 		{
-			_dropBoxService.GetMetaData(FullPath, success, failure);
+			try
+			{
+				_dropBoxService.GetMetaData(FullPath, success, failure);
+			}
+			catch (Exception ex)
+			{
+				Trace.Write(PhoneLogger.LogLevel.Error, ex.ToString());
+				throw;
+			}
 		}
 
 		public void Sync()
@@ -199,11 +206,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 				LoadingState = TaskLoadingState.Syncing;
 
 				Messenger.Default.Register<NetworkUnavailableMessage>(this,
-					msg =>
-				    {
-				        LoadingState = TaskLoadingState.Ready;
-				        Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
-				    });
+				                                                      msg =>
+				                                                      	{
+				                                                      		LoadingState = TaskLoadingState.Ready;
+				                                                      		Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
+				                                                      	});
 
 				// Get the metadata for the remote file
 				GetRemoteMetaData(Sync,
@@ -298,7 +305,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 					            "{0}: The dropbox file has changed since last time we retrieved it and the local one has changes",
 					            GetFileName());
 
-					Merge();
+					IntiateMerge();
 				}
 				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
 				{
@@ -324,7 +331,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 				// The only reason for this to happen would be that a local file was created before any 
 				// synchronization was done. So we should merge any local stuff with whatever is in the remote
-				Merge();
+				IntiateMerge();
 			}
 		}
 
@@ -344,7 +351,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				initialLength = 32768;
 			}
 
-			byte[] buffer = new byte[initialLength];
+			var buffer = new byte[initialLength];
 			int read = 0;
 
 			int chunk;
@@ -366,15 +373,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 					// Nope. Resize the buffer, put in the byte we've just
 					// read, and continue
-					byte[] newBuffer = new byte[buffer.Length * 2];
+					var newBuffer = new byte[buffer.Length*2];
 					Array.Copy(buffer, newBuffer, buffer.Length);
-					newBuffer[read] = (byte)nextByte;
+					newBuffer[read] = (byte) nextByte;
 					buffer = newBuffer;
 					read++;
 				}
 			}
 			// Buffer is now too big. Shrink it.
-			byte[] ret = new byte[read];
+			var ret = new byte[read];
 			Array.Copy(buffer, ret, read);
 			return ret;
 		}
@@ -392,69 +399,66 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void PushLocal()
 		{
-			if (_dropBoxService.Accessible)
-			{
-				Trace.Write(PhoneLogger.LogLevel.Debug,
-				            "Pushing up local version of {0}", GetFileName());
+			Trace.Write(PhoneLogger.LogLevel.Debug,
+			            "Pushing up local version of {0}", GetFileName());
 
-				var localFile = GetFileName();
+			string localFile = GetFileName();
 
-				byte[] bytes = ReadLocalFile(localFile);
+			byte[] bytes = ReadLocalFile(localFile);
 
-				_dropBoxService.Upload(GetFilePath(), localFile, bytes, response => GetRemoteMetaData(metaDataResponse =>
-					{
-						LocalHasChanges = false;
-						LocalLastSynced = metaDataResponse.UTCDateModified;
+			_dropBoxService.Upload(GetFilePath(), localFile, bytes,
+			                       response => GetRemoteMetaData(metaDataResponse =>
+			                       	{
+			                       		LocalHasChanges = false;
+			                       		LocalLastSynced = metaDataResponse.UTCDateModified;
 
-						Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", localFile);
+			                       		Trace.Write(PhoneLogger.LogLevel.Debug, "Changing state to Ready: {0}", localFile);
 
-						LoadingState = TaskLoadingState.Ready;
-					}, LogExceptionAndReadyUp),
-				                       LogExceptionAndReadyUp
-					);
-			}
+			                       		LoadingState = TaskLoadingState.Ready;
+			                       	}, SendSyncError), SendSyncError);
 		}
 
-		private void LogExceptionAndReadyUp(Exception ex)
+		private void SendSyncError(Exception ex)
 		{
-			Trace.Write(PhoneLogger.LogLevel.Error, ex.Message);
-
+			Trace.Write(PhoneLogger.LogLevel.Error, ex.ToString());
 			LoadingState = TaskLoadingState.Ready;
+			InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex));
 		}
 
-		private void Merge()
+		private void IntiateMerge()
 		{
-			if (_dropBoxService.Accessible)
+			Trace.Write(PhoneLogger.LogLevel.Debug,
+			            "Going to attempt to merge the files");
+
+			_dropBoxService.GetFile(FullPath,
+			                        response =>
+			                        	{
+			                        		MergeTaskLists(response.Content);
+
+			                        		SaveTasks();
+			                        		PushLocal();
+			                        		LoadingState = TaskLoadingState.Ready;
+			                        	}, SendSyncError);
+		}
+
+		private void MergeTaskLists(string remoteTaskContents)
+		{
+			var tl = new TaskList();
+
+			using (var ms = new MemoryStream(
+				Encoding.UTF8.GetBytes(remoteTaskContents)))
 			{
-				Trace.Write(PhoneLogger.LogLevel.Debug,
-				            "Going to attempt to merge the files");
+				tl.LoadTasks(ms);
 
-				_dropBoxService.GetFile(FullPath,
-				                        response =>
-				                        	{
-				                        		var tl = new TaskList();
+				// Find the tasks in tl which aren't already in the 
+				// current tasklist
+				IEnumerable<Task> tasksToAdd =
+					tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
 
-				                        		using (var ms = new MemoryStream(
-				                        			Encoding.UTF8.GetBytes(response.Content)))
-				                        		{
-				                        			tl.LoadTasks(ms);
-
-				                        			// Find the tasks in tl which aren't already in the 
-				                        			// current tasklist
-				                        			IEnumerable<Task> tasksToAdd =
-				                        				tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
-				                        			
-													foreach (Task task in tasksToAdd)
-				                        			{
-				                        				TaskList.Add(task);
-				                        			}
-
-				                        			SaveTasks();
-				                        			PushLocal();
-				                        		}
-				                        	},
-				                        LogExceptionAndReadyUp
-					);
+				foreach (Task task in tasksToAdd)
+				{
+					TaskList.Add(task);
+				}
 			}
 		}
 
@@ -516,13 +520,23 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			_dropBoxService.GetFile(FullPath,
 			                        response => OverwriteWithRemoteFile(response, remoteModifiedTime),
-			                        LogExceptionAndReadyUp);
+			                        ex => InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex)));
 		}
 
 		#region Events
 
 		public event EventHandler<LoadingStateChangedEventArgs> LoadingStateChanged;
 		public event EventHandler<TaskListChangedEventArgs> TaskListChanged;
+		public event EventHandler<SynchronizationErrorEventArgs> SynchronizationError;
+
+		public void InvokeSynchronizationError(SynchronizationErrorEventArgs e)
+		{
+			EventHandler<SynchronizationErrorEventArgs> handler = SynchronizationError;
+			if (handler != null)
+			{
+				handler(this, e);
+			}
+		}
 
 		public void InvokeTaskListChanged(TaskListChangedEventArgs e)
 		{

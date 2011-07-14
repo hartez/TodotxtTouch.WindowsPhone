@@ -372,10 +372,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				TaskLoadingState oldValue = _loadingState;
 				_loadingState = value;
 
+				Busy = _loadingState == TaskLoadingState.Syncing;
+
 				// Update bindings and broadcast change using GalaSoft.MvvmLight.Messenging
 				RaisePropertyChanged(LoadingStatePropertyName, oldValue, value, true);
-
-				Busy = _loadingState == TaskLoadingState.Syncing;
 			}
 		}
 
@@ -595,6 +595,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 					RaisePropertyChanged(ContextsPropertyName);
 					RaisePropertyChanged(ProjectsPropertyName);
 				});
+
+			Observable.FromEvent<SynchronizationErrorEventArgs>(_taskFileService, "SynchronizationError")
+				.Subscribe(e => Messenger.Default.Send(new SynchronizationErrorMessage(e.EventArgs.Exception)));
 		}
 
 		private void Filter(DrillDownMessage message)
