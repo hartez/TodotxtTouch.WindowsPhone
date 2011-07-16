@@ -433,10 +433,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 			_dropBoxService.GetFile(FullPath,
 			                        response =>
 			                        	{
+											PauseChangeObserver();
 			                        		MergeTaskLists(response.Content);
 
 			                        		SaveTasks();
 			                        		PushLocal();
+			                        		ResumeChangeObserver();
 			                        		LoadingState = TaskLoadingState.Ready;
 			                        	}, SendSyncError);
 		}
