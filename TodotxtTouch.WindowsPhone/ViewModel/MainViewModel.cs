@@ -372,10 +372,28 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				TaskLoadingState oldValue = _loadingState;
 				_loadingState = value;
 
-				Busy = _loadingState == TaskLoadingState.Syncing;
-
 				// Update bindings and broadcast change using GalaSoft.MvvmLight.Messenging
 				RaisePropertyChanged(LoadingStatePropertyName, oldValue, value, true);
+
+				Busy = _loadingState != TaskLoadingState.Ready;
+
+				switch(_loadingState)
+				{
+					case TaskLoadingState.Syncing:
+						BusyDoingWhat = "Synchronizing";
+						break;
+					case TaskLoadingState.Saving:
+						BusyDoingWhat = "Saving";
+						break;
+					case TaskLoadingState.Loading:
+						BusyDoingWhat = "Loading";
+						break;
+					case TaskLoadingState.Ready:
+						BusyDoingWhat = String.Empty;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 		}
 
@@ -569,6 +587,35 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Update bindings, no broadcast
 				// On UI thread, so the "busy" indicator can do it's thing
 				DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(BusyPropertyName));
+			}
+		}
+
+		/// <summary>
+		/// The <see cref="BusyDoingWhat" /> property's name.
+		/// </summary>
+		public const string BusyDoingWhatPropertyName = "BusyDoingWhat";
+
+		private String _busyDoingWhat = String.Empty;
+
+		/// <summary>
+		/// Gets the BusyDoingWhat property.
+		/// Changes to that property's value raise the PropertyChanged event. 
+		/// </summary>
+		public String BusyDoingWhat
+		{
+			get { return _busyDoingWhat; }
+
+			set
+			{
+				if (_busyDoingWhat == value)
+				{
+					return;
+				}
+
+				_busyDoingWhat = value;
+
+				// Update bindings, no broadcast
+				DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(BusyDoingWhatPropertyName));
 			}
 		}
 

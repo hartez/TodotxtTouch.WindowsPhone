@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
@@ -471,6 +472,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
 				{
 					PauseChangeObserver();
+					LoadingState = TaskLoadingState.Loading;
 					TaskList.LoadTasks(file);
 					ResumeChangeObserver();
 
@@ -489,7 +491,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
 				{
+					var prevState = LoadingState;
+					
+					LoadingState = TaskLoadingState.Saving;
 					TaskList.SaveTasks(file);
+					
+					LoadingState = prevState;
 				}
 			}
 
