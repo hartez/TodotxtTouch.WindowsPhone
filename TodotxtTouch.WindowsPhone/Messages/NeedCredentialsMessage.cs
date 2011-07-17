@@ -1,6 +1,6 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class NeedCredentialsMessage
+	internal class NeedCredentialsMessage
 	{
 		public string Reason { get; private set; }
 

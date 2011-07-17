@@ -1,6 +1,6 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class DrillDownMessage
+	internal class DrillDownMessage
 	{
 		public string Filter { get; private set; }
 

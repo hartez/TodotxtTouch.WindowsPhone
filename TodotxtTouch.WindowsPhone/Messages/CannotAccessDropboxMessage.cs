@@ -1,6 +1,6 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class CannotAccessDropboxMessage
+	internal class CannotAccessDropboxMessage
 	{
 		public string Reason { get; private set; }
 

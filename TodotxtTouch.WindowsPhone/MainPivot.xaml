@@ -29,8 +29,6 @@
 	<!--LayoutRoot is the root grid where all page content is placed-->
 	<Grid x:Name="LayoutRoot" Background="Transparent">
 
-		<WindowsPhone:DropboxLogin x:Name="DropboxLogin" Visibility="Collapsed" Opacity="0"></WindowsPhone:DropboxLogin>
-
 		<Grid Visibility="{Binding Busy, Converter={StaticResource BooleanVisibilityConverter}}">
 			<Grid.RowDefinitions>
 				<RowDefinition></RowDefinition>

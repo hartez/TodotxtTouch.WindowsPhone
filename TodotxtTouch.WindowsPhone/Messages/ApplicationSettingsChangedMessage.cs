@@ -2,7 +2,7 @@
 
 namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class ApplicationSettingsChangedMessage
+	internal class ApplicationSettingsChangedMessage
 	{
 		public ApplicationSettingsChangedMessage(ApplicationSettings settings)
 		{

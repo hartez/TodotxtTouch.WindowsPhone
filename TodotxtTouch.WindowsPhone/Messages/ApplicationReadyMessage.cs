@@ -1,5 +1,5 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class ApplicationReadyMessage
+	internal class ApplicationReadyMessage
 	{}
 }

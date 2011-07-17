@@ -132,6 +132,7 @@
       <DependentUpon>TaskDetail.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\ApplicationReadyMessage.cs" />
+    <Compile Include="Messages\CancelCredentialsUpdatedMessage.cs" />
     <Compile Include="ViewModel\DropboxCredentialsViewModel.cs" />
     <Compile Include="Service\DropboxService.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />

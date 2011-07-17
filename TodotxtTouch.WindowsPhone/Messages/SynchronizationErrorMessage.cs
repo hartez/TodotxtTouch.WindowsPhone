@@ -2,7 +2,7 @@
 
 namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class SynchronizationErrorMessage
+	internal class SynchronizationErrorMessage
 	{
 		public Exception Exception { get; private set; }
 

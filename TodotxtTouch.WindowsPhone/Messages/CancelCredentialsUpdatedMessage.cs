@@ -1,6 +1,7 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	internal class CredentialsUpdatedMessage
+	internal class CancelCredentialsUpdatedMessage
 	{
+
 	}
 }

@@ -16,14 +16,8 @@ namespace TodotxtTouch.WindowsPhone
 			Messenger.Default.Register<NeedCredentialsMessage>(
 				this, (message) => ShowLogin());
 
-			Messenger.Default.Register<TaskLoadingState>(
-				this, LoadingStateChanged);
-
 			Messenger.Default.Register<ViewTaskMessage>(
 				this, ViewSelectedTask);
-
-			Messenger.Default.Register<CredentialsUpdatedMessage>(
-				this, message => HideLogin());
 
 			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
 				
@@ -70,7 +64,6 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			LittleWatson.CheckForPreviousException();	
 
-			DropboxLogin.Opacity = 1;
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
@@ -86,32 +79,7 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void ShowLogin()
 		{
-			DropboxLogin.Visibility = Visibility.Visible;
-			TaskPivot.Visibility = Visibility.Collapsed;
-			ApplicationBar.IsVisible = false;
-		}
-
-		private void HideLogin()
-		{
-			DropboxLogin.Visibility = Visibility.Collapsed;
-			TaskPivot.Visibility = Visibility.Visible;
-			ApplicationBar.IsVisible = true;
-		}
-
-		private void LoadingStateChanged(TaskLoadingState taskLoadingState)
-		{
-			switch (taskLoadingState)
-			{
-				case TaskLoadingState.Syncing:
-					TaskPivot.Visibility = Visibility.Collapsed;
-					break;
-				case TaskLoadingState.Ready:
-					DropboxLogin.Visibility = Visibility.Collapsed;
-					TaskPivot.Visibility = Visibility.Visible;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			NavigationService.Navigate(new Uri("/DropboxLogin.xaml", UriKind.Relative));
 		}
 
 		private void ArchiveClick(object sender, EventArgs e)

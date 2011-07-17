@@ -3,6 +3,7 @@ using System.IO.IsolatedStorage;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
@@ -22,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public const string PasswordPropertyName = "Password";
 
 		public RelayCommand UpdateCredentialsCommand { get; private set; }
-
+		public RelayCommand CancelUpdateCredentialsCommand { get; private set; }
 		/// <summary>
 		/// Initializes a new instance of the ApplicationSettingsViewModel class.
 		/// </summary>
@@ -36,10 +37,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				// Code runs "for real"
 				_dropBoxService = dropBoxService;
-				Username = "hartez@gmail.com";
-				Password = "23yoink42dropbox";
+				//Username = "hartez@gmail.com";
+				//Password = "23yoink42dropbox";
 				UpdateCredentialsCommand = new RelayCommand(UpdateCredentials);
+				CancelUpdateCredentialsCommand = new RelayCommand(CancelUpdateCredentials);
 			}
+		}
+
+		private void CancelUpdateCredentials()
+		{
+			Messenger.Default.Send(new CancelCredentialsUpdatedMessage());
 		}
 
 		private void UpdateCredentials()

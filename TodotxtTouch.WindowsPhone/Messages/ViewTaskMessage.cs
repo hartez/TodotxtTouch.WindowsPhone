@@ -1,6 +1,6 @@
 ﻿namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class ViewTaskMessage
+	internal class ViewTaskMessage
 	{
 	}
 }
