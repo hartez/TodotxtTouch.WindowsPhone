@@ -5,32 +5,27 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
-using AgiliTrain.PhoneyTools;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Net.NetworkInformation;
 using Microsoft.Phone.Shell;
-using Microsoft.Phone.Tasks;
 using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.Service;
 using TodotxtTouch.WindowsPhone.ViewModel;
-using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
 
 namespace TodotxtTouch.WindowsPhone
 {
 	public partial class App : Application
 	{
-		private string StateKey = "State";
-
 		public NetworkHelper NetworkHelper;
+		private string StateKey = "State";
 
 		/// <summary>
 		/// Constructor for the Application object.
 		/// </summary>
 		public App()
 		{
-			Startup += new StartupEventHandler(App_Startup);
+			Startup += App_Startup;
 
 			// Global handler for uncaught exceptions. 
 			UnhandledException += Application_UnhandledException;
@@ -59,17 +54,15 @@ namespace TodotxtTouch.WindowsPhone
 			//NetworkHelper.TestChaoticallyAvailable();
 
 			Messenger.Default.Register<NetworkUnavailableMessage>(this,
-				msg => MessageBox.Show("The network is currently unavailable", "Error", MessageBoxButton.OK));
+			                                                      msg =>
+			                                                      MessageBox.Show("The network is currently unavailable", "Error",
+			                                                                      MessageBoxButton.OK));
 
-			Messenger.Default.Register<SynchronizationErrorMessage>(this, msg => 
-				MessageBox.Show(
-					"An error occurred while syncing; you may need to try again later\n" + msg.Exception.Message, 
-					"Error", MessageBoxButton.OK));
-		}
-
-		void App_Startup(object sender, StartupEventArgs e)
-		{
-			DispatcherHelper.Initialize();
+			Messenger.Default.Register<SynchronizationErrorMessage>(this, msg =>
+			                                                              MessageBox.Show(
+			                                                              	"An error occurred while syncing; you may need to try again later\n" +
+			                                                              	msg.Exception.Message,
+			                                                              	"Error", MessageBoxButton.OK));
 		}
 
 		/// <summary>
@@ -77,6 +70,11 @@ namespace TodotxtTouch.WindowsPhone
 		/// </summary>
 		/// <returns>The root frame of the Phone Application.</returns>
 		public PhoneApplicationFrame RootFrame { get; private set; }
+
+		private void App_Startup(object sender, StartupEventArgs e)
+		{
+			DispatcherHelper.Initialize();
+		}
 
 		// Code to execute when the application is launching (eg, from Start)
 		// This code will not execute when the application is reactivated
@@ -106,7 +104,7 @@ namespace TodotxtTouch.WindowsPhone
 			object focusObj = FocusManager.GetFocusedElement();
 			if (focusObj != null && focusObj is TextBox)
 			{
-				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				BindingExpression binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
 				if (binding != null)
 				{
 					binding.UpdateSource();
@@ -171,8 +169,8 @@ namespace TodotxtTouch.WindowsPhone
 
 			if (Debugger.IsAttached)
 			{
-			    // An unhandled exception has occurred; break into the debugger
-			    Debugger.Break();
+				// An unhandled exception has occurred; break into the debugger
+				Debugger.Break();
 			}
 		}
 

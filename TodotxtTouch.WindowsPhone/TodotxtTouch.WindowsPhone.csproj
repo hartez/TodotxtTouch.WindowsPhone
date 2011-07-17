@@ -187,7 +187,9 @@
     <Content Include="Images\appbar.manage.rest.png" />
     <Content Include="Images\check.png" />
     <Content Include="Images\delete.png" />
+    <Resource Include="Images\folder.png" />
     <Content Include="Images\refresh.png" />
+    <Resource Include="Images\todotxt_touch_256.png" />
     <Content Include="README_Phoney.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />

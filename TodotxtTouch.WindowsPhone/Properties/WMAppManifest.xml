@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.0">
-  <App xmlns="" ProductID="{6c78467b-962a-475a-9a65-13def700e6d8}" Title="TodotxtTouch.WindowsPhone" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="TodotxtTouch.WindowsPhone author" Description="Sample description" Publisher="TodotxtTouch.WindowsPhone">
-    <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
+  <App xmlns="" ProductID="{6c78467b-962a-475a-9a65-13def700e6d8}" Title="Todo.txt" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="TodotxtTouch.WindowsPhone author" Description="Sample description" Publisher="TodotxtTouch.WindowsPhone">
+    <IconPath IsRelative="true" IsResource="false">/Images/todotxt_touch_256.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_GAMERSERVICES"/>
       <Capability Name="ID_CAP_IDENTITY_DEVICE"/>
@@ -24,7 +24,7 @@
         <TemplateType5>
           <BackgroundImageURI IsRelative="true" IsResource="false">Background.png</BackgroundImageURI>
           <Count>0</Count>
-          <Title>TodotxtTouch.WindowsPhone</Title>
+          <Title>Todo.txt</Title>
         </TemplateType5>
       </PrimaryToken>
     </Tokens>
