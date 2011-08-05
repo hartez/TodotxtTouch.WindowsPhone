@@ -51,7 +51,7 @@ namespace TodotxtTouch.WindowsPhone
 			InitializePhoneApplication();
 
 			// Uncomment the next line to test the app without network connectivity
-			NetworkHelper.TestNeverAvailable();
+			//NetworkHelper.TestNeverAvailable();
 
 			Messenger.Default.Register<NetworkUnavailableMessage>(this,
 			                                                      msg =>
