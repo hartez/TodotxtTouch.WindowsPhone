@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
+using EZLibrary.WindowsPhone;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
@@ -17,7 +18,6 @@ namespace TodotxtTouch.WindowsPhone
 {
 	public partial class App : Application
 	{
-		public NetworkHelper NetworkHelper;
 		private string StateKey = "State";
 
 		/// <summary>
@@ -51,7 +51,7 @@ namespace TodotxtTouch.WindowsPhone
 			InitializePhoneApplication();
 
 			// Uncomment the next line to test the app without network connectivity
-			//NetworkHelper.TestChaoticallyAvailable();
+			NetworkHelper.TestNeverAvailable();
 
 			Messenger.Default.Register<NetworkUnavailableMessage>(this,
 			                                                      msg =>
