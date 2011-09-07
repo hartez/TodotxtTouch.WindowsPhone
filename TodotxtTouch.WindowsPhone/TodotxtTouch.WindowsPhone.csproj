@@ -187,6 +187,7 @@
     <Content Include="Images\delete.png" />
     <Resource Include="Images\folder.png" />
     <Content Include="Images\refresh.png" />
+    <Content Include="todotxt_tile.png" />
     <Content Include="todotxt_touch_256.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
