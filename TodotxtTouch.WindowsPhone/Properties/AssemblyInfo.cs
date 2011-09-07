@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("TodotxtTouch.WindowsPhone")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("E.Z. Hart")]
+[assembly: AssemblyCompany("Traceur LLC")]
 [assembly: AssemblyProduct("TodotxtTouch.WindowsPhone")]
-[assembly: AssemblyCopyright("Copyright © E.Z. Hart 2011")]
+[assembly: AssemblyCopyright("Copyright © Traceur LLC 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

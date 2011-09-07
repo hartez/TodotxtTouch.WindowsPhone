@@ -160,8 +160,9 @@
                 <shell:ApplicationBarMenuItem Click="SettingsClick"
                                               Text="Settings" />
                 <shell:ApplicationBarMenuItem Click="ArchiveClick" Text="Archive"/>
-                
-            </shell:ApplicationBar.MenuItems>
+				<shell:ApplicationBarMenuItem Click="AboutClick"
+											  Text="About" />
+			</shell:ApplicationBar.MenuItems>
 		</shell:ApplicationBar>
 
     </WindowsPhone:TaskFilterPage.ApplicationBar>

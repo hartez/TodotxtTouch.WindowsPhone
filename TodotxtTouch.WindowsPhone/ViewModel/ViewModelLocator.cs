@@ -27,6 +27,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	public class ViewModelLocator
 	{
 		private static MainViewModel _main;
+		private static AboutViewModel _about;
 		private static DropboxCredentialsViewModel _dropBoxCredentials;
 		private static ApplicationSettingsViewModel _applicationSettingsViewModel;
 		private static DropboxService _dropBoxService;
@@ -36,10 +37,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public ViewModelLocator()
 		{
+			_about = new AboutViewModel();
+
 			if (ViewModelBase.IsInDesignModeStatic)
 			{
 			    // Create design time services and viewmodels
 				_main = new MainViewModel(null, null);
+				_about = new AboutViewModel();
 			}
 			else
 			{
@@ -65,6 +69,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public MainViewModel Main
 		{
 			get { return _main; }
+		}
+
+		public AboutViewModel About
+		{
+			get { return _about; }			
 		}
 
 		/// <summary>

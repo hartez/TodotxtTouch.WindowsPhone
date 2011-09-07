@@ -94,6 +94,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About.xaml.cs">
+      <DependentUpon>About.xaml</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
@@ -114,6 +117,7 @@
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
     <Compile Include="Tasks\ContextTaskFilter.cs" />
+    <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\ApplicationSettings.cs" />
     <Compile Include="Messages\ApplicationSettingsChangedMessage.cs" />
     <Compile Include="ViewModel\ApplicationSettingsViewModel.cs" />
@@ -155,6 +159,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ApplicationSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -188,9 +196,6 @@
     <Resource Include="Images\folder.png" />
     <Content Include="Images\refresh.png" />
     <Content Include="todotxt_tile.png" />
-    <Content Include="todotxt_touch_256.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="README_Phoney.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
