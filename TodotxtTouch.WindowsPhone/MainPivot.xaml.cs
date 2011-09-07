@@ -62,8 +62,8 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void MainPage_Loaded(object sender, RoutedEventArgs e)
 		{
-			LittleWatson.CheckForPreviousException("Todo.txt Touch error report",
-				"hartez@gmail.com");	
+			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
+				"support@traceur-llc.com");	
 
 			Messenger.Default.Send(new ApplicationReadyMessage());
 		}

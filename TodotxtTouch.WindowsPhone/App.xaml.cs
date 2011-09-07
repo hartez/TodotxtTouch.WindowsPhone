@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -165,7 +166,8 @@ namespace TodotxtTouch.WindowsPhone
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
 		{
-			LittleWatson.ReportException(e.ExceptionObject, "");
+			LittleWatson.ReportException(e.ExceptionObject, 
+				String.Format("Version {0}", Assembly.GetExecutingAssembly().FullName.Split('=')[1].Split(',')[0]));
 
 			if (Debugger.IsAttached)
 			{
