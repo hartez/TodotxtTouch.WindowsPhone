@@ -3,7 +3,6 @@ TodotxtTouch.WindowsPhone/Obj/*
 TodotxtTouch.WindowsPhone/*.user
 packages/*
 *.testsettings
-packages.config
 *.vsmdi
 TodotxtTouch.WindowsPhone/apikeys.txt
 *.pdb
