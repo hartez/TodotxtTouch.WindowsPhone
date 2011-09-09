@@ -5,7 +5,7 @@
         <NuGetToolsPath>$(SolutionDir).nuget</NuGetToolsPath>
         <NuGetExePath>$(NuGetToolsPath)\nuget.exe</NuGetExePath>
         <PackagesConfig>$(ProjectDir)packages.config</PackagesConfig>
-        <PackagesDir>$(SolutionDir)packages</PackagesDir>
+        <PackagesDir>$(ProjectDir)packages</PackagesDir>
         <PackageOutputDir Condition="$(PackageOutputDir) == ''">$(TargetDir.Trim('\\'))</PackageOutputDir>
 
         <!-- Package sources used to restore packages. By default will used the registered sources under %APPDATA%\NuGet\NuGet.Config -->
