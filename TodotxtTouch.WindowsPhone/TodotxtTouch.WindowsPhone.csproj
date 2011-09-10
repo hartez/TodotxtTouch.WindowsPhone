@@ -52,47 +52,45 @@
   <ItemGroup>
     <Reference Include="AgiliTrain.PhoneyTools, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.dll</HintPath>
+      <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.dll</HintPath>
     </Reference>
     <Reference Include="AgiliTrain.PhoneyTools.Microphone">
-      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Microphone.dll</HintPath>
+      <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Microphone.dll</HintPath>
     </Reference>
     <Reference Include="AgiliTrain.PhoneyTools.Net">
-      <HintPath>..\packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
+      <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
     </Reference>
-    <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
+    <Reference Include="DropNet.WindowsPhone">
+      <HintPath>packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Extras.WP7">
-      <HintPath>..\packages\MvvmLight.3.0.2\lib\sl3-wp\GalaSoft.MvvmLight.Extras.WP7.dll</HintPath>
+      <HintPath>packages\MvvmLight.3.0.2\lib\sl3-wp\GalaSoft.MvvmLight.Extras.WP7.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.WP7">
-      <HintPath>..\packages\MvvmLight.3.0.2\lib\sl3-wp\GalaSoft.MvvmLight.WP7.dll</HintPath>
+      <HintPath>packages\MvvmLight.3.0.2\lib\sl3-wp\GalaSoft.MvvmLight.WP7.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Phone.Controls.Toolkit">
-      <HintPath>..\packages\SilverlightToolkitWP.4.2011.2.1\lib\sl4\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+      <HintPath>packages\SilverlightToolkitWP.4.2011.8.17\lib\sl3-wp\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="Microsoft.Phone.Reactive" />
-    <Reference Include="Newtonsoft.Json.WindowsPhone, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\Newtonsoft.Json.WindowsPhone.dll</HintPath>
+    <Reference Include="Newtonsoft.Json.WindowsPhone">
+      <HintPath>packages\DropNet.1.5.4\lib\sl3-wp\Newtonsoft.Json.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="PhonePerformance">
-      <HintPath>..\packages\PhonePerformance.1.2.0\lib\sl4\PhonePerformance.dll</HintPath>
+      <HintPath>packages\PhonePerformance.1.2.0\lib\sl4\PhonePerformance.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp.WindowsPhone, Version=101.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.5.4\lib\sl3-wp\RestSharp.WindowsPhone.dll</HintPath>
+    <Reference Include="RestSharp.WindowsPhone">
+      <HintPath>packages\DropNet.1.5.4\lib\sl3-wp\RestSharp.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="System.Observable" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
-    <Reference Include="System.Windows.Interactivity, Version=3.7.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmLight.3.0.2\lib\sl3-wp\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Windows.Interactivity, Version=3.7.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -201,7 +199,6 @@
     <Content Include="README_Phoney.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
-    <Resource Include="apikeys.txt" />
     <Content Include="Images\add.png" />
     <Content Include="Images\cancel.png" />
     <Content Include="Images\save.png" />
