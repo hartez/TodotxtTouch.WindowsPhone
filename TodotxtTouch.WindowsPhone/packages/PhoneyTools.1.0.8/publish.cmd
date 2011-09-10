@@ -1,0 +1,1 @@
+call nuget push -source http://packages.nuget.org/v1/ PhoneyTools.%1.nupkg 580e3802-21d7-4867-8699-81a67da4b20f
