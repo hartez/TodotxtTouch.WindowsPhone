@@ -23,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 			if (filter.StartsWith("project:"))
 			{
 				string target = filter.Replace("project: ", "+");
-				return new ContextTaskFilter(
+				return new ProjectTaskFilter(
 					task => task.Projects.Contains(target),
 					target);
 			}
