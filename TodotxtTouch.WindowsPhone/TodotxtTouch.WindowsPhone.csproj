@@ -54,9 +54,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.dll</HintPath>
     </Reference>
-    <Reference Include="AgiliTrain.PhoneyTools.Microphone">
-      <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Microphone.dll</HintPath>
-    </Reference>
     <Reference Include="AgiliTrain.PhoneyTools.Net">
       <HintPath>packages\PhoneyTools.1.0.8\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
     </Reference>
