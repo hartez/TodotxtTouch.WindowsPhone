@@ -190,6 +190,7 @@
   <ItemGroup>
     <Resource Include="Toolkit.Content\ApplicationBar.Delete.png" />
     <Resource Include="Toolkit.Content\ApplicationBar.Select.png" />
+    <Resource Include="apikeys.txt" />
     <Content Include="Images\appbar.manage.rest.png" />
     <Content Include="Images\check.png" />
     <Content Include="Images\delete.png" />
