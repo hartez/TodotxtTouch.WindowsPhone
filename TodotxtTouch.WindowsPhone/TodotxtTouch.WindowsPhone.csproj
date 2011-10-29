@@ -61,15 +61,15 @@
       <HintPath>packages\DropNet.1.5.4\lib\sl3-wp\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Extras.WP71">
-      <HintPath>..\..\..\TodotxtTouch.WindowsPhone\packages\MvvmLight.3.0.3\lib\sl4-windowsphone71\GalaSoft.MvvmLight.Extras.WP71.dll</HintPath>
+      <HintPath>packages\MvvmLight.3.0.3\lib\sl4-windowsphone71\GalaSoft.MvvmLight.Extras.WP71.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.WP71">
-      <HintPath>..\..\..\TodotxtTouch.WindowsPhone\packages\MvvmLight.3.0.3\lib\sl4-windowsphone71\GalaSoft.MvvmLight.WP71.dll</HintPath>
+      <HintPath>packages\MvvmLight.3.0.3\lib\sl4-windowsphone71\GalaSoft.MvvmLight.WP71.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Phone.Controls.Toolkit">
-      <HintPath>..\..\..\TodotxtTouch.WindowsPhone\packages\SilverlightToolkitWP.4.2011.8.17\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+      <HintPath>packages\SilverlightToolkitWP.4.2011.8.17\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="Microsoft.Phone.Reactive" />
@@ -186,6 +186,10 @@
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
+    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_15_21_35.sap" />
+    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_10_20.sap" />
+    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_41_58.sap" />
+    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_47_51.sap" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Toolkit.Content\ApplicationBar.Delete.png" />

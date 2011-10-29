@@ -52,8 +52,7 @@
                 <ListBox x:Name="AllTasks"
                          ItemsSource="{Binding AllTasks}"
                          SelectionMode="Single"
-                         SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling">
+                         SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
 
                     <ListBox.ItemTemplate>
                         <DataTemplate>

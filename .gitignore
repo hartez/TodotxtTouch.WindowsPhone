@@ -1,3 +1,5 @@
+*.sap
+TodotxtTouch.WindowsPhone/PerformanceLogs
 TodotxtTouch.WindowsPhone/Bin/*
 TodotxtTouch.WindowsPhone/Obj/*
 TodotxtTouch.WindowsPhone/*.user
