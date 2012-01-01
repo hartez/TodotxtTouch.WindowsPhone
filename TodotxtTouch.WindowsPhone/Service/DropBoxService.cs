@@ -170,18 +170,18 @@ namespace TodotxtTouch.WindowsPhone.Service
 					_dropNetClient = DropNetExtensions.CreateClient();
 				}
 
-				_dropNetClient.LoginAsync(Username, Password,
-				                          (response) =>
-				                          	{
-				                          		Token = response.Token;
-				                          		Secret = response.Secret;
+				//_dropNetClient.LoginAsync(Username, Password,
+				//                          (response) =>
+				//                            {
+				//                                Token = response.Token;
+				//                                Secret = response.Secret;
 
-				                          		if (dropboxAction != null)
-				                          		{
-				                          			dropboxAction();
-				                          		}
-				                          	},
-										  WrapExceptionHandler(null));
+				//                                if (dropboxAction != null)
+				//                                {
+				//                                    dropboxAction();
+				//                                }
+				//                            },
+				//                          WrapExceptionHandler(null));
 			}
 			else
 			{
