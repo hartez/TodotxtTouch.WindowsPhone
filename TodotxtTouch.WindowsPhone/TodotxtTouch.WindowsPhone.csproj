@@ -96,6 +96,9 @@
       <HintPath>..\packages\MvvmLight.3.1.1\lib\sl4-windowsphone71\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="todotxtlib.net">
+      <HintPath>..\packages\todotxtlib.net.1.0.0\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="About.xaml.cs">
@@ -223,10 +226,6 @@
     <ProjectReference Include="..\lib\EZLibrary\EZLibrary.WindowsPhone.7.1\EZLibrary.WindowsPhone.7.1.csproj">
       <Project>{707F8B31-0130-4A49-8DFC-3BC0D4346BEA}</Project>
       <Name>EZLibrary.WindowsPhone.7.1</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\todotxtlib.net\TodotxtLib.WindowsPhone.7.1\TodotxtLib.WindowsPhone.7.1.csproj">
-      <Project>{9A95965D-38B6-4C57-8EF3-3A16E93509E9}</Project>
-      <Name>TodotxtLib.WindowsPhone.7.1</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
