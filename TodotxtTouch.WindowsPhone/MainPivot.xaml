@@ -9,7 +9,7 @@
                             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
                             xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
                             xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" 
-							xmlns:Interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone.7.1" 
+							xmlns:Interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone" 
 							 xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools" xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71" mc:Ignorable="d" 
                             d:DesignWidth="480" d:DesignHeight="696" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
                             FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" 
