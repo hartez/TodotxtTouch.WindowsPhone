@@ -203,10 +203,6 @@
     </None>
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
-    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_15_21_35.sap" />
-    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_10_20.sap" />
-    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_41_58.sap" />
-    <None Include="TodotxtTouch.WindowsPhone_2011_10_29_16_47_51.sap" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Toolkit.Content\ApplicationBar.Delete.png" />
