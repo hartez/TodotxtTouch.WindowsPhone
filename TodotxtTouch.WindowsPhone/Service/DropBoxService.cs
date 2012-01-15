@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
 using System.Net;
-using AgiliTrain.PhoneyTools;
 using DropNet;
 using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using RestSharp;
 using TodotxtTouch.WindowsPhone.Messages;
-using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
@@ -226,9 +224,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 							Messenger.Default.Send(new CannotAccessDropboxMessage());
 							break;
 					}
-
-					Trace.Write(PhoneLogger.LogLevel.Error,
-					            ex.Message);
 
 					if (handler != null)
 					{

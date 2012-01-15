@@ -27,10 +27,7 @@
                  VerticalAlignment="Top"
                  Width="Auto">
 
-            <pt:InputPanelProvider.Requirements>
-                <pt:InputPanelRequirements  SpecialKeys="Email"
-                                             />
-            </pt:InputPanelProvider.Requirements>
+        
 
         </TextBox>
         <TextBox Height="72" HorizontalAlignment="Stretch" Margin="0,181,0,0" 
