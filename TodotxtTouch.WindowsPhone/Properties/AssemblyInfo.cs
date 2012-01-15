@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Traceur LLC")]
 [assembly: AssemblyProduct("TodotxtTouch.WindowsPhone")]
-[assembly: AssemblyCopyright("Copyright © Traceur LLC 2011")]
+[assembly: AssemblyCopyright("Copyright © Traceur LLC 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
