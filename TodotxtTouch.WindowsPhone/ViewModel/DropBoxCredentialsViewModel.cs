@@ -23,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public const string PasswordPropertyName = "Password";
 
 		public RelayCommand UpdateCredentialsCommand { get; private set; }
-		public RelayCommand CancelUpdateCredentialsCommand { get; private set; }
+		public RelayCommand StartLoginProcessCommand { get; private set; }
 		/// <summary>
 		/// Initializes a new instance of the ApplicationSettingsViewModel class.
 		/// </summary>
@@ -37,59 +37,14 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				// Code runs "for real"
 				_dropBoxService = dropBoxService;
-				UpdateCredentialsCommand = new RelayCommand(UpdateCredentials);
-				CancelUpdateCredentialsCommand = new RelayCommand(CancelUpdateCredentials);
+				StartLoginProcessCommand = new RelayCommand(StartLoginProcess);
+				Messenger.Default.Register<DropboxLoginSuccessfulMessage>(this, msg => _dropBoxService.GetAccessToken());
 			}
 		}
 
-		private void CancelUpdateCredentials()
+		private void StartLoginProcess()
 		{
-			Messenger.Default.Send(new CancelCredentialsUpdatedMessage());
-		}
-
-		private void UpdateCredentials()
-		{
-			Messenger.Default.Send(new CredentialsUpdatedMessage());
-		}
-
-		/// <summary>
-		/// Gets the Username property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Username
-		{
-			get
-			{
-				return _dropBoxService.Username;
-			}
-
-			set
-			{
-				_dropBoxService.Username = value;
-
-				// Update bindings, no broadcast
-				RaisePropertyChanged(UsernamePropertyName);
-			}
-		}
-
-		/// <summary>
-		/// Gets the Password property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public String Password
-		{
-			get
-			{
-				return _dropBoxService.Password;
-			}
-
-			set
-			{
-				_dropBoxService.Password = value;
-
-				// Update bindings, no broadcast
-				RaisePropertyChanged(PasswordPropertyName);
-			}
+			_dropBoxService.GetToken();
 		}
 	}
 }
