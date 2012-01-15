@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
-using AgiliTrain.PhoneyTools;
 using EZLibrary;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -124,8 +123,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private bool CanViewTaskDetailsExecute()
 		{
 			bool canExecute = TaskFileServiceReady && SelectedTask != null;
-
-			Trace.Write(PhoneLogger.LogLevel.Debug, "ViewTaskDetailsCommand {0} execute", (canExecute ? "can" : "cannot"));
 
 			return canExecute;
 		}
