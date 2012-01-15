@@ -110,6 +110,7 @@
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\CannotAccessDropboxMessage.cs" />
+    <Compile Include="Messages\DropboxLoginSuccessfulMessage.cs" />
     <Compile Include="Messages\NetworkUnavailableMessage.cs" />
     <Compile Include="Messages\SynchronizationErrorMessage.cs" />
     <Compile Include="MultiSelectPage.xaml.cs">
@@ -140,7 +141,7 @@
       <DependentUpon>TaskDetail.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\ApplicationReadyMessage.cs" />
-    <Compile Include="Messages\CancelCredentialsUpdatedMessage.cs" />
+    <Compile Include="Messages\RetrievedDropboxTokenMessage.cs" />
     <Compile Include="ViewModel\DropboxCredentialsViewModel.cs" />
     <Compile Include="Service\DropboxService.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
@@ -190,7 +191,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />

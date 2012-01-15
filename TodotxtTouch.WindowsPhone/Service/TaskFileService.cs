@@ -357,7 +357,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 			                       response => GetRemoteMetaData(metaDataResponse =>
 			                       	{
 			                       		LocalHasChanges = false;
-			                       		LocalLastSynced = metaDataResponse.UTCDateModified;
+
+										if (metaDataResponse == null)
+										{
+											LocalLastSynced = DateTime.UtcNow;
+										}
+										else
+										{
+											LocalLastSynced = metaDataResponse.UTCDateModified;	
+										}
 
 			                       		LoadingState = TaskLoadingState.Ready;
 			                       	}, SendSyncError), SendSyncError);

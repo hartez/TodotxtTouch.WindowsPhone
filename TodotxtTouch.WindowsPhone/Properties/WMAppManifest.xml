@@ -4,6 +4,7 @@
     <IconPath IsRelative="true" IsResource="false">todotxt_tile.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
+	  <Capability Name="ID_CAP_WEBBROWSERCOMPONENT"/>
     </Capabilities>
     <Tasks>
       <DefaultTask Name="_default" NavigationPage="MainPivot.xaml" />

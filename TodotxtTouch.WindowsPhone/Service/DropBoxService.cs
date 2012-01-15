@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
 using System.Net;
+using System.Windows;
 using DropNet;
 using DropNet.Exceptions;
 using DropNet.Models;
@@ -14,19 +15,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		private DropNetClient _dropNetClient;
 
-		private String _password = String.Empty;
 		private String _secret = String.Empty;
 		private String _token = String.Empty;
-		private String _username = String.Empty;
 
 		public bool WeHaveTokens
 		{
 			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
-		}
-
-		public bool HasLoginCredentials
-		{
-			get { return !String.IsNullOrEmpty(Password) && !String.IsNullOrEmpty(Username); }
 		}
 
 		/// <summary>
@@ -95,58 +89,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		/// <summary>
-		/// Gets the Username property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Username
-		{
-			get
-			{
-				if (String.IsNullOrEmpty(_username))
-				{
-					String username;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxUsername",
-					                                                            out username))
-					{
-						_username = username;
-					}
-				}
-
-				return _username;
-			}
-
-			set
-			{
-				if (_username == value)
-				{
-					return;
-				}
-
-				_username = value;
-				IsolatedStorageSettings.ApplicationSettings["dropboxUsername"] = _username;
-			}
-		}
-
-		/// <summary>
-		/// Gets the Password property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public String Password
-		{
-			get { return _password; }
-
-			set
-			{
-				if (_password == value)
-				{
-					return;
-				}
-
-				_password = value;
-			}
-		}
-
 		private void ExecuteDropboxAction(Action dropboxAction)
 		{
 			if (WeHaveTokens)
@@ -160,26 +102,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 				{
 					dropboxAction();
 				}
-			}
-			else if (HasLoginCredentials)
-			{
-				if (_dropNetClient == null)
-				{
-					_dropNetClient = DropNetExtensions.CreateClient();
-				}
-
-				//_dropNetClient.LoginAsync(Username, Password,
-				//                          (response) =>
-				//                            {
-				//                                Token = response.Token;
-				//                                Secret = response.Secret;
-
-				//                                if (dropboxAction != null)
-				//                                {
-				//                                    dropboxAction();
-				//                                }
-				//                            },
-				//                          WrapExceptionHandler(null));
 			}
 			else
 			{
@@ -214,7 +136,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 							_dropNetClient = null;
 							Token = string.Empty;
 							Secret = string.Empty;
-							Password = string.Empty;
 							Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
 							break;
 						case HttpStatusCode.BadRequest:
@@ -249,6 +170,35 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			ExecuteDropboxAction(
 				() => _dropNetClient.GetFileAsync(path, success, WrapExceptionHandler(failure)));
+		}
+
+		public void GetToken()
+		{
+			if (_dropNetClient == null)
+			{
+				_dropNetClient = DropNetExtensions.CreateClient();
+			}
+
+			_dropNetClient.GetTokenAsync(
+				success =>
+				{
+					string tokenUrl = _dropNetClient.BuildAuthorizeUrl("http://todotxt.traceur-llc.com/index.html");
+
+					Messenger.Default.Send(new RetrievedDropboxTokenMessage(new Uri(tokenUrl)));
+				},
+			    failure => Messenger.Default.Send(new RetrievedDropboxTokenMessage(failure.Message)));
+		}
+
+		public void GetAccessToken()
+		{
+			_dropNetClient.GetAccessTokenAsync(response =>
+				{
+					Token = response.Token;
+					Secret = response.Secret;
+					Messenger.Default.Send(new CredentialsUpdatedMessage());
+				},
+			error => Deployment.Current.Dispatcher.BeginInvoke(
+			() => MessageBox.Show(error.Message)));
 		}
 	}
 }
