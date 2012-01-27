@@ -6,6 +6,7 @@ using DropNet;
 using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using RestSharp;
 using TodotxtTouch.WindowsPhone.Messages;
 
@@ -197,8 +198,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 					Secret = response.Secret;
 					Messenger.Default.Send(new CredentialsUpdatedMessage());
 				},
-			error => Deployment.Current.Dispatcher.BeginInvoke(
-			() => MessageBox.Show(error.Message)));
+			error => DispatcherHelper.CheckBeginInvokeOnUI(
+				() => MessageBox.Show(error.Message)));
 		}
 	}
 }

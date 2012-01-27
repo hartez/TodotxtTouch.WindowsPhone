@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
 using TodotxtTouch.WindowsPhone.Messages;
 
@@ -22,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			if(!string.IsNullOrEmpty(msg.Error))
 			{
-				Deployment.Current.Dispatcher.BeginInvoke(() => MessageBox.Show(msg.Error));
+				DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(msg.Error));
 			}
 			else
 			{
