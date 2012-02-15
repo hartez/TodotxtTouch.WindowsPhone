@@ -38,7 +38,16 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 						switch ((int) priority)
 						{
 							case (65):
-								return new SolidColorBrush(Colors.Yellow);
+
+								if(Visibility.Visible==(Visibility)Application.Current.Resources["PhoneDarkThemeVisibility"])
+								{
+									return new SolidColorBrush(Colors.Yellow);
+								}
+								
+								// Yellow is the standard for the other todo.txt projects,
+								// but it's impossible to see if the user is using the Light theme
+								return new SolidColorBrush(Colors.Orange);
+								
 							case (66):
 								return new SolidColorBrush(Colors.Green);
 							case (67):

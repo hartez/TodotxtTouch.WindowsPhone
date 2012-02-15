@@ -27,6 +27,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private DateTime? _localLastModified;
 
+		private object _syncLock = new object();
+
 		protected TaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 		{
 			_dropBoxService = dropBoxService;
@@ -415,36 +417,42 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void LoadTasks()
 		{
-			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			lock (_syncLock)
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
+				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
-					PauseChangeObserver();
-					LoadingState = TaskLoadingState.Loading;
-					TaskList.LoadTasks(file);
-					ResumeChangeObserver();
+					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
+					{
+						PauseChangeObserver();
+						LoadingState = TaskLoadingState.Loading;
+						TaskList.LoadTasks(file);
+						ResumeChangeObserver();
 
-					LoadingState = TaskLoadingState.Ready;
+						LoadingState = TaskLoadingState.Ready;
+					}
 				}
 			}
 		}
 
 		private void SaveTasks()
 		{
-			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+			lock (_syncLock)
 			{
-				using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
+				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
-					TaskLoadingState prevState = LoadingState;
+					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
+					{
+						TaskLoadingState prevState = LoadingState;
 
-					LoadingState = TaskLoadingState.Saving;
-					TaskList.SaveTasks(file);
+						LoadingState = TaskLoadingState.Saving;
+						TaskList.SaveTasks(file);
 
-					LoadingState = prevState;
+						LoadingState = prevState;
+					}
 				}
-			}
 
-			LocalHasChanges = true;
+				LocalHasChanges = true;
+			}
 		}
 
 		private void OverwriteWithRemoteFile(RestResponse response, DateTime remoteModifiedTime)

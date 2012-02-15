@@ -275,7 +275,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			SelectedTaskDraft = SelectedTask.Copy();
 
-			UpdateAvailablePriorities();
+		
 
 			Messenger.Default.Send(new ViewTaskMessage());
 		}
@@ -437,7 +437,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				}
 
 				_selectedTaskDraft = value;
-
+				
+				UpdateAvailablePriorities();
+				
 				// Update bindings, no broadcast
 				RaisePropertyChanged(SelectedTaskDraftPropertyName);
 			}
@@ -651,18 +653,31 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void UpdateAvailablePriorities()
 		{
-			_availablePriorities.Clear();
-			_availablePriorities.Add("");
+			//_availablePriorities.Clear();
+			if(!_availablePriorities.Contains(""))
+			{
+				_availablePriorities.Add("");
+			}
 
 			IEnumerable<String> prioritiesInUse =
 				(from t in TaskList
-				 where t.IsPriority && t.Priority != SelectedTaskDraft.Priority
+				 where t.IsPriority && t.Priority != _selectedTaskDraft.Priority
 				 orderby t.Priority
 				 select t.Priority).Distinct();
 
 			// Generate the possible priorities, then skip over the ones that are already in use
-			Observable.Range(65, 26).Select(n => ((char) n).ToString()).SkipWhile(c => prioritiesInUse.Contains(c))
-				.Subscribe(priority => _availablePriorities.Add(priority));
+			Observable.Range(65, 26).Select(n => ((char) n).ToString())
+				.Subscribe(priority =>
+					{
+						if(prioritiesInUse.Contains(priority) && _availablePriorities.Contains(priority))
+						{
+							_availablePriorities.Remove(priority);
+						}
+						else if (!_availablePriorities.Contains(priority) && !prioritiesInUse.Contains(priority))
+						{
+							_availablePriorities.Add(priority);
+						}
+					} );
 		}
 
 		public void SetState(TombstoneState state)
