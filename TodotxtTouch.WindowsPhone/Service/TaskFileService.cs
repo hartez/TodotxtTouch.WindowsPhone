@@ -417,42 +417,43 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void LoadTasks()
 		{
+			PauseChangeObserver();
+			LoadingState = TaskLoadingState.Loading;
+			
 			lock (_syncLock)
 			{
 				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
 					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
 					{
-						PauseChangeObserver();
-						LoadingState = TaskLoadingState.Loading;
 						TaskList.LoadTasks(file);
-						ResumeChangeObserver();
-
-						LoadingState = TaskLoadingState.Ready;
 					}
 				}
 			}
+
+			LoadingState = TaskLoadingState.Ready;
+			ResumeChangeObserver();
 		}
 
 		private void SaveTasks()
 		{
+			TaskLoadingState prevState = LoadingState;
+
+			LoadingState = TaskLoadingState.Saving;
+
 			lock (_syncLock)
 			{
 				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
 					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
 					{
-						TaskLoadingState prevState = LoadingState;
-
-						LoadingState = TaskLoadingState.Saving;
 						TaskList.SaveTasks(file);
-
-						LoadingState = prevState;
 					}
 				}
-
-				LocalHasChanges = true;
 			}
+
+			LocalHasChanges = true;
+			LoadingState = prevState;
 		}
 
 		private void OverwriteWithRemoteFile(RestResponse response, DateTime remoteModifiedTime)
