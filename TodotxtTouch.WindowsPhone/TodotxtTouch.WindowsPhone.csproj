@@ -59,33 +59,37 @@
     <Reference Include="AgiliTrain.PhoneyTools.Net">
       <HintPath>..\packages\PhoneyTools.1.0.10\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
     </Reference>
-    <Reference Include="DropNet.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.8.1\lib\sl4-wp71\DropNet.WindowsPhone.dll</HintPath>
+    <Reference Include="DropNet.WindowsPhone, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DropNet.1.9.3\lib\sl4-wp71\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="EZLibrary.WindowsPhone">
       <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\EZLibrary.WindowsPhone.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras.WP71">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\GalaSoft.MvvmLight.Extras.WP71.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight.Extras.WP71, Version=3.0.0.19987, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MvvmLight.3.1.1\lib\sl4-windowsphone71\GalaSoft.MvvmLight.Extras.WP71.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.WP71">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\GalaSoft.MvvmLight.WP71.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight.WP71, Version=3.0.0.19988, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MvvmLight.3.1.1\lib\sl4-windowsphone71\GalaSoft.MvvmLight.WP71.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL">
       <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\Microsoft.Phone.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Phone.Controls.Toolkit">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+    <Reference Include="Microsoft.Phone.Controls.Toolkit, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b772ad94eb9ca604, processorArchitecture=MSIL">
+      <HintPath>..\packages\SilverlightToolkitWP.4.2011.12.14\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="Microsoft.Phone.Reactive" />
-    <Reference Include="Newtonsoft.Json, Version=4.0.4.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.4.0.4\lib\sl3-wp\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.4.5.5\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp.WindowsPhone, Version=102.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DropNet.1.8.1\lib\sl4-wp71\RestSharp.WindowsPhone.dll</HintPath>
+    <Reference Include="RestSharp.WindowsPhone, Version=102.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DropNet.1.9.3\lib\sl4-wp71\RestSharp.WindowsPhone.dll</HintPath>
     </Reference>
     <Reference Include="System.Observable" />
     <Reference Include="System.Windows" />
@@ -93,11 +97,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Interactivity, Version=3.8.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\MvvmLight.3.1.1\lib\sl4-windowsphone71\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="todotxtlib.net">
-      <HintPath>..\packages\todotxtlib.net.1.0.0\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+    <Reference Include="todotxtlib.net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\todotxtlib.net.1.1.0\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +149,7 @@
     <Compile Include="Messages\RetrievedDropboxTokenMessage.cs" />
     <Compile Include="ViewModel\DropboxCredentialsViewModel.cs" />
     <Compile Include="Service\DropboxService.cs" />
+    <Compile Include="Messages\InitiateCallMessage.cs" />
     <Compile Include="ViewModel\LoadingStateChangedEventArgs.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="Messages\NeedCredentialsMessage.cs" />
@@ -196,12 +201,16 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="Properties\AppManifest.xml" />
+    <None Include="Properties\AppManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\WMAppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Toolkit.Content\ApplicationBar.Delete.png" />
-    <Resource Include="Toolkit.Content\ApplicationBar.Select.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
     <Resource Include="apikeys.txt" />
     <Content Include="Images\appbar.manage.rest.png" />
     <Content Include="Images\check.png" />
@@ -211,13 +220,12 @@
     <Content Include="README_FIRST.txt" />
     <Content Include="README_Phoney.txt" />
     <Content Include="todotxt_tile.png" />
-    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
-    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
     <Content Include="Images\add.png" />
     <Content Include="Images\cancel.png" />
     <Content Include="Images\save.png" />
     <Content Include="SplashScreenImage.jpg" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

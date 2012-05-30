@@ -19,21 +19,27 @@ namespace TodotxtTouch.WindowsPhone
 			Messenger.Default.Register<ViewTaskMessage>(
 				this, ViewSelectedTask);
 
-			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
-				
-			((ApplicationBarIconButton)ApplicationBar.Buttons[0]).Click += AddButton_Click;
-			((ApplicationBarIconButton)ApplicationBar.Buttons[1]).Click += MultiSelect_Click;
-			((ApplicationBarIconButton)ApplicationBar.Buttons[2]).Click += SyncButton_Click;
+			Messenger.Default.Register<InitiateCallMessage>(this, message => MessageBox.Show("call"));
 
-			Loaded += MainPage_Loaded;
+			Messenger.Default.Register<DrillDownMessage>(this, DrillDown);
+
+			((ApplicationBarIconButton)ApplicationBar.Buttons[0]).Click += AddButton_Click;
+			((ApplicationBarIconButton)ApplicationBar.Buttons[1]).Click += MultiSelectClick;
+			((ApplicationBarIconButton)ApplicationBar.Buttons[2]).Click += SyncButtonClick;
 		}
 
-		private void SyncButton_Click(object sender, EventArgs e)
+		private void SyncButtonClick(object sender, EventArgs e)
 		{
+			StartSync();
+		}
+
+		private void StartSync()
+		{
+			Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
 			((MainViewModel)DataContext).SyncCommand.Execute(null);
 		}
 
-		private void MultiSelect_Click(object sender, EventArgs e)
+		private void MultiSelectClick(object sender, EventArgs e)
 		{
 			string filter;
 			if (NavigationContext.QueryString.TryGetValue("filter", out filter))
@@ -60,14 +66,6 @@ namespace TodotxtTouch.WindowsPhone
 			BroadCastFilter();
 		}
 
-		private void MainPage_Loaded(object sender, RoutedEventArgs e)
-		{
-			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
-				"support@traceur-llc.com");	
-
-			Messenger.Default.Send(new ApplicationReadyMessage());
-		}
-
 		private void AddButton_Click(object sender, EventArgs e)
 		{
 			((MainViewModel) DataContext).AddTaskCommand.Execute(null);
@@ -80,6 +78,7 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void ShowLogin()
 		{
+			Messenger.Default.Register<CredentialsUpdatedMessage>(this, msg => StartSync());
 			NavigationService.Navigate(new Uri("/DropboxLogin.xaml", UriKind.Relative));
 		}
 

@@ -102,6 +102,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand ViewTaskDetailsCommand { get; private set; }
 
+		public RelayCommand InitiateCallCommand { get; private set; }
+
 		public RelayCommand SaveCurrentTaskCommand { get; private set; }
 
 		public RelayCommand RevertCurrentTaskCommand { get; private set; }
@@ -127,9 +129,18 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			return canExecute;
 		}
 
+		private bool CanInitiateCallExecute()
+		{
+			bool canExecute = TaskFileServiceReady && SelectedTask != null;
+
+			return canExecute;
+		}
+
 		private void WireUpCommands()
 		{
 			ViewTaskDetailsCommand = new RelayCommand(ViewTask, CanViewTaskDetailsExecute);
+
+			InitiateCallCommand = new RelayCommand(InitiateCall, CanInitiateCallExecute);
 
 			AddTaskCommand = new RelayCommand(AddTask, () => TaskFileServiceReady);
 
@@ -163,8 +174,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 							_selectedTasks.Remove(task as Task);
 						}
 					}
-
-					return;
 				}, args => !_workingWithSelectedTasks);
 
 			MarkSelectedTasksCompleteCommand = new RelayCommand(MarkSelectedTasksComplete, () => TaskFileServiceReady);
@@ -275,9 +284,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			SelectedTaskDraft = SelectedTask.Copy();
 
-		
-
 			Messenger.Default.Send(new ViewTaskMessage());
+		}
+
+		private void InitiateCall()
+		{
+			Messenger.Default.Send(new InitiateCallMessage());
 		}
 
 		private void SaveCurrentTask()

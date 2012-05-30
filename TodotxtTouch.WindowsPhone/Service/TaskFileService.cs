@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
+using System.Windows.Navigation;
 using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
@@ -27,7 +28,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private DateTime? _localLastModified;
 
-		private object _syncLock = new object();
+		private readonly object _syncLock = new object();
 
 		protected TaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 		{
@@ -38,16 +39,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
 
-			Messenger.Default.Register<ApplicationReadyMessage>(
-				this, message =>
-					{
-						if (!LocalFileExists)
-						{
-							SaveTasks();
-						}
+			Messenger.Default.Register<ApplicationReadyMessage>(this, message => Start());
+			Messenger.Default.Register<NeedCredentialsMessage>(this, message =>
+				{
+					if(LoadingState == TaskLoadingState.Syncing){LoadingState = TaskLoadingState.Ready;}
+				});
+		}
 
-						LoadTasks();
-					});
+		private void Start()
+		{
+			if (!LocalFileExists)
+			{
+				SaveTasks();
+			}
+
+			LoadTasks();
 		}
 
 		private bool LocalHasChanges
@@ -147,6 +153,32 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 50))
 				.Subscribe(e => SaveTasks());
+		}
+
+		private void PauseCollectionChanged()
+		{
+			_taskList.CollectionChanged -= TaskListCollectionChanged;
+		}
+
+		private void ResumeCollectionChanged()
+		{
+			_taskList.CollectionChanged += TaskListCollectionChanged;
+		}
+
+		private void ClearTaskPropertyChangedHandlers()
+		{
+			foreach(var task in _taskList)
+			{
+				task.PropertyChanged -= TaskPropertyChanged;
+			}
+		}
+
+		private void InitTaskPropertyChangedHandlers()
+		{
+			foreach (var task in _taskList)
+			{
+				task.PropertyChanged += TaskPropertyChanged;
+			}
 		}
 
 		private void TaskListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -422,6 +454,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 			
 			lock (_syncLock)
 			{
+				PauseCollectionChanged();
+				ClearTaskPropertyChangedHandlers();
+
 				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
 					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
@@ -429,6 +464,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 						TaskList.LoadTasks(file);
 					}
 				}
+
+				InitTaskPropertyChangedHandlers();
+				ResumeCollectionChanged();
 			}
 
 			LoadingState = TaskLoadingState.Ready;

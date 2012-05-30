@@ -81,14 +81,15 @@ namespace TodotxtTouch.WindowsPhone
 		// This code will not execute when the application is reactivated
 		private void Application_Launching(object sender, LaunchingEventArgs e)
 		{
+			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
+				"support@traceur-llc.com");
+			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
 		// Code to execute when the application is activated (brought to foreground)
 		// This code will not execute when the application is first launched
 		private void Application_Activated(object sender, ActivatedEventArgs e)
 		{
-			Messenger.Default.Send(new ApplicationReadyMessage());
-
 			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 
 			if (viewModel != null)
@@ -97,6 +98,8 @@ namespace TodotxtTouch.WindowsPhone
 
 				viewModel.SetState(state);
 			}
+
+			Messenger.Default.Send(new ApplicationReadyMessage());
 		}
 
 		public static void UpdateBindingOnFocusedTextBox()
