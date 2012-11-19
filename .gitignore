@@ -8,3 +8,4 @@ packages/*
 *.vsmdi
 *.pdb
 TodotxtTouch.WindowsPhone/packages
+_ReSharper.*
