@@ -12,7 +12,13 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			InitializeComponent();
 
-			Messenger.Default.Register<CredentialsUpdatedMessage>(this, msg => NavigationService.GoBack());
+            Messenger.Default.Register<CredentialsUpdatedMessage>(this, msg =>
+                                                                            {
+                                                                                if(NavigationService.CanGoBack)
+                                                                                {
+                                                                                    NavigationService.GoBack();
+                                                                                }
+                                                                            });
 
 			Messenger.Default.Register<RetrievedDropboxTokenMessage>(this, LoadLoginPage);
 
