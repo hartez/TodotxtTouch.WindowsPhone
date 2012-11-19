@@ -10,3 +10,4 @@ packages/*
 TodotxtTouch.WindowsPhone/packages
 _ReSharper.*
 *.suo
+*.user
