@@ -22,10 +22,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 	public abstract class TaskFileService
 	{
 		protected readonly ApplicationSettings Settings;
-		private readonly IObservable<IEvent<TaskListChangedEventArgs>> _changeObserver;
 		private readonly DropboxService _dropBoxService;
 		private readonly TaskList _taskList = new TaskList();
-		private IDisposable _changeSubscription;
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private string _lastRevision;
 
@@ -37,8 +35,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			Settings = settings;
 
 			_taskList.CollectionChanged += TaskListCollectionChanged;
-
-			_changeObserver = Observable.FromEvent<TaskListChangedEventArgs>(this, "TaskListChanged");
 
 			Messenger.Default.Register<ApplicationReadyMessage>(this, message => Start());
 			Messenger.Default.Register<NeedCredentialsMessage>(this, message =>
@@ -141,21 +137,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		protected abstract String GetFilePath();
 		protected abstract String GetFileName();
-
-		private void PauseChangeObserver()
-		{
-			if (_changeSubscription != null)
-			{
-				_changeSubscription.Dispose();
-			}
-		}
-
-		private void ResumeChangeObserver()
-		{
-            // TODO This is insane - why did I think this was a good idea? Remove this and explicitly call Save 
-			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 50))
-				.Subscribe(e => SaveTasks());
-		}
 
 		private void PauseCollectionChanged()
 		{
@@ -412,13 +393,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 			_dropBoxService.GetFile(FullPath,
 			                        response =>
 			                        	{
-			                        		PauseChangeObserver();
 			                        		MergeTaskLists(response.Content);
 
 			                        		SaveTasks();
 			                        		PushLocal();
-			                        		ResumeChangeObserver();
-			                        		LoadingState = TaskLoadingState.Ready;
+
+                                            LoadingState = TaskLoadingState.Ready;
 			                        	}, SendSyncError);
 		}
 
@@ -441,11 +421,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 					TaskList.Add(task);
 				}
 			}
+
+            SaveTasks();
 		}
 
 		private void LoadTasks()
 		{
-			PauseChangeObserver();
 			LoadingState = TaskLoadingState.Loading;
 			
 			lock (_syncLock)
@@ -465,8 +446,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 				ResumeCollectionChanged();
 			}
 
+            InvokeTaskListChanged(new TaskListChangedEventArgs());
+
 			LoadingState = TaskLoadingState.Ready;
-			ResumeChangeObserver();
 		}
 
 		public void SaveTasks()

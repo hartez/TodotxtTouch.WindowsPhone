@@ -331,6 +331,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				_taskFileService.UpdateTask(SelectedTaskDraft, SelectedTask);
 			}
+
+            _taskFileService.SaveTasks();
 		}
 
 		#endregion
