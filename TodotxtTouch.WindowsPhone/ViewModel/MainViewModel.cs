@@ -223,6 +223,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 		    _archiveFileService.LoadingStateChanged += ArchiveTasks;
 
+            _taskFileService.LoadingState = TaskLoadingState.Loading;
+
             _archiveFileService.Sync();
 		}
 
@@ -230,6 +232,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             if (args.LoadingState == TaskLoadingState.Ready)
             {
+                _archiveFileService.LoadingStateChanged -= ArchiveTasks;
+
                 // TODO Have setting for preserving line numbers
                 TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
 
@@ -240,7 +244,19 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
                 _archiveFileService.SaveTasks();
 
+                _archiveFileService.LoadingStateChanged += FinishArchiving;
+
                 _archiveFileService.Sync();
+            }
+        }
+
+        private void FinishArchiving(object obj, LoadingStateChangedEventArgs args)
+        {
+            if (args.LoadingState == TaskLoadingState.Ready)
+            {
+                _archiveFileService.LoadingStateChanged -= FinishArchiving;
+
+                _taskFileService.LoadingState = TaskLoadingState.Ready;
             }
         }
 

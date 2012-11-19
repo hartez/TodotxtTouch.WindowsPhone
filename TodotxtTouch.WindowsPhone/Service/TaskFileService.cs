@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private readonly TaskList _taskList = new TaskList();
 		private IDisposable _changeSubscription;
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
-		private DateTime? _localLastModified;
+		private string _lastRevision;
 
 		private readonly object _syncLock = new object();
 
@@ -95,30 +96,30 @@ namespace TodotxtTouch.WindowsPhone.Service
 			get { return _taskList; }
 		}
 
-		private String LocalLastModifiedPropertyName
+		private String LocalLastRevisionPropertyName
 		{
-			get { return GetFileName() + "LocalLastModified"; }
+            get { return GetFileName() + "LocalLastRevision"; }
 		}
 
-		private DateTime? LocalLastSynced
+		private string LocalLastRevision
 		{
 			get
 			{
-				if (_localLastModified == null)
+				if (_lastRevision == null)
 				{
-					DateTime? llm;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue(LocalLastModifiedPropertyName, out llm))
+					string llm;
+					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue(LocalLastRevisionPropertyName, out llm))
 					{
-						_localLastModified = llm;
+						_lastRevision = llm;
 					}
 				}
 
-				return _localLastModified;
+				return _lastRevision;
 			}
 			set
 			{
-				_localLastModified = value;
-				IsolatedStorageSettings.ApplicationSettings[LocalLastModifiedPropertyName] = _localLastModified;
+				_lastRevision = value;
+				IsolatedStorageSettings.ApplicationSettings[LocalLastRevisionPropertyName] = _lastRevision;
 			}
 		}
 
@@ -151,6 +152,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void ResumeChangeObserver()
 		{
+            // TODO This is insane - why did I think this was a good idea? Remove this and explicitly call Save 
 			_changeSubscription = _changeObserver.Throttle(new TimeSpan(0, 0, 0, 0, 50))
 				.Subscribe(e => SaveTasks());
 		}
@@ -262,21 +264,22 @@ namespace TodotxtTouch.WindowsPhone.Service
 				return;
 			}
 
-			DateTime remoteLastModified = data.UTCDateModified;
+            // This should really use the rev property, but that's not in the current version of DropNet
+			string remoteRevision = data.Revision.ToString(CultureInfo.InvariantCulture);
 
 			// See if we have a local task file
 			if (!LocalFileExists)
 			{
 				// We have no local file - just make the remote file the local file
-				UseRemoteFile(remoteLastModified);
+				UseRemoteFile(remoteRevision);
 				return;
 			}
 
 			// Use the metadata to make a decision about whether to 
 			// get/merge the remote file
-			if (LocalLastSynced.HasValue)
+			if (!String.IsNullOrEmpty(LocalLastRevision))
 			{
-				if (LocalLastSynced.Value.CompareTo(remoteLastModified) == 0 && !LocalHasChanges)
+				if (LocalLastRevision == remoteRevision && !LocalHasChanges)
 				{
 					if (TaskList.Count == 0)
 					{
@@ -288,18 +291,18 @@ namespace TodotxtTouch.WindowsPhone.Service
 						LoadingState = TaskLoadingState.Ready;
 					}
 				}
-				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) < 0 && !LocalHasChanges)
+				else if (LocalLastRevision != remoteRevision && !LocalHasChanges)
 				{
 					//	If local.Retrieved < remote.LastUpdated and local has no changes, replace local with remote (local.Retrieved = remote.LastUpdated)
-					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteLastModified;
-					UseRemoteFile(remoteLastModified);
+					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteRevision;
+					UseRemoteFile(remoteRevision);
 				}
-				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) < 0 && LocalHasChanges)
+				else if (LocalLastRevision != remoteRevision && LocalHasChanges)
 				{
 					//If local.Retrieved < remote.LastUpdated and local has changes, merge (???) or maybe just upload local to conflicted file?
 					IntiateMerge();
 				}
-				else if (LocalLastSynced.Value.CompareTo(remoteLastModified) == 0 && LocalHasChanges)
+				else if (LocalLastRevision == remoteRevision && LocalHasChanges)
 				{
 					//If local.Retrieved == remote.LastUpdate and local has changes, upload local
 					if (TaskList.Count == 0)
@@ -392,14 +395,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			                       	{
 			                       		LocalHasChanges = false;
 
-										if (metaDataResponse == null)
-										{
-											LocalLastSynced = DateTime.UtcNow;
-										}
-										else
-										{
-											LocalLastSynced = metaDataResponse.UTCDateModified;	
-										}
+										LocalLastRevision = metaDataResponse.Revision.ToString(CultureInfo.InvariantCulture);	
 
 			                       		LoadingState = TaskLoadingState.Ready;
 			                       	}, SendSyncError), SendSyncError);
@@ -494,7 +490,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			LoadingState = prevState;
 		}
 
-		private void OverwriteWithRemoteFile(RestResponse response, DateTime remoteModifiedTime)
+		private void OverwriteWithRemoteFile(RestResponse response, string latestRevision)
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
@@ -508,15 +504,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 				}
 			}
 
-			LocalLastSynced = remoteModifiedTime;
+			LocalLastRevision = latestRevision;
 			LocalHasChanges = false;
 			LoadTasks();
 		}
 
-		private void UseRemoteFile(DateTime remoteModifiedTime)
+		private void UseRemoteFile(String latestRevision)
 		{
 			_dropBoxService.GetFile(FullPath,
-			                        response => OverwriteWithRemoteFile(response, remoteModifiedTime),
+			                        response => OverwriteWithRemoteFile(response, latestRevision),
 			                        ex => InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex)));
 		}
 

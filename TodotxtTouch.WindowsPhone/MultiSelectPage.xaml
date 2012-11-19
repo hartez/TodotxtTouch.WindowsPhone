@@ -83,7 +83,7 @@
     <!--Sample code showing usage of ApplicationBar-->
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton IconUri="/Images/check.png" Click="MarkComplete_Click"  Text="mark complete"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/check.png" Click="MarkComplete_Click"  Text="completed"/>
             <shell:ApplicationBarIconButton IconUri="/Images/delete.png" Click="Delete_Click" Text="delete"/>
           
         </shell:ApplicationBar>
