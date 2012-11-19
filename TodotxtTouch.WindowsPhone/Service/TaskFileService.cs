@@ -468,7 +468,10 @@ namespace TodotxtTouch.WindowsPhone.Service
 				}
 			}
 
-			LocalHasChanges = true;
+            LocalHasChanges = true;
+
+            InvokeTaskListChanged(new TaskListChangedEventArgs());
+
 			LoadingState = prevState;
 		}
 

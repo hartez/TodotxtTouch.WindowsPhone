@@ -190,6 +190,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void RemoveSelectedTasks()
 		{
+            if (_selectedTasks.Count == 0)
+            {
+                return;
+            }
+
 			_workingWithSelectedTasks = true;
 
 			foreach (Task task in _selectedTasks)
@@ -201,11 +206,18 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				}
 			}
 
-			_workingWithSelectedTasks = false;
+            _taskFileService.SaveTasks();
+
+		    _workingWithSelectedTasks = false;
 		}
 
 		private void MarkSelectedTasksComplete()
 		{
+            if (_selectedTasks.Count == 0)
+            {
+                return;
+            }
+
 			_workingWithSelectedTasks = true;
 
 			foreach (Task task in _selectedTasks)
@@ -216,6 +228,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				}
 			}
 
+            _taskFileService.SaveTasks();
+            
 			_workingWithSelectedTasks = false;
 		}
 
