@@ -121,8 +121,10 @@
     <Compile Include="MultiSelectPage.xaml.cs">
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Service\ArchiveTaskFileService.cs" />
     <Compile Include="Service\DropboxServiceAvailableChangedEventArgs.cs" />
     <Compile Include="Service\DropNetExtensions.cs" />
+    <Compile Include="Service\PrimaryTaskFileService.cs" />
     <Compile Include="Service\SynchronizationErrorEventArgs.cs" />
     <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />

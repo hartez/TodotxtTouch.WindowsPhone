@@ -157,8 +157,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			                                            () => TaskFileServiceReady
 			                                                  && SelectedTaskDraft != null);
 
-			ArchiveTasksCommand = new RelayCommand(ArchiveTasks,
-			                                       () => TaskFileServiceReady && ArchiveFileServiceReady);
+			ArchiveTasksCommand = new RelayCommand(InitiateArchiveTasks,
+			                                       () => TaskFileServiceReady);
 
 			SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(args =>
 				{
@@ -185,7 +185,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private void Sync()
 		{
-			_archiveFileService.Sync();
 			_taskFileService.Sync();
 		}
 
@@ -220,18 +219,32 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			_workingWithSelectedTasks = false;
 		}
 
-		private void ArchiveTasks()
+		private void InitiateArchiveTasks()
 		{
-			// TODO Have setting for preserving line numbers
-			TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
+		    _archiveFileService.LoadingStateChanged += ArchiveTasks;
 
-			foreach (Task completedTask in completedTasks)
-			{
-				_archiveFileService.TaskList.Add(completedTask);
-			}
+            _archiveFileService.Sync();
 		}
 
-		private void RevertCurrentTask()
+        private void ArchiveTasks(object obj, LoadingStateChangedEventArgs args)
+        {
+            if (args.LoadingState == TaskLoadingState.Ready)
+            {
+                // TODO Have setting for preserving line numbers
+                TaskList completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
+
+                foreach (Task completedTask in completedTasks)
+                {
+                    _archiveFileService.TaskList.Add(completedTask);
+                }
+
+                _archiveFileService.SaveTasks();
+
+                _archiveFileService.Sync();
+            }
+        }
+
+	    private void RevertCurrentTask()
 		{
 			if (SelectedTask == null)
 			{
@@ -565,15 +578,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			get
 			{
 				return _taskFileService.LoadingState ==
-				       TaskLoadingState.Ready;
-			}
-		}
-
-		private bool ArchiveFileServiceReady
-		{
-			get
-			{
-				return _archiveFileService.LoadingState ==
 				       TaskLoadingState.Ready;
 			}
 		}

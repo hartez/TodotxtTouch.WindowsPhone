@@ -473,7 +473,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			ResumeChangeObserver();
 		}
 
-		private void SaveTasks()
+		public void SaveTasks()
 		{
 			TaskLoadingState prevState = LoadingState;
 
@@ -554,41 +554,5 @@ namespace TodotxtTouch.WindowsPhone.Service
 		}
 
 		#endregion
-	}
-
-	public class PrimaryTaskFileService : TaskFileService
-	{
-		public PrimaryTaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
-			: base(dropBoxService, settings)
-		{
-		}
-
-		protected override string GetFilePath()
-		{
-			return Settings.TodoFilePath;
-		}
-
-		protected override string GetFileName()
-		{
-			return Settings.TodoFileName;
-		}
-	}
-
-	public class ArchiveTaskFileService : TaskFileService
-	{
-		public ArchiveTaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
-			: base(dropBoxService, settings)
-		{
-		}
-
-		protected override string GetFilePath()
-		{
-			return Settings.ArchiveFilePath;
-		}
-
-		protected override string GetFileName()
-		{
-			return Settings.ArchiveFileName;
-		}
 	}
 }
