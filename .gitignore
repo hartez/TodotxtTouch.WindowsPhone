@@ -9,3 +9,4 @@ packages/*
 *.pdb
 TodotxtTouch.WindowsPhone/packages
 _ReSharper.*
+*.suo
