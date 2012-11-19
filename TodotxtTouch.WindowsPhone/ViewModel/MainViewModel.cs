@@ -223,7 +223,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 		    _archiveFileService.LoadingStateChanged += ArchiveTasks;
 
-            _taskFileService.LoadingState = TaskLoadingState.Loading;
+            _taskFileService.LoadingState = TaskLoadingState.Syncing;
 
             _archiveFileService.Sync();
 		}
@@ -243,20 +243,21 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 }
 
                 _archiveFileService.SaveTasks();
+                _taskFileService.SaveTasks();
 
-                _archiveFileService.LoadingStateChanged += FinishArchiving;
+                _archiveFileService.LoadingStateChanged += FinishSavingArchive;
 
                 _archiveFileService.Sync();
             }
         }
 
-        private void FinishArchiving(object obj, LoadingStateChangedEventArgs args)
+        private void FinishSavingArchive(object obj, LoadingStateChangedEventArgs args)
         {
             if (args.LoadingState == TaskLoadingState.Ready)
             {
-                _archiveFileService.LoadingStateChanged -= FinishArchiving;
+                _archiveFileService.LoadingStateChanged -= FinishSavingArchive;
 
-                _taskFileService.LoadingState = TaskLoadingState.Ready;
+                _taskFileService.Sync();
             }
         }
 
