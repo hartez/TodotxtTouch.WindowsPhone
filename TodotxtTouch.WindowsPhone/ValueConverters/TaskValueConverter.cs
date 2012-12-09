@@ -21,7 +21,7 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 				{
 					string priority = task.IsPriority ? string.Format("({0}) ", task.Priority) : String.Empty;
 
-					return priority + task.Body;
+					return priority + (String.IsNullOrEmpty(task.Body) ? "{Empty Task}" : task.Body);
 				}
 
 				if (targetType == typeof (Brush))

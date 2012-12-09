@@ -19,7 +19,7 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 			return taskList.OrderByDescending(task => task.IsPriority)
 				.ThenBy(task => task.Priority)
 				.ThenBy(task => task.Completed)
-				.ThenBy(task => task.Body.ToLower()); 
+				.ThenBy(task => string.IsNullOrEmpty(task.Body) ? string.Empty : task.Body.ToLower()); 
 		}
 	}
 }

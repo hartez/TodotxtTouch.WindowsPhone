@@ -377,6 +377,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				TaskList.Add(new Task("This task has two contexts @home @work"));
 				TaskList.Add(new Task("This task has two projects +planvacation +fixstove"));
 				TaskList.Add(new Task("This task has one of each @home +fixstove"));
+                TaskList.Add(new Task("")); // Blank task line
 
 				_selectedTask = TaskList[3];
 			}
