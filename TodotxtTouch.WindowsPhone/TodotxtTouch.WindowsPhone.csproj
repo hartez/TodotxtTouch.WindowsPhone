@@ -91,6 +91,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.4.5.5\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.mocks">
+      <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="pnunit.framework">
+      <HintPath>..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp.WindowsPhone, Version=102.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DropNet.1.9.3\lib\sl4-wp71\RestSharp.WindowsPhone.dll</HintPath>
@@ -105,7 +114,7 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="todotxtlib.net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\todotxtlib.net.1.1.0\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+      <HintPath>..\packages\todotxtlib.net.1.1.2\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
