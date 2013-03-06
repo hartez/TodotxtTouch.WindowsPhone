@@ -10,22 +10,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private string _todoFileName;
 		private string _todoFilePath;
 
-		public ApplicationSettings()
-		{
-			_todoFileName = "todo.txt";
-			_archiveFileName = "done.txt";
-
-			_todoFilePath = "/todo";
-			_archiveFilePath = "/todo";
-		}
-
-		public string ArchiveFilePath
+	    public string ArchiveFilePath
 		{
 			get
 			{
 				if (String.IsNullOrEmpty(_archiveFilePath))
 				{
-					TryToGetSetting("archiveFilePath", ref _archiveFilePath);
+                    _archiveFilePath = GetSetting("archiveFilePath", "/todo");
 				}
 
 				return _archiveFilePath;
@@ -43,7 +34,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				if (String.IsNullOrEmpty(_archiveFileName))
 				{
-					TryToGetSetting("archiveFileName", ref _archiveFileName);
+                    _archiveFileName = GetSetting("archiveFileName", "done.txt");
 				}
 
 				return _archiveFileName;
@@ -62,7 +53,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				if (String.IsNullOrEmpty(_todoFilePath))
 				{
-					TryToGetSetting("todoFilePath", ref _todoFilePath);
+                    _todoFilePath = GetSetting("todoFilePath", "/todo");
 				}
 
 				return _todoFilePath;
@@ -80,7 +71,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				if (String.IsNullOrEmpty(_todoFileName))
 				{
-					TryToGetSetting("todoFileName", ref _todoFileName);
+                    _todoFileName = GetSetting("todoFileName", "todo.txt");
 				}
 
 				return _todoFileName;
@@ -92,14 +83,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		private static void TryToGetSetting<T>(string setting, ref T current)
+		private static T GetSetting<T>(string setting, T defaultValue)
 		{
 			T value;
-			if (IsolatedStorageSettings.ApplicationSettings.TryGetValue(setting,
-			                                                            out value))
-			{
-				current = value;
-			}
+			return IsolatedStorageSettings.ApplicationSettings.TryGetValue(setting,
+			    out value) ? value : defaultValue;
 		}
 	}
 }
