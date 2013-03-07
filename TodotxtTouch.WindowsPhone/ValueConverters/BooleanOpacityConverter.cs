@@ -11,7 +11,7 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 			double opacity = 1.0;
 			if (parameter != null)
 			{
-				opacity = double.Parse(parameter.ToString());
+				opacity = double.Parse(parameter.ToString(), CultureInfo.InvariantCulture);
 			}
 
 			if((bool)value)
