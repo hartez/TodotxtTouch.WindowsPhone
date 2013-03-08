@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using TodotxtTouch.WindowsPhone.Messages;
+using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
@@ -28,15 +29,34 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string TodoFilePathPropertyName = "TodoFilePath";
 
-		private readonly ApplicationSettings _settings;
+        private const string ConnectedPropertyName = "Connected";
+	    private const string DisconnectedPropertyName = "Disconnected";
+
+        public bool Connected
+        {
+            get
+            {
+                return _dropBoxService.WeHaveTokens;
+            }
+        }
+
+	    public bool Disconnected
+	    {
+            get { return !Connected; }
+	    }
+
+	    private readonly ApplicationSettings _settings;
+        private DropboxService _dropBoxService;
 
 		public RelayCommand BroadcastSettingsChanged { get; private set; }
 
-		public ApplicationSettingsViewModel(ApplicationSettings settings)
+		public ApplicationSettingsViewModel(ApplicationSettings settings, DropboxService dropBoxService)
 		{
 			_settings = settings;
+		    _dropBoxService = dropBoxService;
 
-			BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
+		    BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
+            DisconnectCommand = new RelayCommand(Disconnect);
 
 			if (IsInDesignMode)
 			{
@@ -45,6 +65,21 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 			}
 		}
+
+        public RelayCommand DisconnectCommand { get; private set; }
+
+	    public void CheckConnection()
+	    {
+            RaisePropertyChanged(ConnectedPropertyName);
+            RaisePropertyChanged(DisconnectedPropertyName);
+	    }
+
+	    private void Disconnect()
+        {
+            _dropBoxService.Disconnect();
+            RaisePropertyChanged(ConnectedPropertyName);
+            RaisePropertyChanged(DisconnectedPropertyName);
+        }
 
 		/// <summary>
 		/// Gets the TodoFileName property.

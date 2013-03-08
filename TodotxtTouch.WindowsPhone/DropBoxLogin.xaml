@@ -11,7 +11,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="480" d:DesignWidth="480"
+    d:DesignHeight="800" d:DesignWidth="480"
     DataContext="{Binding DropboxCredentials, Source={StaticResource Locator}}">
     
     <Grid x:Name="LayoutRoot" Background="Transparent">

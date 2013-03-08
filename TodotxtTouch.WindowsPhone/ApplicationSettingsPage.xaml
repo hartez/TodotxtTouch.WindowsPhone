@@ -6,6 +6,9 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
+    xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -106,6 +109,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+        <Converters:VisibilityConverter x:Key="BooleanVisibilityConverter"></Converters:VisibilityConverter>
 	</phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -133,7 +137,15 @@
         			<TextBox x:Name="ArchiveFileNameTextBox" TextWrapping="Wrap" Text="{Binding ArchiveFileName, Mode=TwoWay}" Style="{StaticResource AppSettingTextBoxStyle}"/>
         			<TextBlock TextWrapping="Wrap" Text="Archive File Path:"/>
         			<TextBox x:Name="ArchiveFilePathTextBox" TextWrapping="Wrap" Text="{Binding ArchiveFilePath, Mode=TwoWay}" Style="{StaticResource AppSettingTextBoxStyle}"/>
-        		</StackPanel>
+                    <Button x:Name="DisconnectFromDropbox" Content="Disconnect From Dropbox" Click="DisconnectFromDropBox_OnClick"
+                            Visibility="{Binding Connected, Converter={StaticResource BooleanVisibilityConverter}}">
+                        
+                    </Button>
+                    <Button x:Name="ConnectToDropbox" Content="Connect To Dropbox" Click="ConnectToDropBox_OnClick"
+                            Visibility="{Binding Disconnected, Converter={StaticResource BooleanVisibilityConverter}}">
+                    </Button>
+
+                </StackPanel>
         	</ScrollViewer>
             
             

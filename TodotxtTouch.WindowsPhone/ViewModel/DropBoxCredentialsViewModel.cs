@@ -24,6 +24,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand UpdateCredentialsCommand { get; private set; }
 		public RelayCommand StartLoginProcessCommand { get; private set; }
+
 		/// <summary>
 		/// Initializes a new instance of the ApplicationSettingsViewModel class.
 		/// </summary>

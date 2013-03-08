@@ -50,7 +50,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				_dropBoxService = new DropboxService();
 				var settings = new ApplicationSettings();
 
-				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings);
+				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings, _dropBoxService);
 
 				Messenger.Default.Register<ApplicationSettingsChangedMessage>(this, asc => Initialize(asc.Settings));
 

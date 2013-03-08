@@ -24,7 +24,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
 		}
 
-		/// <summary>
+	    public void Disconnect()
+	    {
+	        Token = String.Empty;
+	        Secret = String.Empty;
+	    }
+
+	    /// <summary>
 		/// Gets the Secret property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>

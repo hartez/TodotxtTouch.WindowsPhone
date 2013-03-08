@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
+using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	public class ApplicationSettings
+	public class ApplicationSettings : ViewModelBase
 	{
 		private string _archiveFileName;
 		private string _archiveFilePath;
@@ -45,7 +48,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				IsolatedStorageSettings.ApplicationSettings["archiveFileName"] = _archiveFileName;
 			}
 		}
-
 
 		public String TodoFilePath
 		{
