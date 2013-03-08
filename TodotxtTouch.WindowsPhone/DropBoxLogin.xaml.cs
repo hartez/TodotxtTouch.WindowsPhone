@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
 using TodotxtTouch.WindowsPhone.Messages;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
 {
@@ -24,6 +25,12 @@ namespace TodotxtTouch.WindowsPhone
 
 			loginBrowser.LoadCompleted += LoadCompleted;
 		}
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            ((DropboxCredentialsViewModel)DataContext).StartLoginProcessCommand.Execute(null);
+        }
 
 		private void LoadLoginPage(RetrievedDropboxTokenMessage msg)
 		{

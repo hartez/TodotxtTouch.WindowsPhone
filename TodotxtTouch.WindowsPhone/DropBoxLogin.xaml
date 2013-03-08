@@ -17,20 +17,8 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
 		
 		<Grid.RowDefinitions>
-		
-			<RowDefinition Height="80"></RowDefinition>
 			<RowDefinition Height="*"></RowDefinition>
 		</Grid.RowDefinitions>
-		
-       <Button Content="Login To Dropbox" Height="72" HorizontalAlignment="Stretch" Grid.Row="0" Name="LoginButton">
-
-			<i:Interaction.Triggers>
-				<i:EventTrigger EventName="Click">
-					<Command:EventToCommand Command="{Binding StartLoginProcessCommand}"></Command:EventToCommand>
-				</i:EventTrigger>
-			</i:Interaction.Triggers>
-
-		</Button>
 
 		<Controls:WebBrowser Margin="0" Grid.Row="1"
 						  x:Name="loginBrowser"
