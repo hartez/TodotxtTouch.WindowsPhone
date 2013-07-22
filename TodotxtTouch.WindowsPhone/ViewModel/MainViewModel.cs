@@ -202,9 +202,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				if (task != null)
 				{
 					TaskList.Delete(task);
-					// TODO Handle TaskException
 				}
 			}
+
+            _selectedTasks.Clear();
 
             _taskFileService.SaveTasks();
 
