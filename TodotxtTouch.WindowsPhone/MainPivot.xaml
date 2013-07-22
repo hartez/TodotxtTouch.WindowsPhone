@@ -91,7 +91,7 @@
 							<Grid Margin="5,5">
 								<StackPanel Orientation="Horizontal">
 									<TextBlock Text="{Binding}"
-											   FontSize="24" />
+											   FontSize="30" />
 								</StackPanel>
 							</Grid>
 						</DataTemplate>
@@ -122,7 +122,7 @@
 							<Grid Margin="5,5">
 								<StackPanel Orientation="Horizontal">
 									<TextBlock Text="{Binding}"
-											   FontSize="24" />
+											   FontSize="30" />
 								</StackPanel>
 
 							</Grid>
