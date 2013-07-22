@@ -320,6 +320,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			SelectedTaskDraft = new Task(String.Empty, null, null, Filters.CreateDefaultBodyText());
 
+		    SelectedTaskDraftIsNew = true;
+
 			UpdateAvailablePriorities();
 
 			Messenger.Default.Send(new ViewTaskMessage());
@@ -328,6 +330,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private void ViewTask()
 		{
 			SelectedTaskDraft = SelectedTask.Copy();
+
+		    SelectedTaskDraftIsNew = false;
 
 			Messenger.Default.Send(new ViewTaskMessage());
 		}
@@ -505,7 +509,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		/// <summary>
+	    public bool SelectedTaskDraftIsNew { get; set; }
+
+	    /// <summary>
 		/// Gets the SelectedContext property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
@@ -647,7 +653,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		private String _busyDoingWhat = String.Empty;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the BusyDoingWhat property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>

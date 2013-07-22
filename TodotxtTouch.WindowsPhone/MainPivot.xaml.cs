@@ -44,8 +44,7 @@ namespace TodotxtTouch.WindowsPhone
 			string filter;
 			if (NavigationContext.QueryString.TryGetValue("filter", out filter))
 			{
-				NavigationService.Navigate(
-			   new Uri("/MultiSelectPage.xaml?filter=" + filter, UriKind.Relative));
+				NavigationService.Navigate(new Uri("/MultiSelectPage.xaml?filter=" + filter, UriKind.Relative));
 			}
 			else
 			{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
@@ -16,9 +17,25 @@ namespace TodotxtTouch.WindowsPhone
 
 			((ApplicationBarIconButton) ApplicationBar.Buttons[0]).Click += SaveButton_Click;
 			((ApplicationBarIconButton) ApplicationBar.Buttons[1]).Click += CancelButton_Click;
+
+            Loaded += OnLoaded;
 		}
 
-		private void CancelButton_Click(object sender, EventArgs e)
+	    private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
+	    {
+            if (((MainViewModel)DataContext).SelectedTaskDraftIsNew)
+            {
+                if(Body.Text.Length > 0)
+                {
+                    Body.Text = " " + Body.Text;
+                }
+                
+                Body.SelectionStart = 0;
+                Body.Focus();
+            }
+	    }
+
+	    private void CancelButton_Click(object sender, EventArgs e)
 		{
 			((MainViewModel)DataContext).RevertCurrentTaskCommand.Execute(null);
 		}
