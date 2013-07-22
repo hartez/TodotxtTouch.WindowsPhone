@@ -23,7 +23,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		protected readonly ApplicationSettings Settings;
 		private readonly DropboxService _dropBoxService;
-		private readonly TaskList _taskList = new TaskList();
+		private TaskList _taskList = new TaskList();
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private string _lastRevision;
 
@@ -45,11 +45,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Start()
 		{
-			if (!LocalFileExists)
-			{
-				SaveTasks();
-			}
-
 			LoadTasks();
 		}
 
@@ -376,7 +371,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 			                       	{
 			                       		LocalHasChanges = false;
 
-										LocalLastRevision = metaDataResponse.Revision.ToString(CultureInfo.InvariantCulture);	
+										LocalLastRevision = metaDataResponse.Revision.ToString(CultureInfo.InvariantCulture);
+
+                                        CacheForMerge();
 
 			                       		LoadingState = TaskLoadingState.Ready;
 			                       	}, SendSyncError), SendSyncError);
@@ -394,88 +391,142 @@ namespace TodotxtTouch.WindowsPhone.Service
 			                        response =>
 			                        	{
 			                        		MergeTaskLists(response.Content);
-
-			                        		SaveTasks();
-			                        		PushLocal();
-
-                                            LoadingState = TaskLoadingState.Ready;
 			                        	}, SendSyncError);
 		}
 
 		private void MergeTaskLists(string remoteTaskContents)
 		{
-			var tl = new TaskList();
+            // We need a tasklist from the original remote file
+		    var original = new TaskList();
+            
+		    using(IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+		    {
+		        if(appStorage.FileExists("MergeCache"))
+		        {
+		            using(IsolatedStorageFileStream file = appStorage.OpenFile("MergeCache", FileMode.Open, FileAccess.Read))
+		            {
+		                original.LoadTasks(file);
+		            }
+		        }
+		    }
+
+		    // Now we need the new remote task list
+            var tl = new TaskList();
 
 			using (var ms = new MemoryStream(
 				Encoding.UTF8.GetBytes(remoteTaskContents)))
 			{
 				tl.LoadTasks(ms);
-
-				// Find the tasks in tl which aren't already in the 
-				// current tasklist
-				IEnumerable<Task> tasksToAdd =
-					tl.Where(x => !TaskList.Any(y => x.ToString() == y.ToString()));
-
-				foreach (Task task in tasksToAdd)
-				{
-					TaskList.Add(task);
-				}
 			}
 
-            SaveTasks();
+            // Now that we have the original and updated remote versions, we can merge them
+            // with the local version
+            LoadingState = TaskLoadingState.Loading;
+
+		    lock(_syncLock)
+		    {
+		        PauseCollectionChanged();
+		        ClearTaskPropertyChangedHandlers();
+
+		        var newTaskList = TaskList.Merge(original, tl, _taskList);
+
+                _taskList.Clear();
+		        foreach(var task in newTaskList)
+		        {
+		            _taskList.Add(task);
+		        }
+
+                SaveToStorage();
+                PushLocal();
+
+		        InitTaskPropertyChangedHandlers();
+		        ResumeCollectionChanged();
+		    }
+
+            InvokeTaskListChanged(new TaskListChangedEventArgs());
+
+            LoadingState = TaskLoadingState.Ready;
 		}
 
 		private void LoadTasks()
 		{
 			LoadingState = TaskLoadingState.Loading;
-			
-			lock (_syncLock)
-			{
-				PauseCollectionChanged();
-				ClearTaskPropertyChangedHandlers();
 
-				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-				{
-					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read))
-					{
-						TaskList.LoadTasks(file);
-					}
-				}
+		    if(LocalFileExists)
+		    {
+		        lock(_syncLock)
+		        {
+		            PauseCollectionChanged();
+		            ClearTaskPropertyChangedHandlers();
 
-				InitTaskPropertyChangedHandlers();
-				ResumeCollectionChanged();
-			}
+		            using(IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+		            {
+		                using(
+		                    IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read)
+		                    )
+		                {
+		                    TaskList.LoadTasks(file);
+		                }
+		            }
 
-            InvokeTaskListChanged(new TaskListChangedEventArgs());
+		            InitTaskPropertyChangedHandlers();
+		            ResumeCollectionChanged();
+		        }
 
-			LoadingState = TaskLoadingState.Ready;
+		        InvokeTaskListChanged(new TaskListChangedEventArgs());
+		    }
+
+		    LoadingState = TaskLoadingState.Ready;
 		}
 
-		public void SaveTasks()
+	    private void SaveToStorage()
+	    {
+            lock (_syncLock)
+            {
+                using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
+                    {
+                        TaskList.SaveTasks(file);
+                    }
+                }
+            }
+
+            LocalHasChanges = true;
+	    }
+
+	    public void SaveTasks()
 		{
 			TaskLoadingState prevState = LoadingState;
 
 			LoadingState = TaskLoadingState.Saving;
 
-			lock (_syncLock)
-			{
-				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-				{
-					using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
-					{
-						TaskList.SaveTasks(file);
-					}
-				}
-			}
-
-            LocalHasChanges = true;
+			SaveToStorage();
 
             InvokeTaskListChanged(new TaskListChangedEventArgs());
 
 			LoadingState = prevState;
 		}
 
-		private void OverwriteWithRemoteFile(RestResponse response, string latestRevision)
+	    private void CacheForMerge()
+	    {
+	        using(IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+	        {
+                CacheForMerge(appStorage);
+	        }
+	    }
+
+	    private void CacheForMerge(IsolatedStorageFile appStorage)
+	    {
+            if (appStorage.FileExists("MergeCache"))
+            {
+                appStorage.DeleteFile("MergeCache");
+            }
+
+            appStorage.CopyFile(GetFileName(), "MergeCache");
+	    }
+
+	    private void OverwriteWithRemoteFile(RestResponse response, string latestRevision)
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
@@ -487,6 +538,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 						writer.Flush();
 					}
 				}
+
+			    CacheForMerge(appStorage);
 			}
 
 			LocalLastRevision = latestRevision;
