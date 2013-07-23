@@ -19,6 +19,7 @@
 
     <WindowsPhone:TaskFilterPage.Resources>
         <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
+        <ValueConverters:LocalHasChangesValueConverter x:Key="LocalHasChangesValueConverter"></ValueConverters:LocalHasChangesValueConverter>
         <ValueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter"></ValueConverters:BooleanOpacityConverter>
 		<Converters:VisibilityConverter x:Key="BooleanVisibilityConverter"></Converters:VisibilityConverter>
 		<Style x:Key="PrimaryTaskStyle" TargetType="TextBlock">
@@ -45,13 +46,15 @@
        
 
 		<controls:Pivot Title="{Binding ApplicationTitle}" x:Name="TaskPivot" 
-                        Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.2}">
+                        Opacity="{Binding Busy, Converter={StaticResource BooleanOpacityConverter}, ConverterParameter=0.2}"
+                        Foreground="{Binding LocalHasChanges, Converter={StaticResource LocalHasChangesValueConverter}}">
 			<!--Pivot item all-->
-			<controls:PivotItem Header="tasks" x:Name="AllTasksPivotItem">
+            <controls:PivotItem Header="tasks" x:Name="AllTasksPivotItem">
 
                 <ListBox x:Name="AllTasks"
                          ItemsSource="{Binding AllTasks}"
                          SelectionMode="Single"
+                        
                          SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
 
                     <ListBox.ItemTemplate>

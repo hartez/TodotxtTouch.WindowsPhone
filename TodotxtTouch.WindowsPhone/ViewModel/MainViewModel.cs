@@ -401,6 +401,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				Messenger.Default.Register<DrillDownMessage>(this, Filter);
 			    Messenger.Default.Register<ApplicationStartedMessage>(this, message =>
 			        {
+                        LocalHasChanges = _taskFileService.LocalHasChanges;
+
 			            if(StartupSyncCommand.CanExecute(null))
 			            {
 			                StartupSyncCommand.Execute(null);
@@ -408,6 +410,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			        });
 
 				WireUpCommands();
+
+			    
 			}
 		}
 
@@ -637,7 +641,29 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		/// <summary>
+	    public bool LocalHasChanges
+	    {
+            get { return _localHasChanges; }
+
+            set
+            {
+                if (_localHasChanges == value)
+                {
+                    return;
+                }
+
+                _localHasChanges = value;
+
+                DispatcherHelper.CheckBeginInvokeOnUI(() => RaisePropertyChanged(LocalHasChangesPropertyName));
+            }
+	    }
+
+	    protected string LocalHasChangesPropertyName
+	    {
+            get { return "LocalHasChanges"; }
+	    }
+
+	    /// <summary>
 		/// Gets the Busy property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
@@ -666,6 +692,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public const string BusyDoingWhatPropertyName = "BusyDoingWhat";
 
 		private String _busyDoingWhat = String.Empty;
+	    private bool _localHasChanges;
 
 	    /// <summary>
 		/// Gets the BusyDoingWhat property.
@@ -715,9 +742,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			Observable.FromEvent<SynchronizationErrorEventArgs>(_taskFileService, "SynchronizationError")
 				.Subscribe(e => Messenger.Default.Send(new SynchronizationErrorMessage(e.EventArgs.Exception)));
+
+            _taskFileService.LocalHasChangesChanged += TaskFileServiceOnLocalHasChangesChanged;
 		}
 
-		private void Filter(DrillDownMessage message)
+	    private void TaskFileServiceOnLocalHasChangesChanged(object sender, LocalHasChangesChangedEventArgs localHasChangesChangedEventArgs)
+	    {
+	        LocalHasChanges = localHasChangesChangedEventArgs.LocalHasChanges;
+	    }
+
+	    private void Filter(DrillDownMessage message)
 		{
 			Filters = TaskFilterFactory.ParseFilterString(message.Filter);
 		}

@@ -48,7 +48,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			LoadTasks();
 		}
 
-		private bool LocalHasChanges
+		public bool LocalHasChanges
 		{
 			get
 			{
@@ -60,7 +60,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 				return false;
 			}
-			set { IsolatedStorageSettings.ApplicationSettings[GetFileName() + "haschanges"] = value; }
+		    private set
+		    {
+		        IsolatedStorageSettings.ApplicationSettings[GetFileName() + "haschanges"] = value;
+		        InvokeLocalHasChangesChanged(new LocalHasChangesChangedEventArgs(value));
+		    }
 		}
 
 		/// <summary>
@@ -556,6 +560,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		#region Events
 
+        public event EventHandler<LocalHasChangesChangedEventArgs> LocalHasChangesChanged;
 		public event EventHandler<LoadingStateChangedEventArgs> LoadingStateChanged;
 		public event EventHandler<TaskListChangedEventArgs> TaskListChanged;
 		public event EventHandler<SynchronizationErrorEventArgs> SynchronizationError;
@@ -586,6 +591,16 @@ namespace TodotxtTouch.WindowsPhone.Service
 				handler(this, e);
 			}
 		}
+
+
+        public void InvokeLocalHasChangesChanged(LocalHasChangesChangedEventArgs e)
+        {
+            EventHandler<LocalHasChangesChangedEventArgs> handler = LocalHasChangesChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
 
 		#endregion
 	}
