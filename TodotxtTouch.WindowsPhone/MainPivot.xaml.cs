@@ -28,7 +28,7 @@ namespace TodotxtTouch.WindowsPhone
 			((ApplicationBarIconButton)ApplicationBar.Buttons[2]).Click += SyncButtonClick;
 		}
 
-		private void SyncButtonClick(object sender, EventArgs e)
+	    private void SyncButtonClick(object sender, EventArgs e)
 		{
 			StartSync();
 		}

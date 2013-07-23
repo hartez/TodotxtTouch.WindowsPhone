@@ -30,7 +30,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	/// </summary>
 	public class MainViewModel : ViewModelBase
 	{
-		#region Property Names
+	    private readonly ApplicationSettings _applicationSettings;
+
+	    #region Property Names
 
 		/// <summary>
 		/// The <see cref="TaskList" /> property's name.
@@ -122,6 +124,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand SyncCommand { get; private set; }
 
+        public RelayCommand StartupSyncCommand { get; private set; }
+
 		private bool CanViewTaskDetailsExecute()
 		{
 			bool canExecute = TaskFileServiceReady && SelectedTask != null;
@@ -181,6 +185,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			RemoveSelectedTasksCommand = new RelayCommand(RemoveSelectedTasks, () => TaskFileServiceReady);
 
 			SyncCommand = new RelayCommand(Sync, () => TaskFileServiceReady);
+
+            StartupSyncCommand = new RelayCommand(Sync, () => TaskFileServiceReady && _applicationSettings.SyncOnStartup);
 		}
 
 		private void Sync()
@@ -360,9 +366,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// <summary>
 		/// Initializes a new instance of the MainViewModel class.
 		/// </summary>
-		public MainViewModel(PrimaryTaskFileService taskFileService, ArchiveTaskFileService archiveFileService)
+		public MainViewModel(PrimaryTaskFileService taskFileService, ArchiveTaskFileService archiveFileService, ApplicationSettings applicationSettings)
 		{
-			if (IsInDesignMode)
+		    _applicationSettings = applicationSettings;
+		    if (IsInDesignMode)
 			{
 				// Code runs in Blend --> create design time data.
 				Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => _availablePriorities.Add(p));
@@ -392,12 +399,19 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				WireupTaskFileServices(taskFileService, archiveFileService);
 
 				Messenger.Default.Register<DrillDownMessage>(this, Filter);
+			    Messenger.Default.Register<ApplicationStartedMessage>(this, message =>
+			        {
+			            if(StartupSyncCommand.CanExecute(null))
+			            {
+			                StartupSyncCommand.Execute(null);
+			            }
+			        });
 
 				WireUpCommands();
 			}
 		}
 
-		public IEnumerable<String> Projects
+	    public IEnumerable<String> Projects
 		{
 			get
 			{

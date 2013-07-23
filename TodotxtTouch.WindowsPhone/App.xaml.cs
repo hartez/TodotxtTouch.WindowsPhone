@@ -84,6 +84,7 @@ namespace TodotxtTouch.WindowsPhone
 			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
 				"support@traceur-llc.com");
 			Messenger.Default.Send(new ApplicationReadyMessage());
+            Messenger.Default.Send(new ApplicationStartedMessage());
 		}
 
 		// Code to execute when the application is activated (brought to foreground)

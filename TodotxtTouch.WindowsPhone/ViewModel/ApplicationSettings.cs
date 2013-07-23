@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using TodotxtTouch.WindowsPhone.Service;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
@@ -12,6 +10,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		private string _archiveFilePath;
 		private string _todoFileName;
 		private string _todoFilePath;
+	    private bool _syncOnStartup;
 
 	    public string ArchiveFilePath
 		{
@@ -85,7 +84,22 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		private static T GetSetting<T>(string setting, T defaultValue)
+	    public bool SyncOnStartup
+	    {
+            get
+            {
+                _syncOnStartup = GetSetting("syncOnStartup", false);
+
+                return _syncOnStartup;
+            }
+            set
+            {
+                _syncOnStartup = value;
+                IsolatedStorageSettings.ApplicationSettings["syncOnStartup"] = _syncOnStartup;
+            }
+	    }
+
+	    private static T GetSetting<T>(string setting, T defaultValue)
 		{
 			T value;
 			return IsolatedStorageSettings.ApplicationSettings.TryGetValue(setting,

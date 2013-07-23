@@ -29,6 +29,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// </summary>
 		public const string TodoFilePathPropertyName = "TodoFilePath";
 
+        public const string SyncOnStartupPropertyName = "SyncOnStartup";
+
         private const string ConnectedPropertyName = "Connected";
 	    private const string DisconnectedPropertyName = "Disconnected";
 
@@ -46,7 +48,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	    }
 
 	    private readonly ApplicationSettings _settings;
-        private DropboxService _dropBoxService;
+        private readonly DropboxService _dropBoxService;
 
 		public RelayCommand BroadcastSettingsChanged { get; private set; }
 
@@ -57,13 +59,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		    BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
             DisconnectCommand = new RelayCommand(Disconnect);
-
-			if (IsInDesignMode)
-			{
-			}
-			else
-			{
-			}
 		}
 
         public RelayCommand DisconnectCommand { get; private set; }
@@ -168,5 +163,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				RaisePropertyChanged(ArchiveFileNamePropertyName);
 			}
 		}
+
+        public bool SyncOnStartup
+        {
+            get { return _settings.SyncOnStartup; }
+
+            set
+            {
+                if (_settings.SyncOnStartup == value)
+                {
+                    return;
+                }
+
+                _settings.SyncOnStartup = value;
+
+                // Update bindings, no broadcast
+                RaisePropertyChanged(SyncOnStartupPropertyName);
+            }
+        }
+
 	}
 }

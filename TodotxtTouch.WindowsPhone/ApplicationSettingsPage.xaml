@@ -137,6 +137,8 @@
         			<TextBox x:Name="ArchiveFileNameTextBox" TextWrapping="Wrap" Text="{Binding ArchiveFileName, Mode=TwoWay}" Style="{StaticResource AppSettingTextBoxStyle}"/>
         			<TextBlock TextWrapping="Wrap" Text="Archive File Path:"/>
         			<TextBox x:Name="ArchiveFilePathTextBox" TextWrapping="Wrap" Text="{Binding ArchiveFilePath, Mode=TwoWay}" Style="{StaticResource AppSettingTextBoxStyle}"/>
+                    <TextBlock TextWrapping="Wrap" Text="Sync On Startup:"/>
+                    <CheckBox x:Name="SyncOnStartupCheckBox" IsChecked="{Binding SyncOnStartup, Mode=TwoWay}" />
                     <Button x:Name="DisconnectFromDropbox" Content="Disconnect From Dropbox" Click="DisconnectFromDropBox_OnClick"
                             Visibility="{Binding Connected, Converter={StaticResource BooleanVisibilityConverter}}">
                         

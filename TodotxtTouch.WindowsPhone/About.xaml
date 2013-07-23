@@ -48,7 +48,7 @@
 				<TextBlock Text="{Binding AppVersion}"
 						   HorizontalAlignment="Center"
 						   Margin="10,20"></TextBlock>
-				<TextBlock Text="© 2012 Traceur LLC, All Rights Reserved"
+				<TextBlock Text="© 2013 Traceur LLC, All Rights Reserved"
 						   HorizontalAlignment="Center"></TextBlock>
 				<TextBlock Text="For questions, feedback, and support, visit"
 						   Margin="10,50,10,20"
