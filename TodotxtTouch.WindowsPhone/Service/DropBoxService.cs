@@ -175,14 +175,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 				() => _dropNetClient.GetMetaDataAsync(path, success, WrapExceptionHandler(failure)));
 		}
 
-		public void Upload(string path, string filename, byte[] bytes, Action<RestResponse> success,
+		public void Upload(string path, string filename, byte[] bytes, Action<MetaData> success,
 		                   Action<DropboxException> failure)
 		{
 			ExecuteDropboxAction(
 				() => _dropNetClient.UploadFileAsync(path, filename, bytes, success, WrapExceptionHandler(failure)));
 		}
 
-		public void GetFile(string path, Action<RestResponse> success, Action<DropboxException> failure)
+		public void GetFile(string path, Action<IRestResponse> success, Action<DropboxException> failure)
 		{
 			ExecuteDropboxAction(
 				() => _dropNetClient.GetFileAsync(path, success, WrapExceptionHandler(failure)));

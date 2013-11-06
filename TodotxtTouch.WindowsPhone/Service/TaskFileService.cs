@@ -525,7 +525,7 @@ namespace TodotxtTouch.WindowsPhone.Service
             appStorage.CopyFile(GetFileName(), "MergeCache");
 	    }
 
-	    private void OverwriteWithRemoteFile(RestResponse response, string latestRevision)
+	    private void OverwriteWithRemoteFile(IRestResponse response, string latestRevision)
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
