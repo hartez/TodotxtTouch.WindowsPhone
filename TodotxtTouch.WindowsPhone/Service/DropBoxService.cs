@@ -127,33 +127,42 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			return (ex) =>
 				{
-					// Dropnet responds with BadGateway if the network isn't accessible
-					switch (ex.Response.StatusCode)
-					{
-						case HttpStatusCode.BadGateway:
-							Messenger.Default.Send(new NetworkUnavailableMessage());
-							break;
-						case HttpStatusCode.ServiceUnavailable:
-							Messenger.Default.Send(new CannotAccessDropboxMessage("Too many requests"));
-							break;
-						case HttpStatusCode.InternalServerError:
-							Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox Server Error"));
-							break;
-						case HttpStatusCode.Unauthorized:
-							_dropNetClient = null;
-							Token = string.Empty;
-							Secret = string.Empty;
-							Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
-							break;
-						case HttpStatusCode.BadRequest:
-							Messenger.Default.Send(new CannotAccessDropboxMessage("Lacking mobile authentication permission"));
-							break;
-						default:
-							Messenger.Default.Send(new CannotAccessDropboxMessage());
-							break;
-					}
+				    if(ex == null)
+				    {
+                        Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox is inaccessible; no error information available."));
+				        return;
+				    }
 
-					if (handler != null)
+				    if(ex.Response != null)
+				    {
+				        // Dropnet responds with BadGateway if the network isn't accessible
+				        switch(ex.Response.StatusCode)
+				        {
+				            case HttpStatusCode.BadGateway:
+				                Messenger.Default.Send(new NetworkUnavailableMessage());
+				                break;
+				            case HttpStatusCode.ServiceUnavailable:
+				                Messenger.Default.Send(new CannotAccessDropboxMessage("Too many requests"));
+				                break;
+				            case HttpStatusCode.InternalServerError:
+				                Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox Server Error"));
+				                break;
+				            case HttpStatusCode.Unauthorized:
+				                _dropNetClient = null;
+				                Token = string.Empty;
+				                Secret = string.Empty;
+				                Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
+				                break;
+				            case HttpStatusCode.BadRequest:
+				                Messenger.Default.Send(new CannotAccessDropboxMessage("Lacking mobile authentication permission"));
+				                break;
+				            default:
+				                Messenger.Default.Send(new CannotAccessDropboxMessage());
+				                break;
+				        }
+				    }
+
+				    if (handler != null)
 					{
 						handler(ex);
 					}

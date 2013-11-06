@@ -114,8 +114,7 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="todotxtlib.net, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\todotxtlib.net.1.2.5\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+      <HintPath>..\packages\todotxtlib.net.1.2.6\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

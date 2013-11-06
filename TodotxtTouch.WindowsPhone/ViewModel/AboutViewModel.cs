@@ -14,7 +14,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		{
 			if (IsInDesignMode)
 			{
-				_getVersion = () => { return DesignVersion; };
+				_getVersion = () => DesignVersion;
 			}
 			else
 			{

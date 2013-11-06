@@ -215,18 +215,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 				                                                      	});
 
 				// Get the metadata for the remote file
-				GetRemoteMetaData(Sync,
-				                  exception =>
-				                  	{
-				                  		Sync(null);
-				                  	}
-					);
+				GetRemoteMetaData(Sync, exception => Sync(null));
 			}
 		}
 
 		private void Sync(MetaData data)
 		{
-			bool remoteExists = data != null && !String.IsNullOrEmpty(data.Name);
+			bool remoteExists = (data != null && !String.IsNullOrEmpty(data.Name));
 
 			if (!remoteExists)
 			{
