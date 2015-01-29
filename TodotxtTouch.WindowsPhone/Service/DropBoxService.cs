@@ -198,7 +198,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			_dropNetClient.GetTokenAsync(
 				success =>
 				{
-					string tokenUrl = _dropNetClient.BuildAuthorizeUrl("http://todotxt.traceur-llc.com/dblogin.htm");
+					string tokenUrl = _dropNetClient.BuildAuthorizeUrl("http://todotxt.codewise-llc.com/dblogin.htm");
 
 					Messenger.Default.Send(new RetrievedDropboxTokenMessage(new Uri(tokenUrl)));
 				},

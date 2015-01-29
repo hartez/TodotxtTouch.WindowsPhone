@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("TodotxtTouch.WindowsPhone")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Traceur LLC")]
+[assembly: AssemblyCompany("CodeWise LLC")]
 [assembly: AssemblyProduct("TodotxtTouch.WindowsPhone")]
-[assembly: AssemblyCopyright("Copyright © Traceur LLC 2013")]
+[assembly: AssemblyCopyright("Copyright © CodeWise LLC 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,6 +32,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.6.1.0")]
-[assembly: AssemblyFileVersion("1.6.1.0")]
+[assembly: AssemblyVersion("1.6.2.0")]
+[assembly: AssemblyFileVersion("1.6.2.0")]
 [assembly: NeutralResourcesLanguage("en-US")]

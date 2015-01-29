@@ -82,7 +82,7 @@ namespace TodotxtTouch.WindowsPhone
 		private void Application_Launching(object sender, LaunchingEventArgs e)
 		{
 			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
-				"support@traceur-llc.com");
+				"support@codewise-llc.com");
 			Messenger.Default.Send(new ApplicationReadyMessage());
             Messenger.Default.Send(new ApplicationStartedMessage());
 		}

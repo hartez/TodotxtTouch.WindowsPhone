@@ -34,12 +34,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public string SupportWebsite
 		{
-			get { return "http://todotxt.traceur-llc.com"; }
+			get { return "http://todotxt.codewise-llc.com"; }
 		}
 
 		public string SupportEmail
 		{
-			get { return "support@traceur-llc.com"; }
+			get { return "support@codewise-llc.com"; }
 		}
 	}
 }
