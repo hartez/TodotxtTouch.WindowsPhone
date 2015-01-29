@@ -47,7 +47,7 @@ namespace TodotxtTouch.WindowsPhone
 		private void LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
 		{
 			//Check for the callback path here (or just check it against "/1/oauth/authorize")
-			if (e.Uri.Host == "todotxt.traceur-llc.com")
+			if (e.Uri.Host == "todotxt.codewise-llc.com")
 			{
 				Messenger.Default.Send(new DropboxLoginSuccessfulMessage());
 			}
