@@ -139,10 +139,13 @@
         			<TextBox x:Name="ArchiveFilePathTextBox" TextWrapping="Wrap" Text="{Binding ArchiveFilePath, Mode=TwoWay}" Style="{StaticResource AppSettingTextBoxStyle}"/>
                     <TextBlock TextWrapping="Wrap" Text="Sync On Startup:"/>
                     <CheckBox x:Name="SyncOnStartupCheckBox" IsChecked="{Binding SyncOnStartup, Mode=TwoWay}" />
+
+                    <Button x:Name="CustomizeColors" Content="Customize Priority Colors" Click="CustomizeColors_OnClick" />
+
                     <Button x:Name="DisconnectFromDropbox" Content="Disconnect From Dropbox" Click="DisconnectFromDropBox_OnClick"
                             Visibility="{Binding Connected, Converter={StaticResource BooleanVisibilityConverter}}">
-                        
                     </Button>
+                    
                     <Button x:Name="ConnectToDropbox" Content="Connect To Dropbox" Click="ConnectToDropBox_OnClick"
                             Visibility="{Binding Disconnected, Converter={StaticResource BooleanVisibilityConverter}}">
                     </Button>

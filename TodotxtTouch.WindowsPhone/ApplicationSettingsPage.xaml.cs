@@ -37,5 +37,10 @@ namespace TodotxtTouch.WindowsPhone
             Messenger.Default.Register<CredentialsUpdatedMessage>(this, msg => ((ApplicationSettingsViewModel)DataContext).CheckConnection());
 	        NavigationService.Navigate(new Uri("/DropboxLogin.xaml", UriKind.Relative));
 	    }
+
+        private void CustomizeColors_OnClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/CustomizeColorsPage.xaml", UriKind.Relative));
+        }
 	}
 }

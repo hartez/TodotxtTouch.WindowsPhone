@@ -118,6 +118,9 @@
     <Compile Include="ApplicationSettingsPage.xaml.cs">
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomizeColorsPage.xaml.cs">
+      <DependentUpon>CustomizeColorsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Messages\ApplicationStartedMessage.cs" />
     <Compile Include="Messages\CannotAccessDropboxMessage.cs" />
     <Compile Include="Messages\DropboxLoginSuccessfulMessage.cs" />
@@ -187,6 +190,10 @@
     <Page Include="ApplicationSettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomizeColorsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="DropboxLogin.xaml">
       <SubType>Designer</SubType>
