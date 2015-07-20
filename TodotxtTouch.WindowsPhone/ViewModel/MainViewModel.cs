@@ -108,8 +108,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		public RelayCommand SaveCurrentTaskCommand { get; private set; }
 
-		public RelayCommand RevertCurrentTaskCommand { get; private set; }
-
 		public RelayCommand AddTaskCommand { get; private set; }
 
 		public RelayCommand FilterByContextCommand { get; private set; }
@@ -156,10 +154,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			                                                           TaskFileServiceReady);
 
 			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady);
-
-			RevertCurrentTaskCommand = new RelayCommand(RevertCurrentTask,
-			                                            () => TaskFileServiceReady
-			                                                  && SelectedTaskDraft != null);
 
 			ArchiveTasksCommand = new RelayCommand(InitiateArchiveTasks,
 			                                       () => TaskFileServiceReady);
@@ -281,18 +275,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 _taskFileService.Sync();
             }
         }
-
-	    private void RevertCurrentTask()
-		{
-			if (SelectedTask == null)
-			{
-				SelectedTaskDraft.Empty();
-			}
-			else
-			{
-				SelectedTaskDraft = SelectedTask.Copy();
-			}
-		}
 
 		private void FilterByContext()
 		{

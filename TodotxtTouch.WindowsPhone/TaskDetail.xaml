@@ -146,9 +146,6 @@
 			<shell:ApplicationBarIconButton x:Name="SaveButton"
 											IconUri="/Images/save.png"
 											Text="Save" />
-			<shell:ApplicationBarIconButton x:Name="CancelButton"
-											IconUri="/Images/cancel.png"
-											Text="Revert" />
 		</shell:ApplicationBar>
 	</phone:PhoneApplicationPage.ApplicationBar>
 
