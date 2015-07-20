@@ -88,9 +88,6 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="RestSharp.WindowsPhone">
       <HintPath>..\packages\RestSharp.104.3.3\lib\sl4-wp71\RestSharp.WindowsPhone.dll</HintPath>
     </Reference>
@@ -107,7 +104,7 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="todotxtlib.net, Version=1.2.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\todotxtlib.net.1.2.7\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+      <HintPath>..\packages\todotxtlib.net.1.2.8\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
