@@ -105,8 +105,9 @@
       <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\sl4-wp71\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="todotxtlib.net, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\todotxtlib.net.1.2.6\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+    <Reference Include="todotxtlib.net, Version=1.2.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\todotxtlib.net.1.2.7\lib\sl4-windowsphone71\todotxtlib.net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -246,5 +247,4 @@
   </Target>
   -->
   <ProjectExtensions />
-  
 </Project>
