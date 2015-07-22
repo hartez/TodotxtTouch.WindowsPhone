@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Reflection;
 using GalaSoft.MvvmLight;
+using Microsoft.Phone.Controls;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	public class AboutViewModel : ViewModelBase
+    public class OtherListPicker : ListPicker
+    {
+        
+    }
+
+    public class AboutViewModel : ViewModelBase
 	{
 		private const string DesignVersion = "1.2.3.4";
 

@@ -6,9 +6,10 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
-    xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:windowsPhone="clr-namespace:TodotxtTouch.WindowsPhone"
+    xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters"
+    xmlns:viewModel="clr-namespace:TodotxtTouch.WindowsPhone.ViewModel"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -16,22 +17,10 @@
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True"
     DataContext="{Binding ApplicationSettings, Source={StaticResource Locator}}">
-	<phone:PhoneApplicationPage.Resources>
-		<ControlTemplate x:Key="PhoneDisabledTextBoxTemplate" TargetType="TextBox">
-			<ContentControl x:Name="ContentElement" BorderThickness="0" HorizontalContentAlignment="Stretch" Margin="{StaticResource PhoneTextBoxInnerMargin}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="Stretch"/>
-		</ControlTemplate>
-		<Style x:Key="AppSettingTextBoxStyle" TargetType="TextBox">
-			<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-			<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
-			<Setter Property="Background" Value="{StaticResource PhoneTextBoxBrush}"/>
-			<Setter Property="Foreground" Value="{StaticResource PhoneTextBoxForegroundBrush}"/>
-			<Setter Property="BorderBrush" Value="{StaticResource PhoneTextBoxBrush}"/>
-			<Setter Property="SelectionBackground" Value="{StaticResource PhoneAccentBrush}"/>
-			<Setter Property="SelectionForeground" Value="{StaticResource PhoneTextBoxSelectionForegroundBrush}"/>
-			<Setter Property="BorderThickness" Value="{StaticResource PhoneBorderThickness}"/>
-			<Setter Property="Padding" Value="2"/>
-		</Style>
-	</phone:PhoneApplicationPage.Resources>
+    <phone:PhoneApplicationPage.Resources>
+        <valueConverters:ColorToBrushConverter x:Key="ColorToBrushConverter"></valueConverters:ColorToBrushConverter>
+        <valueConverters:ColorOptionToBrushConverter x:Key="ColorOptionToBrushConverter"></valueConverters:ColorOptionToBrushConverter>
+    </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
@@ -48,12 +37,65 @@
 
         <!--ContentPanel - place additional content here-->
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-        	<ScrollViewer Margin="0">
-        		<StackPanel>
-        			
-                </StackPanel>
-        	</ScrollViewer>
+
+            <Grid.Resources>
+
+                <DataTemplate x:Name="PickerFullModeItemTemplate">
+                        <StackPanel x:Name="item" Orientation="Horizontal" DataContext="{Binding}">
+                            <Rectangle Fill="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Width="42" Height="42" />
+                            <TextBlock Margin="15, 0, 0, 0" Text="{Binding Name}" VerticalAlignment="Center" />
+                        </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate x:Name="PickerItemTemplate">
+                    <StackPanel x:Name="item" Orientation="Horizontal" DataContext="{Binding}">
+                        <Rectangle Fill="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Width="42" Height="42" />
+                        <TextBlock Margin="15, 0, 0, 0" Text="{Binding Name}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate x:Name="Picker">
+                    <StackPanel x:Name="item" Orientation="Horizontal" DataContext="{Binding}">
+                        <Border Margin="16 21 0 20"
+						Background="{StaticResource PhoneBackgroundBrush}"
+						BorderBrush="{StaticResource PhoneForegroundBrush}"
+						BorderThickness="2,2,2,2"
+						Width="110"
+						Height="110"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Priority}"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center"
+							   Margin="5"
+							   FontSize="34"
+							   Foreground="{StaticResource PhoneForegroundBrush}" />
+                        </Border>
+
+                        <viewModel:OtherListPicker ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
+                                            SelectedItem="{Binding Color}"
+                                            FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}"
+                                            Margin="15,0,0,0" Width="500" Height="110" VerticalAlignment="Center">
+                        </viewModel:OtherListPicker>
+                    </StackPanel>
+                </DataTemplate>
+
+            </Grid.Resources>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <ListBox x:Name="Priorities" ItemsSource="{Binding PriorityColors}" 
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     ItemTemplate="{StaticResource Picker}">
+            </ListBox>
+
+            <Button Grid.Row="1" x:Name="ResetColors" Content="Reset To Defaults" Click="ResetColors_OnClick" />
         </Grid>
     </Grid>
- 
+
 </phone:PhoneApplicationPage>

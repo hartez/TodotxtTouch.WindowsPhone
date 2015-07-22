@@ -35,6 +35,9 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 					{
 						char priority = task.Priority.ToUpper()[0];
 
+                        // TODO Check for color customization; if so, use those values
+                        // otherwise, use these defaults (including the Light Theme workaround)
+
 						switch ((int) priority)
 						{
 							case (65):

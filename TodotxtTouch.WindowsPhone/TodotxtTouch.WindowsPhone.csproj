@@ -137,6 +137,7 @@
     <Compile Include="Service\SynchronizationErrorEventArgs.cs" />
     <Compile Include="TaskFilterPage.cs" />
     <Compile Include="ValueConverters\BooleanOpacityConverter.cs" />
+    <Compile Include="ValueConverters\ColorToBrushConverter.cs" />
     <Compile Include="ValueConverters\LocalHasChangesValueConverter.cs" />
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Media;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -34,6 +37,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private const string ConnectedPropertyName = "Connected";
 	    private const string DisconnectedPropertyName = "Disconnected";
 
+        private const string PriorityColorsPropertyName = "PriorityColors";
+
+        private const string ColorAPropertyName = "ColorA";
+
         public bool Connected
         {
             get
@@ -53,13 +60,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public RelayCommand BroadcastSettingsChanged { get; private set; }
 
 		public ApplicationSettingsViewModel(ApplicationSettings settings, DropboxService dropBoxService)
-		{
-			_settings = settings;
+        {
+		    _settings = settings;
 		    _dropBoxService = dropBoxService;
 
-		    BroadcastSettingsChanged = new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
-            DisconnectCommand = new RelayCommand(Disconnect);
-		}
+		    BroadcastSettingsChanged =
+		        new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
+		    DisconnectCommand = new RelayCommand(Disconnect);
+
+        
+        }
 
         public RelayCommand DisconnectCommand { get; private set; }
 
@@ -164,6 +174,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
+        /// <summary>
+        /// Determines whether the application should attempt to sync to DropBox immediately on startup
+        /// </summary>
         public bool SyncOnStartup
         {
             get { return _settings.SyncOnStartup; }
@@ -182,5 +195,27 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
         }
 
+        public List<PriorityColor> PriorityColors
+        {
+            get { return _settings.PriorityColors; }
+
+            set
+            {
+                if (_settings.PriorityColors == value)
+                {
+                    return;
+                }
+
+                _settings.PriorityColors = value;
+
+                // Update bindings, no broadcast
+                RaisePropertyChanged(PriorityColorsPropertyName);
+            }
+        }
+
+	    public List<ColorOption> PriorityColorOptions
+	    {
+	        get { return ColorOptions.All; }
+	    }
 	}
 }

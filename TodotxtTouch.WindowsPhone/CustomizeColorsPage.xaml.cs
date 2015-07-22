@@ -1,4 +1,5 @@
-﻿using Microsoft.Phone.Controls;
+﻿using System.Windows;
+using Microsoft.Phone.Controls;
 
 namespace TodotxtTouch.WindowsPhone
 {
@@ -7,6 +8,11 @@ namespace TodotxtTouch.WindowsPhone
         public CustomizeColorsPage()
         {
             InitializeComponent();
+        }
+
+        private void ResetColors_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
