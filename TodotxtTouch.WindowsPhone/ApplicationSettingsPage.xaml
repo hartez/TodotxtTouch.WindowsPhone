@@ -6,9 +6,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
-    xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools"
+    xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -109,7 +107,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-        <Converters:VisibilityConverter x:Key="BooleanVisibilityConverter"></Converters:VisibilityConverter>
+        <valueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter"></valueConverters:VisibilityConverter>
 	</phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->

@@ -6,8 +6,6 @@
 							xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 							xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 							xmlns:Controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-							xmlns:pt="clr-namespace:AgiliTrain.PhoneyTools;assembly=AgiliTrain.PhoneyTools"
-							xmlns:Controls1="clr-namespace:System.Windows.Controls;assembly=Microsoft.Phone"
 							FontFamily="{StaticResource PhoneFontFamilyNormal}"
 							FontSize="{StaticResource PhoneFontSizeNormal}"
 							Foreground="{StaticResource PhoneForegroundBrush}"
@@ -89,10 +87,6 @@
 					<RowDefinition Height="Auto"></RowDefinition>
 				</Grid.RowDefinitions>
 
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition></ColumnDefinition>
-				</Grid.ColumnDefinitions>
-
 				<TextBox x:Name="Body"
 						 Grid.Row="0"
 						 HorizontalAlignment="Stretch"
@@ -103,10 +97,11 @@
 						 AcceptsReturn="False"
 						 Height="150">
 
-					<pt:InputPanelProvider.Requirements>
-						<pt:InputPanelRequirements  AutoCorrect="True"
-													KeyboardType="AlphanumericInitialCap" />
-					</pt:InputPanelProvider.Requirements>
+                    <TextBox.InputScope>
+                        <InputScope>
+                            <InputScopeName NameValue="Text"></InputScopeName>
+                        </InputScope>
+                    </TextBox.InputScope>
 
 				</TextBox>
 

@@ -10,7 +10,8 @@
                             xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
                             xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" 
 							xmlns:Interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone" 
-							 xmlns:Converters="clr-namespace:AgiliTrain.PhoneyTools.Converters;assembly=AgiliTrain.PhoneyTools" xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71" mc:Ignorable="d" 
+                             xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras"
+                             mc:Ignorable="d" 
                             d:DesignWidth="480" d:DesignHeight="696" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
                             FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource PhoneForegroundBrush}" 
                             SupportedOrientations="Portrait" Orientation="Portrait" shell:SystemTray.IsVisible="True" 
@@ -21,7 +22,7 @@
         <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
         <ValueConverters:LocalHasChangesValueConverter x:Key="LocalHasChangesValueConverter"></ValueConverters:LocalHasChangesValueConverter>
         <ValueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter"></ValueConverters:BooleanOpacityConverter>
-		<Converters:VisibilityConverter x:Key="BooleanVisibilityConverter"></Converters:VisibilityConverter>
+		<ValueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter"></ValueConverters:VisibilityConverter>
 		<Style x:Key="PrimaryTaskStyle" TargetType="TextBlock">
         	<Setter Property="Margin" Value="0,0,0,12" />
         	<Setter Property="Width" Value="460"/>
@@ -76,7 +77,7 @@
 
                     <i:Interaction.Triggers>
                         <Interactivity:TapTrigger>
-                            <Command:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
+                            <command:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
                         </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
@@ -109,7 +110,7 @@
 
                     <i:Interaction.Triggers>
                         <Interactivity:TapTrigger>
-                            <Command:EventToCommand Command="{Binding FilterByContextCommand}" />
+                            <command:EventToCommand Command="{Binding FilterByContextCommand}" />
                         </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
@@ -142,7 +143,7 @@
 
                     <i:Interaction.Triggers>
                         <Interactivity:TapTrigger>
-                            <Command:EventToCommand Command="{Binding FilterByProjectCommand}" />
+                            <command:EventToCommand Command="{Binding FilterByProjectCommand}" />
                         </Interactivity:TapTrigger>
                     </i:Interaction.Triggers>
 

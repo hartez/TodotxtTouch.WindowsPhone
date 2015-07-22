@@ -72,11 +72,11 @@
 							   Foreground="{StaticResource PhoneForegroundBrush}" />
                         </Border>
 
-                        <viewModel:OtherListPicker ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
+                        <toolkit:ListPicker ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
                                             SelectedItem="{Binding Color}"
                                             FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}"
                                             Margin="15,0,0,0" Width="500" Height="110" VerticalAlignment="Center">
-                        </viewModel:OtherListPicker>
+                        </toolkit:ListPicker>
                     </StackPanel>
                 </DataTemplate>
 

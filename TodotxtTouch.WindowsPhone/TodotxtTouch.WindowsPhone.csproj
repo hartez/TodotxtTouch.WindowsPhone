@@ -50,38 +50,35 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgiliTrain.PhoneyTools">
-      <HintPath>..\packages\PhoneyTools.1.0.10\lib\AgiliTrain.PhoneyTools.dll</HintPath>
-    </Reference>
-    <Reference Include="AgiliTrain.PhoneyTools.Microphone">
-      <HintPath>..\packages\PhoneyTools.1.0.10\lib\AgiliTrain.PhoneyTools.Microphone.dll</HintPath>
-    </Reference>
-    <Reference Include="AgiliTrain.PhoneyTools.Net">
-      <HintPath>..\packages\PhoneyTools.1.0.10\lib\AgiliTrain.PhoneyTools.Net.dll</HintPath>
-    </Reference>
     <Reference Include="DropNet.WindowsPhone, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DropNet.1.9.6\lib\sl4-wp71\DropNet.WindowsPhone.dll</HintPath>
     </Reference>
-    <Reference Include="EZLibrary.WindowsPhone">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\EZLibrary.WindowsPhone.dll</HintPath>
+    <Reference Include="EZLibrary.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EZLibrary.WindowsPhone.1.1.0\lib\sl4-windowsphone71\EZLibrary.WindowsPhone.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras.WP71">
-      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\sl4-wp71\GalaSoft.MvvmLight.Extras.WP71.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight, Version=5.1.1.37269, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.1.1.0\lib\sl4-wp71\GalaSoft.MvvmLight.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.WP71">
-      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\sl4-wp71\GalaSoft.MvvmLight.WP71.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight.Extras, Version=5.1.1.37269, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.1.1.0\lib\sl4-wp71\GalaSoft.MvvmLight.Extras.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL">
-      <HintPath>..\packages\EZLibrary.WindowsPhone.1.0.0\lib\sl4-windowsphone71\Microsoft.Phone.Controls.dll</HintPath>
+      <HintPath>..\packages\EZLibrary.WindowsPhone.1.1.0\lib\sl4-windowsphone71\Microsoft.Phone.Controls.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Phone.Controls.Toolkit, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b772ad94eb9ca604, processorArchitecture=MSIL">
-      <HintPath>..\packages\SilverlightToolkitWP.4.2011.12.14\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+    <Reference Include="Microsoft.Phone.Controls.Toolkit, Version=7.0.1.0, Culture=neutral, PublicKeyToken=b772ad94eb9ca604, processorArchitecture=MSIL">
+      <HintPath>..\packages\EZLibrary.WindowsPhone.1.1.0\lib\sl4-windowsphone71\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="Microsoft.Phone.Reactive" />
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\sl4-wp71\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.1.1.0\lib\sl4-wp71\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib.Extensions" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -100,7 +97,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Interactivity, Version=3.8.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\sl4-wp71\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\MvvmLightLibs.5.1.1.0\lib\sl4-wp71\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="todotxtlib.net, Version=1.2.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -117,6 +115,9 @@
     </Compile>
     <Compile Include="ApplicationSettingsPage.xaml.cs">
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OtherPicker.xaml.cs">
+      <DependentUpon>OtherPicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomizeColorsPage.xaml.cs">
       <DependentUpon>CustomizeColorsPage.xaml</DependentUpon>
@@ -192,6 +193,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\OtherPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomizeColorsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -224,10 +229,11 @@
     <None Include="Properties\WMAppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
-    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
-    <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
-    <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
+    <Resource Include="Toolkit.Content\ApplicationBar.Add.png" />
+    <Resource Include="Toolkit.Content\ApplicationBar.Cancel.png" />
+    <Resource Include="Toolkit.Content\ApplicationBar.Check.png" />
+    <Resource Include="Toolkit.Content\ApplicationBar.Delete.png" />
+    <Resource Include="Toolkit.Content\ApplicationBar.Select.png" />
     <Resource Include="apikeys.txt" />
     <Content Include="Images\appbar.manage.rest.png" />
     <Content Include="Images\check.png" />
@@ -235,7 +241,6 @@
     <Resource Include="Images\folder.png" />
     <Content Include="Images\refresh.png" />
     <Content Include="README_FIRST.txt" />
-    <Content Include="README_Phoney.txt" />
     <Content Include="todotxt_tile.png" />
     <Content Include="Images\add.png" />
     <Content Include="Images\cancel.png" />
