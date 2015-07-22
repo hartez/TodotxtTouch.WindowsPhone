@@ -72,9 +72,12 @@
 							   Foreground="{StaticResource PhoneForegroundBrush}" />
                         </Border>
 
-                        <toolkit:ListPicker ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
-                                            SelectedItem="{Binding Color}"
+                        <!--Fun fact: if you switch the order of the SelectedItem and ItemsSource attributes, you'll get an InvalidOperationException -->
+
+                        <toolkit:ListPicker SelectedItem="{Binding Color}"
+                                            ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
                                             FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}"
+                                            ItemTemplate="{StaticResource PickerItemTemplate}"
                                             Margin="15,0,0,0" Width="500" Height="110" VerticalAlignment="Center">
                         </toolkit:ListPicker>
                     </StackPanel>

@@ -39,8 +39,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
         private const string PriorityColorsPropertyName = "PriorityColors";
 
-        private const string ColorAPropertyName = "ColorA";
-
         public bool Connected
         {
             get
@@ -67,8 +65,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		    BroadcastSettingsChanged =
 		        new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
 		    DisconnectCommand = new RelayCommand(Disconnect);
-
-        
         }
 
         public RelayCommand DisconnectCommand { get; private set; }

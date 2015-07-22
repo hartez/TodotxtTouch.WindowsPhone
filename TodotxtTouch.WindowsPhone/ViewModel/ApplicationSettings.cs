@@ -22,8 +22,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
             All = new List<ColorOption>
             {
-                Yellow,
                 Green,
+                Yellow,
                 Cyan,
                 new ColorOption { Name = "Blue", Color = Colors.Blue },
                 new ColorOption { Name = "Red", Color = Colors.Red },
@@ -147,7 +147,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 _priorityColors = GetSetting("priorityColors", new List<PriorityColor>
                 {
                     // TODO Set up the rest of the default colors (including the blank ones)
-                    new PriorityColor {Color = ColorOptions.Yellow, Priority = "A"},
+                    new PriorityColor {Color = ColorOptions.Green, Priority = "A"},
                     new PriorityColor {Color = ColorOptions.Green, Priority = "B"},
                     new PriorityColor {Color = ColorOptions.Cyan, Priority = "C"}
                 });

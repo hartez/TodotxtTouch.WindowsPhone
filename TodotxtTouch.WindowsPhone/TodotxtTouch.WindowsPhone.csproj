@@ -97,7 +97,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Interactivity, Version=3.8.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmLightLibs.5.1.1.0\lib\sl4-wp71\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\EZLibrary.WindowsPhone.1.1.0\lib\sl4-windowsphone71\System.Windows.Interactivity.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
@@ -115,9 +115,6 @@
     </Compile>
     <Compile Include="ApplicationSettingsPage.xaml.cs">
       <DependentUpon>ApplicationSettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\OtherPicker.xaml.cs">
-      <DependentUpon>OtherPicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomizeColorsPage.xaml.cs">
       <DependentUpon>CustomizeColorsPage.xaml</DependentUpon>
@@ -193,10 +190,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\OtherPicker.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="CustomizeColorsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -247,7 +240,6 @@
     <Content Include="Images\save.png" />
     <Content Include="SplashScreenImage.jpg" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
