@@ -42,7 +42,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			if (ViewModelBase.IsInDesignModeStatic)
 			{
 			    // Create design time services and viewmodels
-                _applicationSettingsViewModel = new ApplicationSettingsViewModel(null, null);
+                _applicationSettingsViewModel = new ApplicationSettingsViewModel(new ApplicationSettings(), null);
 				_main = new MainViewModel(null, null, null);
 				_about = new AboutViewModel();
 			}

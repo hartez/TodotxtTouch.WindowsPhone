@@ -118,8 +118,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
            var defaultColors = new List<PriorityColor>
                 {
-                    // TODO Clean up the look and feel of the color picker page
-                    // TODO Test the color picker dialog in the light theme
                     new PriorityColor {ColorOption = ColorOptions.Yellow, Priority = "A"},
                     new PriorityColor {ColorOption = ColorOptions.Green, Priority = "B"},
                     new PriorityColor {ColorOption = ColorOptions.Cyan, Priority = "C"}
@@ -141,6 +139,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 if (_priorityColors == null)
                 {
+                    if (IsInDesignModeStatic)
+                    {
+                        _priorityColors = GetDefaultColors();
+                        return _priorityColors;
+                    }
+
                     _priorityColors = GetSetting("priorityColors", GetDefaultColors());
                     foreach (var priorityColor in _priorityColors)
                     {

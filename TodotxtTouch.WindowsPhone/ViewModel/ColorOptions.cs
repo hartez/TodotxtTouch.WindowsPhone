@@ -5,9 +5,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 {
     public static class ColorOptions
     {
-        // TODO Adjust the look and feel of the color options
-        // TODO Adjust the look and feel of the Priority Colors
-
         static ColorOptions()
         {
             Default = new ColorOption {Name = "Default", Color = null};
