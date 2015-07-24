@@ -37,8 +37,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private const string ConnectedPropertyName = "Connected";
 	    private const string DisconnectedPropertyName = "Disconnected";
 
-        private const string PriorityColorsPropertyName = "PriorityColors";
-
         public bool Connected
         {
             get
@@ -65,9 +63,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		    BroadcastSettingsChanged =
 		        new RelayCommand(() => Messenger.Default.Send(new ApplicationSettingsChangedMessage(_settings)));
 		    DisconnectCommand = new RelayCommand(Disconnect);
+            ResetColorsCommand = new RelayCommand(ResetColors);
         }
 
         public RelayCommand DisconnectCommand { get; private set; }
+        public RelayCommand ResetColorsCommand { get; private set; }
 
 	    public void CheckConnection()
 	    {
@@ -82,7 +82,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             RaisePropertyChanged(DisconnectedPropertyName);
         }
 
-		/// <summary>
+	    public void ResetColors()
+	    {
+	        _settings.ResetColors();
+            RaisePropertyChanged("PriorityColors");
+	    }
+
+	    /// <summary>
 		/// Gets the TodoFileName property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
@@ -194,19 +200,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         public List<PriorityColor> PriorityColors
         {
             get { return _settings.PriorityColors; }
-
-            set
-            {
-                if (_settings.PriorityColors == value)
-                {
-                    return;
-                }
-
-                _settings.PriorityColors = value;
-
-                // Update bindings, no broadcast
-                RaisePropertyChanged(PriorityColorsPropertyName);
-            }
         }
 
 	    public List<ColorOption> PriorityColorOptions

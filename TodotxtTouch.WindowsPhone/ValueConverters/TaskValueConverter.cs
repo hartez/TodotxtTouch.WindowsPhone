@@ -1,35 +1,24 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using todotxtlib.net;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.ValueConverters
 {
-    public class VisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var visible = (bool)value;
-
-            if (visible)
-            {
-                return Visibility.Visible;
-            }
-
-            return Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class TaskValueConverter : IValueConverter
-	{
-		#region IValueConverter Members
+    {
+        private readonly ApplicationSettingsViewModel _settings;
+
+        public TaskValueConverter()
+        {
+            _settings = ( (ViewModelLocator)Application.Current.Resources["Locator"] ).ApplicationSettings;
+        }
+
+        #region IValueConverter Members
 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
@@ -53,29 +42,17 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 
 					if (task.IsPriority)
 					{
-						char priority = task.Priority.ToUpper()[0];
-
-                        // TODO Check for color customization; if so, use those values
-                        // otherwise, use these defaults (including the Light Theme workaround)
-
-						switch ((int) priority)
-						{
-							case (65):
-
-								if(Visibility.Visible==(Visibility)Application.Current.Resources["PhoneDarkThemeVisibility"])
-								{
-									return new SolidColorBrush(Colors.Yellow);
-								}
-								
-								// Yellow is the standard for the other todo.txt projects,
-								// but it's impossible to see if the user is using the Light theme
-								return new SolidColorBrush(Colors.Orange);
-								
-							case (66):
-								return new SolidColorBrush(Colors.Green);
-							case (67):
-								return new SolidColorBrush(Colors.Cyan);
-						}
+					    if (_settings != null)
+					    {
+                            var co = _settings.PriorityColors.FirstOrDefault(pc => pc.Priority == task.Priority.ToUpper());
+					        if (co != null)
+					        {
+					            if (co.ColorOption.Color.HasValue)
+					            {
+                                    return new SolidColorBrush(co.ColorOption.Color.Value);
+					            }
+					        }
+					    }
 					}
 
 					return Application.Current.Resources["PhoneForegroundBrush"];

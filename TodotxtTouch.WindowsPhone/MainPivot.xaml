@@ -62,7 +62,7 @@
                         <DataTemplate>
                             <TextBlock Text="{Binding Converter={StaticResource TaskValueConverter}}"
                                        Foreground="{Binding Converter={StaticResource TaskValueConverter}}" 
-									   Margin="0,0,0,12" Style="{StaticResource PrimaryTaskStyle}"
+									   Style="{StaticResource PrimaryTaskStyle}"
 									   FontSize="24"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

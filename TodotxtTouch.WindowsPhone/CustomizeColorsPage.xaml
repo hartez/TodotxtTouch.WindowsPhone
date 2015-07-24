@@ -74,7 +74,7 @@
 
                         <!--Fun fact: if you switch the order of the SelectedItem and ItemsSource attributes, you'll get an InvalidOperationException -->
 
-                        <toolkit:ListPicker SelectedItem="{Binding Color}"
+                        <toolkit:ListPicker SelectedItem="{Binding ColorOption, Mode=TwoWay}"
                                             ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
                                             FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}"
                                             ItemTemplate="{StaticResource PickerItemTemplate}"

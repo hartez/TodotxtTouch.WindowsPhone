@@ -127,6 +127,7 @@
     <Compile Include="MultiSelectPage.xaml.cs">
       <DependentUpon>MultiSelectPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Service\ArchiveTaskFileService.cs" />
     <Compile Include="Service\DropboxServiceAvailableChangedEventArgs.cs" />
     <Compile Include="Service\DropNetExtensions.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="ValueConverters\SelectionModeVisibilityConverter.cs" />
     <Compile Include="ValueConverters\TaskValueConverter.cs" />
     <Compile Include="Tasks\ContextTaskFilter.cs" />
+    <Compile Include="ValueConverters\VisibilityConverter.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\ApplicationSettings.cs" />
     <Compile Include="Messages\ApplicationSettingsChangedMessage.cs" />
@@ -158,6 +160,8 @@
     </Compile>
     <Compile Include="Messages\ApplicationReadyMessage.cs" />
     <Compile Include="Messages\RetrievedDropboxTokenMessage.cs" />
+    <Compile Include="ViewModel\ColorOption.cs" />
+    <Compile Include="ViewModel\ColorOptions.cs" />
     <Compile Include="ViewModel\DropboxCredentialsViewModel.cs" />
     <Compile Include="Service\DropboxService.cs" />
     <Compile Include="Messages\InitiateCallMessage.cs" />
@@ -166,6 +170,7 @@
     <Compile Include="Messages\NeedCredentialsMessage.cs" />
     <Compile Include="Messages\CredentialsUpdatedMessage.cs" />
     <Compile Include="Tasks\ProjectTaskFilter.cs" />
+    <Compile Include="ViewModel\PriorityColor.cs" />
     <Compile Include="ViewModel\TaskExtensions.cs" />
     <Compile Include="Service\TaskFileService.cs" />
     <Compile Include="Tasks\TaskFilter.cs" />
