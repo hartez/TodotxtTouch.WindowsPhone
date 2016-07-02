@@ -42,13 +42,13 @@
 			  Grid.Row="1"
 			  Margin="12,0,12,0">
 			<StackPanel Orientation="Vertical">
-				<TextBlock Text="Todo.txt for Windows Phone"
+				<TextBlock Text="{Binding AppLongTitle}"
 						   Margin="10,20"
 						   HorizontalAlignment="Center"></TextBlock>
 				<TextBlock Text="{Binding AppVersion}"
 						   HorizontalAlignment="Center"
 						   Margin="10,20"></TextBlock>
-				<TextBlock Text="© 2012-2016 CodeWise LLC, All Rights Reserved"
+				<TextBlock Text="{Binding Copyright}"
 						   HorizontalAlignment="Center"></TextBlock>
 				<TextBlock Text="For questions, feedback, and support, visit"
 						   Margin="10,50,10,20"

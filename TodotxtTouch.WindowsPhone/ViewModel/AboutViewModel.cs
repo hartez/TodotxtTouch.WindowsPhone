@@ -22,24 +22,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		public string AppVersion
-		{
-			get { return String.Format("Version {0}", _getVersion()); }
-		}
+		public string AppVersion => $"Version {_getVersion()}";
 
-		public string ApplicationTitle
-		{
-			get { return "Todo.txt"; }
-		}
+	    public string ApplicationTitle => "Todo.txt";
 
-		public string SupportWebsite
-		{
-			get { return "http://todotxt.codewise-llc.com"; }
-		}
+	    public string SupportWebsite => "http://todotxt.codewise-llc.com";
 
-		public string SupportEmail
-		{
-			get { return "support@codewise-llc.com"; }
-		}
+	    public string SupportEmail => "support@codewise-llc.com";
+
+	    public string AppLongTitle => "Todo.txt for Windows Phone";
+
+	    public string Copyright => $"© 2012-{DateTime.Now.Year} CodeWise LLC, All Rights Reserved";
 	}
 }
