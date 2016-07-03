@@ -16,18 +16,6 @@ using TodotxtTouch.WindowsPhone.Tasks;
 
 namespace TodotxtTouch.WindowsPhone.ViewModel
 {
-	/// <summary>
-	/// This class contains properties that the main View can data bind to.
-	/// <para>
-	/// Use the <strong>mvvminpc</strong> snippet to add bindable properties to this ViewModel.
-	/// </para>
-	/// <para>
-	/// You can also use Blend to data bind with the tool's support.
-	/// </para>
-	/// <para>
-	/// See http://www.galasoft.ch/mvvm
-	/// </para>
-	/// </summary>
 	public class MainViewModel : ViewModelBase
 	{
 	    private readonly ApplicationSettings _applicationSettings;
@@ -73,13 +61,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		#region Backing fields
 
-		private readonly ObservableCollection<string> _availablePriorities = new ObservableCollection<string>();
 		private TaskFileService _archiveFileService;
 		private List<TaskFilter> _filters = new List<TaskFilter>();
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private IObservable<IEvent<LoadingStateChangedEventArgs>> _loadingStateObserver;
-		private String _selectedContext;
-		private String _selectedProject;
+		private string _selectedContext;
+		private string _selectedProject;
 		private Task _selectedTask;
 		private Task _selectedTaskDraft;
 		private TaskFileService _taskFileService;
@@ -310,8 +297,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 		    SelectedTaskDraftIsNew = true;
 
-			UpdateAvailablePriorities();
-
 			Messenger.Default.Send(new ViewTaskMessage());
 		}
 
@@ -351,11 +336,12 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public MainViewModel(PrimaryTaskFileService taskFileService, ArchiveTaskFileService archiveFileService, ApplicationSettings applicationSettings)
 		{
 		    _applicationSettings = applicationSettings;
+			Priorities = new List<string> {string.Empty};
+			Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => Priorities.Add(p));
+
 		    if (IsInDesignMode)
 			{
 				// Code runs in Blend --> create design time data.
-				Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => _availablePriorities.Add(p));
-
 				_taskList = new TaskList();
 
 				TaskList.Add(new Task("A", null, null,
@@ -458,10 +444,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		public ObservableCollection<String> AvailablePriorities
-		{
-			get { return _availablePriorities; }
-		}
+		public List<string> Priorities { get; }
 
 		/// <summary>
 		/// Gets the SelectedTask property.
@@ -501,8 +484,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				}
 
 				_selectedTaskDraft = value;
-				
-				UpdateAvailablePriorities();
 				
 				// Update bindings, no broadcast
 				RaisePropertyChanged(SelectedTaskDraftPropertyName);
@@ -736,35 +717,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 	    private void Filter(DrillDownMessage message)
 		{
 			Filters = TaskFilterFactory.ParseFilterString(message.Filter);
-		}
-
-		private void UpdateAvailablePriorities()
-		{
-			//_availablePriorities.Clear();
-			if(!_availablePriorities.Contains(""))
-			{
-				_availablePriorities.Add("");
-			}
-
-			IEnumerable<String> prioritiesInUse =
-				(from t in TaskList
-				 where t.IsPriority && t.Priority != _selectedTaskDraft.Priority
-				 orderby t.Priority
-				 select t.Priority).Distinct();
-
-			// Generate the possible priorities, then skip over the ones that are already in use
-			Observable.Range(65, 26).Select(n => ((char) n).ToString())
-				.Subscribe(priority =>
-					{
-						if(prioritiesInUse.Contains(priority) && _availablePriorities.Contains(priority))
-						{
-							_availablePriorities.Remove(priority);
-						}
-						else if (!_availablePriorities.Contains(priority) && !prioritiesInUse.Contains(priority))
-						{
-							_availablePriorities.Add(priority);
-						}
-					} );
 		}
 
 		public void SetState(TombstoneState state)

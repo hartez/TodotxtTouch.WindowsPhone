@@ -111,7 +111,7 @@
 						  IsChecked="{Binding Completed, Mode=TwoWay}"></CheckBox>
 
 				<Controls:ListPicker SelectedItem="{Binding Priority, Mode=TwoWay}"
-									 ItemsSource="{Binding Main.AvailablePriorities, Source={StaticResource Locator}}"
+									 ItemsSource="{Binding Main.Priorities, Source={StaticResource Locator}}"
 									 Grid.Row="2"
 									 FullModeHeader="Priority"
 									 Header="Priority"
