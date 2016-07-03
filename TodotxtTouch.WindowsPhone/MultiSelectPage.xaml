@@ -1,4 +1,4 @@
-﻿<WindowsPhone:TaskFilterPage 
+﻿<windowsPhone:TaskFilterPage 
     x:Class="TodotxtTouch.WindowsPhone.MultiSelectPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,8 +6,8 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP7" xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
-    xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras"
+    xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" xmlns:windowsPhone="clr-namespace:TodotxtTouch.WindowsPhone" xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -16,15 +16,15 @@
                             shell:SystemTray.IsVisible="True"
                             DataContext="{Binding Main, Source={StaticResource Locator}}">
 
-    <WindowsPhone:TaskFilterPage.Resources>
-        <ValueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter"></ValueConverters:BooleanOpacityConverter>
-        <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
-    </WindowsPhone:TaskFilterPage.Resources>
+    <windowsPhone:TaskFilterPage.Resources>
+        <valueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter" />
+	    <valueConverters:TaskValueConverter x:Key="TaskValueConverter" />
+    </windowsPhone:TaskFilterPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
 
-        <toolkit:PerformanceProgressBar x:Name="performanceProgressBar"
+        <toolkit:PerformanceProgressBar x:Name="PerformanceProgressBar"
                                         IsIndeterminate="{Binding Busy}" />
 
             <controls:Pivot Title="{Binding ApplicationTitle}"
@@ -91,4 +91,11 @@
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 
-</WindowsPhone:TaskFilterPage>
+</windowsPhone:TaskFilterPage>
+
+
+
+
+
+
+

@@ -32,10 +32,10 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             };
         }
 
-        public static ColorOption Default { get; private set; }
-        public static ColorOption Yellow { get; private set; }
-        public static ColorOption Cyan { get; private set; }
-        public static ColorOption Green { get; private set; }
+        public static ColorOption Default { get; }
+        public static ColorOption Yellow { get; }
+        public static ColorOption Cyan { get; }
+        public static ColorOption Green { get; }
         public static List<ColorOption> All { get; private set; }
     }
 }

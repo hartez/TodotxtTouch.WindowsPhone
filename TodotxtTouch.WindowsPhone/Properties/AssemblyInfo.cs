@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -11,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CodeWise LLC")]
 [assembly: AssemblyProduct("TodotxtTouch.WindowsPhone")]
-[assembly: AssemblyCopyright("Copyright © CodeWise LLC 2015")]
+[assembly: AssemblyCopyright("Copyright © CodeWise LLC 2012 - 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -42,15 +42,9 @@ namespace TodotxtTouch.WindowsPhone
 		private void MultiSelectClick(object sender, EventArgs e)
 		{
 			string filter;
-			if (NavigationContext.QueryString.TryGetValue("filter", out filter))
-			{
-				NavigationService.Navigate(new Uri("/MultiSelectPage.xaml?filter=" + filter, UriKind.Relative));
-			}
-			else
-			{
-				NavigationService.Navigate(
-			   new Uri("/MultiSelectPage.xaml", UriKind.Relative));
-			}
+			NavigationService.Navigate(NavigationContext.QueryString.TryGetValue("filter", out filter)
+				? new Uri("/MultiSelectPage.xaml?filter=" + filter, UriKind.Relative)
+				: new Uri("/MultiSelectPage.xaml", UriKind.Relative));
 		}
 
 		private void DrillDown(DrillDownMessage message)

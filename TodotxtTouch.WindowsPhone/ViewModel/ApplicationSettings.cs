@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.IsolatedStorage;
 using GalaSoft.MvvmLight;
@@ -19,7 +18,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             get
             {
-                if (String.IsNullOrEmpty(_archiveFilePath))
+                if (string.IsNullOrEmpty(_archiveFilePath))
                 {
                     _archiveFilePath = GetSetting("archiveFilePath", "/todo");
                 }
@@ -37,7 +36,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             get
             {
-                if (String.IsNullOrEmpty(_archiveFileName))
+                if (string.IsNullOrEmpty(_archiveFileName))
                 {
                     _archiveFileName = GetSetting("archiveFileName", "done.txt");
                 }
@@ -51,11 +50,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
         }
 
-        public String TodoFilePath
+        public string TodoFilePath
         {
             get
             {
-                if (String.IsNullOrEmpty(_todoFilePath))
+                if (string.IsNullOrEmpty(_todoFilePath))
                 {
                     _todoFilePath = GetSetting("todoFilePath", "/todo");
                 }
@@ -69,11 +68,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
         }
 
-        public String TodoFileName
+        public string TodoFileName
         {
             get
             {
-                if (String.IsNullOrEmpty(_todoFileName))
+                if (string.IsNullOrEmpty(_todoFileName))
                 {
                     _todoFileName = GetSetting("todoFileName", "todo.txt");
                 }

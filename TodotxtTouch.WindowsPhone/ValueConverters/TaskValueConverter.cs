@@ -26,11 +26,11 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 
 			if (task != null)
 			{
-				if (targetType == typeof (String))
+				if (targetType == typeof (string))
 				{
-					string priority = task.IsPriority ? string.Format("({0}) ", task.Priority) : String.Empty;
+					string priority = task.IsPriority ? $"({task.Priority}) " : string.Empty;
 
-					return priority + (String.IsNullOrEmpty(task.Body) ? "{Empty Task}" : task.Body);
+					return priority + (string.IsNullOrEmpty(task.Body) ? "{Empty Task}" : task.Body);
 				}
 
 				if (targetType == typeof (Brush))
@@ -42,17 +42,11 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 
 					if (task.IsPriority)
 					{
-					    if (_settings != null)
-					    {
-                            var co = _settings.PriorityColors.FirstOrDefault(pc => pc.Priority == task.Priority.ToUpper());
-					        if (co != null)
-					        {
-					            if (co.ColorOption.Color.HasValue)
-					            {
-                                    return new SolidColorBrush(co.ColorOption.Color.Value);
-					            }
-					        }
-					    }
+						var co = _settings?.PriorityColors.FirstOrDefault(pc => pc.Priority == task.Priority.ToUpper());
+						if (co?.ColorOption.Color != null)
+						{
+							return new SolidColorBrush(co.ColorOption.Color.Value);
+						}
 					}
 
 					return Application.Current.Resources["PhoneForegroundBrush"];

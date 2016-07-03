@@ -44,12 +44,12 @@
 			<StackPanel Orientation="Vertical">
 				<TextBlock Text="{Binding AppLongTitle}"
 						   Margin="10,20"
-						   HorizontalAlignment="Center"></TextBlock>
+						   HorizontalAlignment="Center" />
 				<TextBlock Text="{Binding AppVersion}"
 						   HorizontalAlignment="Center"
-						   Margin="10,20"></TextBlock>
+						   Margin="10,20" />
 				<TextBlock Text="{Binding Copyright}"
-						   HorizontalAlignment="Center"></TextBlock>
+						   HorizontalAlignment="Center" />
 				<TextBlock Text="For questions, feedback, and support, visit"
 						   Margin="10,50,10,20"
 						   HorizontalAlignment="Center"
@@ -68,3 +68,10 @@
 	</Grid>
 
 </phone:PhoneApplicationPage>
+
+
+
+
+
+
+

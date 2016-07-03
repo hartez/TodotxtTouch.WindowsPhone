@@ -16,18 +16,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		private DropNetClient _dropNetClient;
 
-		private String _secret = String.Empty;
-		private String _token = String.Empty;
+		private string _secret = string.Empty;
+		private string _token = string.Empty;
 
-		public bool WeHaveTokens
-		{
-			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
-		}
+		public bool WeHaveTokens => !string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(Secret);
 
-	    public void Disconnect()
+		public void Disconnect()
 	    {
-	        Token = String.Empty;
-	        Secret = String.Empty;
+	        Token = string.Empty;
+	        Secret = string.Empty;
 	    }
 
 	    /// <summary>
@@ -38,9 +35,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			get
 			{
-				if (String.IsNullOrEmpty(_secret))
+				if (string.IsNullOrEmpty(_secret))
 				{
-					String secret;
+					string secret;
 					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxSecret",
 					                                                            out secret))
 					{
@@ -71,9 +68,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			get
 			{
-				if (String.IsNullOrEmpty(_token))
+				if (string.IsNullOrEmpty(_token))
 				{
-					String token;
+					string token;
 					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken",
 					                                                            out token))
 					{
@@ -105,10 +102,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
 				}
 
-				if (dropboxAction != null)
-				{
-					dropboxAction();
-				}
+				dropboxAction?.Invoke();
 			}
 			else
 			{
@@ -162,10 +156,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				        }
 				    }
 
-				    if (handler != null)
-					{
-						handler(ex);
-					}
+					handler?.Invoke(ex);
 				};
 		}
 

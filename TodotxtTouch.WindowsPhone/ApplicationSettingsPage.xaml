@@ -107,7 +107,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-        <valueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter"></valueConverters:VisibilityConverter>
+        <valueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter" />
 	</phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -141,14 +141,12 @@
                     <Button x:Name="CustomizeColors" Content="Customize Priority Colors" Click="CustomizeColors_OnClick" />
 
                     <Button x:Name="DisconnectFromDropbox" Content="Disconnect From Dropbox" Click="DisconnectFromDropBox_OnClick"
-                            Visibility="{Binding Connected, Converter={StaticResource BooleanVisibilityConverter}}">
-                    </Button>
-                    
-                    <Button x:Name="ConnectToDropbox" Content="Connect To Dropbox" Click="ConnectToDropBox_OnClick"
-                            Visibility="{Binding Disconnected, Converter={StaticResource BooleanVisibilityConverter}}">
-                    </Button>
+                            Visibility="{Binding Connected, Converter={StaticResource BooleanVisibilityConverter}}" />
 
-                </StackPanel>
+			        <Button x:Name="ConnectToDropbox" Content="Connect To Dropbox" Click="ConnectToDropBox_OnClick"
+                            Visibility="{Binding Disconnected, Converter={StaticResource BooleanVisibilityConverter}}" />
+
+		        </StackPanel>
         	</ScrollViewer>
             
             
@@ -157,3 +155,10 @@
     </Grid>
  
 </phone:PhoneApplicationPage>
+
+
+
+
+
+
+

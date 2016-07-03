@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO.IsolatedStorage;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using TodotxtTouch.WindowsPhone.Messages;
@@ -10,19 +8,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 {
 	public class DropboxCredentialsViewModel : ViewModelBase
 	{
-		private DropboxService _dropBoxService;
+		private readonly DropboxService _dropBoxService;
 
 		/// <summary>
-		/// The <see cref="Username" /> property's name.
+		/// The <see>
+		///         <cref>Username</cref>
+		///     </see>
+		///     property's name.
 		/// </summary>
 		public const string UsernamePropertyName = "Username";
 
 		/// <summary>
-		/// The <see cref="Password" /> property's name.
+		/// The <see>
+		///         <cref>Password</cref>
+		///     </see>
+		///     property's name.
 		/// </summary>
 		public const string PasswordPropertyName = "Password";
 
-		public RelayCommand UpdateCredentialsCommand { get; private set; }
 		public RelayCommand StartLoginProcessCommand { get; private set; }
 
 		/// <summary>

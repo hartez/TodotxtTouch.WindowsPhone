@@ -13,17 +13,18 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			InitializeComponent();
 
-            Messenger.Default.Register<CredentialsUpdatedMessage>(this, msg =>
-                                                                            {
-                                                                                if(NavigationService.CanGoBack)
-                                                                                {
-                                                                                    NavigationService.GoBack();
-                                                                                }
-                                                                            });
+			Messenger.Default.Register<CredentialsUpdatedMessage>(this,
+				msg =>
+				{
+					if (NavigationService.CanGoBack)
+					{
+						NavigationService.GoBack();
+					}
+				});
 
 			Messenger.Default.Register<RetrievedDropboxTokenMessage>(this, LoadLoginPage);
 
-			loginBrowser.LoadCompleted += LoadCompleted;
+			LoginBrowser.LoadCompleted += LoadCompleted;
 		}
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -40,11 +41,11 @@ namespace TodotxtTouch.WindowsPhone
 			}
 			else
 			{
-				loginBrowser.Navigate(msg.TokenUri);	
+				LoginBrowser.Navigate(msg.TokenUri);	
 			}
 		}
 
-		private void LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
+		private static void LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
 		{
 			//Check for the callback path here (or just check it against "/1/oauth/authorize")
 			if (e.Uri.Host == "todotxt.codewise-llc.com")

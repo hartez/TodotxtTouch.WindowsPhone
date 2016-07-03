@@ -1,25 +1,21 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
-using EZLibrary.WindowsPhone;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using TodotxtTouch.WindowsPhone.Messages;
-using TodotxtTouch.WindowsPhone.Service;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone
 {
 	public partial class App : Application
 	{
-		private string StateKey = "State";
+		private const string StateKey = "State";
 
 		/// <summary>
 		/// Constructor for the Application object.
@@ -55,15 +51,15 @@ namespace TodotxtTouch.WindowsPhone
 			//NetworkHelper.TestNeverAvailable();
 
 			Messenger.Default.Register<NetworkUnavailableMessage>(this,
-			                                                      msg =>
-			                                                      MessageBox.Show("The network is currently unavailable", "Error",
-			                                                                      MessageBoxButton.OK));
+				msg =>
+					MessageBox.Show("The network is currently unavailable", "Error",
+						MessageBoxButton.OK));
 
 			Messenger.Default.Register<SynchronizationErrorMessage>(this, msg =>
-			                                                              MessageBox.Show(
-			                                                              	"An error occurred while syncing; you may need to try again later\n" +
-			                                                              	msg.Exception.Message,
-			                                                              	"Error", MessageBoxButton.OK));
+				MessageBox.Show(
+					"An error occurred while syncing; you may need to try again later\n" +
+					msg.Exception.Message,
+					"Error", MessageBoxButton.OK));
 		}
 
 		/// <summary>
@@ -84,18 +80,18 @@ namespace TodotxtTouch.WindowsPhone
 			LittleWatson.CheckForPreviousException("Todo.txt Windows Phone 7 error report",
 				"support@codewise-llc.com");
 			Messenger.Default.Send(new ApplicationReadyMessage());
-            Messenger.Default.Send(new ApplicationStartedMessage());
+			Messenger.Default.Send(new ApplicationStartedMessage());
 		}
 
 		// Code to execute when the application is activated (brought to foreground)
 		// This code will not execute when the application is first launched
 		private void Application_Activated(object sender, ActivatedEventArgs e)
 		{
-			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
+			var viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 
 			if (viewModel != null)
 			{
-				TombstoneState state = TombstoneState.FromJson(PhoneApplicationService.Current.State[StateKey].ToString());
+				var state = TombstoneState.FromJson(PhoneApplicationService.Current.State[StateKey].ToString());
 
 				viewModel.SetState(state);
 			}
@@ -106,14 +102,11 @@ namespace TodotxtTouch.WindowsPhone
 		public static void UpdateBindingOnFocusedTextBox()
 		{
 			// Focus kludge to make the binding in the textbox update
-			object focusObj = FocusManager.GetFocusedElement();
-			if (focusObj != null && focusObj is TextBox)
+			var focusObj = FocusManager.GetFocusedElement();
+			if (focusObj is TextBox)
 			{
-				BindingExpression binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
-				if (binding != null)
-				{
-					binding.UpdateSource();
-				}
+				var binding = (focusObj as TextBox).GetBindingExpression(TextBox.TextProperty);
+				binding?.UpdateSource();
 			}
 		}
 
@@ -123,17 +116,17 @@ namespace TodotxtTouch.WindowsPhone
 		{
 			UpdateBindingOnFocusedTextBox();
 
-			MainViewModel viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
+			var viewModel = ((ViewModelLocator) Current.Resources["Locator"]).Main;
 
 			if (viewModel != null)
 			{
-				string selectedTask = String.Empty;
+				var selectedTask = string.Empty;
 				if (viewModel.SelectedTask != null)
 				{
 					selectedTask = viewModel.SelectedTask.ToString();
 				}
 
-				string draft = String.Empty;
+				var draft = string.Empty;
 				if (viewModel.SelectedTaskDraft != null)
 				{
 					draft = viewModel.SelectedTaskDraft.ToString();
@@ -170,8 +163,8 @@ namespace TodotxtTouch.WindowsPhone
 		// Code to execute on Unhandled Exceptions
 		private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
 		{
-			LittleWatson.ReportException(e.ExceptionObject, 
-				String.Format("Version {0}", Assembly.GetExecutingAssembly().FullName.Split('=')[1].Split(',')[0]));
+			LittleWatson.ReportException(e.ExceptionObject,
+				$"Version {Assembly.GetExecutingAssembly().FullName.Split('=')[1].Split(',')[0]}");
 
 			if (Debugger.IsAttached)
 			{
@@ -183,12 +176,12 @@ namespace TodotxtTouch.WindowsPhone
 		#region Phone application initialization
 
 		// Avoid double-initialization
-		private bool phoneApplicationInitialized;
+		private bool _phoneApplicationInitialized;
 
 		// Do not add any additional code to this method
 		private void InitializePhoneApplication()
 		{
-			if (phoneApplicationInitialized)
+			if (_phoneApplicationInitialized)
 			{
 				return;
 			}
@@ -202,7 +195,7 @@ namespace TodotxtTouch.WindowsPhone
 			RootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
 			// Ensure we don't initialize again
-			phoneApplicationInitialized = true;
+			_phoneApplicationInitialized = true;
 		}
 
 		// Do not add any additional code to this method

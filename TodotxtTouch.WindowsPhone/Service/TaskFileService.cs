@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.IO.IsolatedStorage;
-using System.Linq;
 using System.Text;
-using System.Windows.Navigation;
 using DropNet.Exceptions;
 using DropNet.Models;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Phone.Reactive;
 using RestSharp;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Messages;
@@ -23,7 +19,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		protected readonly ApplicationSettings Settings;
 		private readonly DropboxService _dropBoxService;
-		private TaskList _taskList = new TaskList();
+		private readonly TaskList _taskList = new TaskList();
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private string _lastRevision;
 
@@ -86,15 +82,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 		/// Gets the TaskList property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public TaskList TaskList
-		{
-			get { return _taskList; }
-		}
+		public TaskList TaskList => _taskList;
 
-		private String LocalLastRevisionPropertyName
-		{
-            get { return GetFileName() + "LocalLastRevision"; }
-		}
+		private string LocalLastRevisionPropertyName => GetFileName() + "LocalLastRevision";
 
 		private string LocalLastRevision
 		{
@@ -129,13 +119,10 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private String FullPath
-		{
-			get { return GetFilePath() + "/" + GetFileName(); }
-		}
+		private string FullPath => GetFilePath() + "/" + GetFileName();
 
-		protected abstract String GetFilePath();
-		protected abstract String GetFileName();
+		protected abstract string GetFilePath();
+		protected abstract string GetFileName();
 
 		private void PauseCollectionChanged()
 		{
@@ -221,7 +208,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void Sync(MetaData data)
 		{
-			bool remoteExists = (data != null && !String.IsNullOrEmpty(data.Name));
+			bool remoteExists = (!string.IsNullOrEmpty(data?.Name));
 
 			if (!remoteExists)
 			{
@@ -252,7 +239,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			// Use the metadata to make a decision about whether to 
 			// get/merge the remote file
-			if (!String.IsNullOrEmpty(LocalLastRevision))
+			if (!string.IsNullOrEmpty(LocalLastRevision))
 			{
 				if (LocalLastRevision == remoteRevision && !LocalHasChanges)
 				{
@@ -546,7 +533,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			LoadTasks();
 		}
 
-		private void UseRemoteFile(String latestRevision)
+		private void UseRemoteFile(string latestRevision)
 		{
 			_dropBoxService.GetFile(FullPath,
 			                        response => OverwriteWithRemoteFile(response, latestRevision),
@@ -562,39 +549,27 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public void InvokeSynchronizationError(SynchronizationErrorEventArgs e)
 		{
-			EventHandler<SynchronizationErrorEventArgs> handler = SynchronizationError;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
+			var handler = SynchronizationError;
+			handler?.Invoke(this, e);
 		}
 
 		public void InvokeTaskListChanged(TaskListChangedEventArgs e)
 		{
-			EventHandler<TaskListChangedEventArgs> handler = TaskListChanged;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
+			var handler = TaskListChanged;
+			handler?.Invoke(this, e);
 		}
 
 		public void InvokeLoadingStateChanged(LoadingStateChangedEventArgs e)
 		{
-			EventHandler<LoadingStateChangedEventArgs> handler = LoadingStateChanged;
-			if (handler != null)
-			{
-				handler(this, e);
-			}
+			var handler = LoadingStateChanged;
+			handler?.Invoke(this, e);
 		}
 
 
         public void InvokeLocalHasChangesChanged(LocalHasChangesChangedEventArgs e)
         {
-            EventHandler<LocalHasChangesChangedEventArgs> handler = LocalHasChangesChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            var handler = LocalHasChangesChanged;
+	        handler?.Invoke(this, e);
         }
 
 		#endregion

@@ -1,15 +1,15 @@
-﻿<WindowsPhone:TaskFilterPage x:Class="TodotxtTouch.WindowsPhone.MainPivot" 
+﻿<windowsPhone:TaskFilterPage x:Class="TodotxtTouch.WindowsPhone.MainPivot" 
                             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
 							 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                             xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone" 
                             xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" 
                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                            xmlns:WindowsPhone="clr-namespace:TodotxtTouch.WindowsPhone"
+                            xmlns:windowsPhone="clr-namespace:TodotxtTouch.WindowsPhone"
                             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
                             xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-                            xmlns:ValueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" 
-							xmlns:Interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone" 
+                            xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters" 
+							xmlns:interactivity="clr-namespace:EZLibrary.WindowsPhone.Interactivity;assembly=EZLibrary.WindowsPhone" 
                              xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras"
                              mc:Ignorable="d" 
                             d:DesignWidth="480" d:DesignHeight="696" FontFamily="{StaticResource PhoneFontFamilyNormal}" 
@@ -18,29 +18,29 @@
                             DataContext="{Binding Main, Source={StaticResource Locator}}"
 							toolkit:TiltEffect.IsTiltEnabled="True">
 
-    <WindowsPhone:TaskFilterPage.Resources>
-        <ValueConverters:TaskValueConverter x:Key="TaskValueConverter"></ValueConverters:TaskValueConverter>
-        <ValueConverters:LocalHasChangesValueConverter x:Key="LocalHasChangesValueConverter"></ValueConverters:LocalHasChangesValueConverter>
-        <ValueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter"></ValueConverters:BooleanOpacityConverter>
-		<ValueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter"></ValueConverters:VisibilityConverter>
-		<Style x:Key="PrimaryTaskStyle" TargetType="TextBlock">
+    <windowsPhone:TaskFilterPage.Resources>
+        <valueConverters:TaskValueConverter x:Key="TaskValueConverter" />
+	    <valueConverters:LocalHasChangesValueConverter x:Key="LocalHasChangesValueConverter" />
+	    <valueConverters:BooleanOpacityConverter x:Key="BooleanOpacityConverter" />
+	    <valueConverters:VisibilityConverter x:Key="BooleanVisibilityConverter" />
+	    <Style x:Key="PrimaryTaskStyle" TargetType="TextBlock">
         	<Setter Property="Margin" Value="0,0,0,12" />
         	<Setter Property="Width" Value="460"/>
         	<Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
-    </WindowsPhone:TaskFilterPage.Resources>
+    </windowsPhone:TaskFilterPage.Resources>
     
 	<!--LayoutRoot is the root grid where all page content is placed-->
 	<Grid x:Name="LayoutRoot" Background="Transparent">
 
 		<Grid Visibility="{Binding Busy, Converter={StaticResource BooleanVisibilityConverter}}">
 			<Grid.RowDefinitions>
-				<RowDefinition></RowDefinition>
-				<RowDefinition></RowDefinition>
+				<RowDefinition />
+				<RowDefinition />
 			</Grid.RowDefinitions>
 			<TextBlock Grid.Row="0" Text="{Binding BusyDoingWhat}"
-					   HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
-			<toolkit:PerformanceProgressBar x:Name="performanceProgressBar" Grid.Row="1"
+					   HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+			<toolkit:PerformanceProgressBar x:Name="PerformanceProgressBar" Grid.Row="1"
 											VerticalAlignment="Top"
 											IsIndeterminate="{Binding Busy}" />
 		</Grid>
@@ -72,13 +72,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <Interactivity:GestureBehavior />
+                        <interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <Interactivity:TapTrigger>
+                        <interactivity:TapTrigger>
                             <command:EventToCommand Command="{Binding ViewTaskDetailsCommand}" />
-                        </Interactivity:TapTrigger>
+                        </interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
 
@@ -105,13 +105,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <Interactivity:GestureBehavior />
+                        <interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <Interactivity:TapTrigger>
+                        <interactivity:TapTrigger>
                             <command:EventToCommand Command="{Binding FilterByContextCommand}" />
-                        </Interactivity:TapTrigger>
+                        </interactivity:TapTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
 			</controls:PivotItem>
@@ -138,13 +138,13 @@
                     </toolkit:GestureService.GestureListener>
 
                     <i:Interaction.Behaviors>
-                        <Interactivity:GestureBehavior />
+                        <interactivity:GestureBehavior />
                     </i:Interaction.Behaviors>
 
                     <i:Interaction.Triggers>
-                        <Interactivity:TapTrigger>
+                        <interactivity:TapTrigger>
                             <command:EventToCommand Command="{Binding FilterByProjectCommand}" />
-                        </Interactivity:TapTrigger>
+                        </interactivity:TapTrigger>
                     </i:Interaction.Triggers>
 
 				</ListBox>
@@ -153,7 +153,7 @@
 		</controls:Pivot>
 	</Grid>
 
-    <WindowsPhone:TaskFilterPage.ApplicationBar>
+    <windowsPhone:TaskFilterPage.ApplicationBar>
 		<shell:ApplicationBar IsVisible="True" IsMenuEnabled="True" x:Name="MainApplicationBar">
 			<shell:ApplicationBarIconButton IconUri="/Images/add.png" x:Name="AddButton" Text="add" />
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.manage.rest.png"
@@ -173,6 +173,6 @@
 			</shell:ApplicationBar.MenuItems>
 		</shell:ApplicationBar>
 
-    </WindowsPhone:TaskFilterPage.ApplicationBar>
+    </windowsPhone:TaskFilterPage.ApplicationBar>
 
-</WindowsPhone:TaskFilterPage>
+</windowsPhone:TaskFilterPage>
