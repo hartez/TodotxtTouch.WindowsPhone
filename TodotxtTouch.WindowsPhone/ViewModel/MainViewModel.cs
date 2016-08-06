@@ -336,32 +336,32 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		public MainViewModel(PrimaryTaskFileService taskFileService, ArchiveTaskFileService archiveFileService, ApplicationSettings applicationSettings)
 		{
 		    _applicationSettings = applicationSettings;
-			Priorities = new List<string> {string.Empty};
-			Observable.Range(65, 26).Select(n => ((char) n).ToString()).Subscribe(p => Priorities.Add(p));
 
 		    if (IsInDesignMode)
-			{
-				// Code runs in Blend --> create design time data.
-				TaskList = new TaskList
-				{
-					new Task("A", null, null,
-						"This is a designer task that might be really long the quick brown fox jumped over the lazy dogs"),
-					new Task("", null, null, "This is a designer task2"), new Task("", null, null,
-						"This is a designer task3 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
-				};
+		    {
+		        // Code runs in Blend --> create design time data.
+		        TaskList = new TaskList
+		        {
+		            new Task("A", null, null,
+		                "This is a designer task that might be really long the quick brown fox jumped over the lazy dogs"),
+		            new Task("", null, null, "This is a designer task2"),
+		            new Task("", null, null,
+		                "This is a designer task3 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+		        };
 
-				var b = new Task("B", null, null, "This is a designer task4");
-				b.ToggleCompleted();
-				TaskList.Add(b);
-				TaskList.Add(new Task("C", null, null, "This is a designer task5"));
+		        var b = new Task("B", null, null, "This is a designer task4", DateTime.Now.AddDays(-1), null, false, null);
+		        b.ToggleCompleted();
+		        TaskList.Add(b);
+		        TaskList.Add(new Task("C", null, null, "This is a designer task5"));
 
-				TaskList.Add(new Task("This task has two contexts @home @work"));
-				TaskList.Add(new Task("This task has two projects +planvacation +fixstove"));
-				TaskList.Add(new Task("This task has one of each @home +fixstove"));
-                TaskList.Add(new Task("")); // Blank task line
+		        TaskList.Add(new Task("This task has two contexts @home @work"));
+		        TaskList.Add(new Task("This task has two projects +planvacation +fixstove"));
+		        TaskList.Add(new Task("This task has one of each @home +fixstove"));
+		        TaskList.Add(new Task("")); // Blank task line
 
-				_selectedTask = TaskList[3];
-			}
+		        SelectedTask = TaskList[3];
+		        ViewTask();
+		    }
 			else
 			{
 				// Code runs "for real"
@@ -379,8 +379,6 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			        });
 
 				WireUpCommands();
-
-			    
 			}
 		}
 
@@ -445,7 +443,37 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 		}
 
-		public List<string> Priorities { get; }
+	    public List<string> Priorities { get; } = new List<string>
+	    {
+	        // This is less clever than the Observable.Range, but easier to understand
+	        string.Empty,
+	        "A",
+	        "B",
+	        "C",
+	        "D",
+	        "E",
+	        "F",
+	        "G",
+	        "H",
+	        "I",
+	        "J",
+	        "K",
+	        "L",
+	        "M",
+	        "N",
+	        "O",
+	        "P",
+	        "Q",
+	        "R",
+	        "S",
+	        "T",
+	        "U",
+	        "V",
+	        "W",
+	        "X",
+	        "Y",
+	        "Z"
+	    };
 
 		/// <summary>
 		/// Gets the SelectedTask property.

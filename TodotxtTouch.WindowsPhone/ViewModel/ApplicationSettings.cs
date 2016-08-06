@@ -115,16 +115,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
         private List<PriorityColor> GetDefaultColors()
         {
-           var defaultColors = new List<PriorityColor>
-                {
-                    new PriorityColor {ColorOption = ColorOptions.Yellow, Priority = "A"},
-                    new PriorityColor {ColorOption = ColorOptions.Green, Priority = "B"},
-                    new PriorityColor {ColorOption = ColorOptions.Cyan, Priority = "C"}
-                };
-
-            for (int i = 68; i < 91; i++)
+            var defaultColors = new List<PriorityColor>
             {
-                var priority = string.Empty + (char)i;
+                new PriorityColor {ColorOption = ColorOptions.Yellow, Priority = "A"},
+                new PriorityColor {ColorOption = ColorOptions.Green, Priority = "B"},
+                new PriorityColor {ColorOption = ColorOptions.Cyan, Priority = "C"}
+            };
+
+            for (var i = 68; i < 91; i++)
+            {
+                var priority = string.Empty + (char) i;
 
                 defaultColors.Add(new PriorityColor {ColorOption = ColorOptions.Default, Priority = priority});
             }
@@ -136,19 +136,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             get
             {
-                if (_priorityColors == null)
+                if (_priorityColors != null)
                 {
-                    if (IsInDesignModeStatic)
-                    {
-                        _priorityColors = GetDefaultColors();
-                        return _priorityColors;
-                    }
+                    return _priorityColors;
+                }
 
-                    _priorityColors = GetSetting("priorityColors", GetDefaultColors());
-                    foreach (var priorityColor in _priorityColors)
-                    {
-                        priorityColor.PropertyChanged += PriorityColorOnPropertyChanged;
-                    }
+                if (IsInDesignModeStatic)
+                {
+                    _priorityColors = GetDefaultColors();
+                    return _priorityColors;
+                }
+
+                _priorityColors = GetSetting("priorityColors", GetDefaultColors());
+
+                EnsureValidColorOptions();
+
+                foreach (var priorityColor in _priorityColors)
+                {
+                    priorityColor.PropertyChanged += PriorityColorOnPropertyChanged;
                 }
 
                 return _priorityColors;
@@ -157,7 +162,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
         private void PriorityColorOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
+            EnsureValidColorOptions();
             IsolatedStorageSettings.ApplicationSettings["priorityColors"] = _priorityColors;
+        }
+
+        /// <summary>
+        /// Ensures that the set of color options in the settings are all valid options from the ColorOptions.All list
+        /// This avoids "SelectedItem must always be set to a valid value" exceptions from the color options ListPicker
+        /// if the settings have been corrupted or there are still values from an older version hanging around
+        /// </summary>
+        private void EnsureValidColorOptions()
+        {
+            foreach (var priorityColor in _priorityColors)
+            {
+                if (!ColorOptions.All.Contains(priorityColor.ColorOption))
+                {
+                    priorityColor.ColorOption = ColorOptions.Default;
+                }
+            }
         }
 
         private static T GetSetting<T>(string setting, T defaultValue)
