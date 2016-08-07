@@ -1,4 +1,4 @@
-# Todo.txt for Windows Phone 7
+# Todo.txt for Windows Phone
 
 ## Building The Project
 
