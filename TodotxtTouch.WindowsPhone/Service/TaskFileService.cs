@@ -5,13 +5,14 @@ using System.Globalization;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Text;
-using Dropbox.Api;
+using System.Threading.Tasks;
 using Dropbox.Api.Files;
 using GalaSoft.MvvmLight.Messaging;
-using RestSharp;
 using todotxtlib.net;
 using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.ViewModel;
+using Task = System.Threading.Tasks.Task;
+using TTask = todotxtlib.net.Task;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
@@ -154,7 +155,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			if (e.Action == NotifyCollectionChangedAction.Remove)
 			{
-				foreach (Task item in e.OldItems)
+				foreach (TTask item in e.OldItems)
 				{
 					//Removed items
 					item.PropertyChanged -= TaskPropertyChanged;
@@ -162,7 +163,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 			else if (e.Action == NotifyCollectionChangedAction.Add)
 			{
-				foreach (Task item in e.NewItems)
+				foreach (TTask item in e.NewItems)
 				{
 					//Added items
 					item.PropertyChanged += TaskPropertyChanged;
@@ -177,63 +178,69 @@ namespace TodotxtTouch.WindowsPhone.Service
 			InvokeTaskListChanged(new TaskListChangedEventArgs());
 		}
 
-		public void UpdateTask(Task task, Task oldTask)
+		public void UpdateTask(TTask task, TTask oldTask)
 		{
 			int index = TaskList.IndexOf(oldTask);
 			TaskList[index].UpdateTo(task);
 		}
 
-		private void GetRemoteMetaData(Action<Metadata> success, Action<DropboxException> failure)
+		private async Task<Metadata> GetRemoteMetaData()
 		{
-			_dropBoxService.GetMetaData(FullPath, success, failure);
+			return await _dropBoxService.GetMetaData(FullPath);
 		}
 
-		public void Sync()
+		public async Task Sync()
 		{
 			if (LoadingState != TaskLoadingState.Syncing)
 			{
 				LoadingState = TaskLoadingState.Syncing;
 
 				Messenger.Default.Register<NetworkUnavailableMessage>(this,
-				                                                      msg =>
-				                                                      	{
-				                                                      		LoadingState = TaskLoadingState.Ready;
-				                                                      		Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
-				                                                      	});
+					msg =>
+					{
+						LoadingState = TaskLoadingState.Ready;
+						Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
+					});
 
 				// Get the metadata for the remote file
-				GetRemoteMetaData(Sync, exception => Sync(null));
+				var metadata = await GetRemoteMetaData();
+
+				if (metadata == null)
+				{
+					await InitRemote();
+				}
+				else
+				{
+					await Sync(metadata);
+				}
 			}
 		}
 
-		private void Sync(Metadata data)
+		private async Task InitRemote()
 		{
-			bool remoteExists = (!string.IsNullOrEmpty(data?.Name));
-
-			if (!remoteExists)
+			if (LocalFileExists)
 			{
-				if (LocalFileExists)
-				{
-					// If there's no remote file but there is a local file,
-					// then we need to push the local file up
-					PushLocal();
-					return;
-				}
-
-				// No remote and no local? Then save the current task list (even if empty) as the local file
-				SaveTasks();
-				LoadTasks();
+				// If there's no remote file but there is a local file,
+				// then we need to push the local file up
+				await PushLocal();
 				return;
 			}
 
+			// No remote and no local? Then save the current task list (even if empty) as the local file
+			SaveTasks();
+			LoadTasks();
+			return;
+		}
+
+		private async Task Sync(Metadata data)
+		{
 			string remoteRevision = data.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
 
 			// See if we have a local task file
 			if (!LocalFileExists)
 			{
 				// We have no local file - just make the remote file the local file
-				UseRemoteFile(remoteRevision);
-				return;
+				await UseRemoteFile(remoteRevision);
 			}
 
 			// Use the metadata to make a decision about whether to 
@@ -256,7 +263,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				{
 					//	If local.Retrieved < remote.LastUpdated and local has no changes, replace local with remote (local.Retrieved = remote.LastUpdated)
 					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteRevision;
-					UseRemoteFile(remoteRevision);
+					await UseRemoteFile(remoteRevision);
 				}
 				else if (LocalLastRevision != remoteRevision && LocalHasChanges)
 				{
@@ -272,7 +279,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 						LoadTasks();
 					}
 
-					PushLocal();
+					await PushLocal();
 				}
 			}
 			else
@@ -345,23 +352,24 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private void PushLocal()
+		private async Task PushLocal()
 		{
 			string localFile = GetFileName();
 
 			byte[] bytes = ReadLocalFile(localFile);
 
-			_dropBoxService.Upload(GetFilePath(), localFile, bytes,
-			                       response => GetRemoteMetaData(metaDataResponse =>
-			                       	{
-			                       		LocalHasChanges = false;
-
-										LocalLastRevision = metaDataResponse.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
-
-                                        CacheForMerge();
-
-			                       		LoadingState = TaskLoadingState.Ready;
-			                       	}, SendSyncError), SendSyncError);
+			try
+			{
+				var metadata = await _dropBoxService.Upload(GetFilePath(), localFile, bytes);
+				LocalHasChanges = false;
+				LocalLastRevision = metadata.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
+				CacheForMerge();
+				LoadingState = TaskLoadingState.Ready;
+			}
+			catch (Exception ex)
+			{
+				SendSyncError(ex);
+			}
 		}
 
 		private void SendSyncError(Exception ex)
@@ -370,16 +378,20 @@ namespace TodotxtTouch.WindowsPhone.Service
 			InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex));
 		}
 
-		private void IntiateMerge()
+		private async void IntiateMerge()
 		{
-			_dropBoxService.GetFile(FullPath,
-			                        response =>
-			                        	{
-			                        		MergeTaskLists(response.Content);
-			                        	}, SendSyncError);
+			try
+			{
+				var response = await _dropBoxService.GetFile(FullPath);
+				MergeTaskLists(response);
+			}
+			catch (Exception ex)
+			{
+				SendSyncError(ex);
+			}
 		}
 
-		private void MergeTaskLists(string remoteTaskContents)
+		private async Task MergeTaskLists(string remoteTaskContents)
 		{
             // We need a tasklist from the original remote file
 		    var original = new TaskList();
@@ -408,8 +420,9 @@ namespace TodotxtTouch.WindowsPhone.Service
             // with the local version
             LoadingState = TaskLoadingState.Loading;
 
-		    lock(_syncLock)
-		    {
+			// TODO hartez 2017/06/04 15:37:32 Think through whether this lock statement makes any sense	
+		    //lock(_syncLock)
+		    //{
 		        PauseCollectionChanged();
 		        ClearTaskPropertyChangedHandlers();
 
@@ -422,11 +435,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 		        }
 
                 SaveToStorage();
-                PushLocal();
+				await PushLocal();
 
 		        InitTaskPropertyChangedHandlers();
 		        ResumeCollectionChanged();
-		    }
+		    //}
 
             InvokeTaskListChanged(new TaskListChangedEventArgs());
 
@@ -511,7 +524,7 @@ namespace TodotxtTouch.WindowsPhone.Service
             appStorage.CopyFile(GetFileName(), "MergeCache");
 	    }
 
-	    private void OverwriteWithRemoteFile(IRestResponse response, string latestRevision)
+	    private void OverwriteWithRemoteFile(string remoteContent, string latestRevision)
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
@@ -519,7 +532,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				{
 					using (var writer = new StreamWriter(file))
 					{
-						writer.Write(response.Content);
+						writer.Write(remoteContent);
 						writer.Flush();
 					}
 				}
@@ -532,11 +545,18 @@ namespace TodotxtTouch.WindowsPhone.Service
 			LoadTasks();
 		}
 
-		private void UseRemoteFile(string latestRevision)
+		private async Task UseRemoteFile(string latestRevision)
 		{
-			_dropBoxService.GetFile(FullPath,
-			                        response => OverwriteWithRemoteFile(response, latestRevision),
-			                        ex => InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex)));
+			try
+			{
+				var response = await _dropBoxService.GetFile(FullPath);
+				OverwriteWithRemoteFile(response, latestRevision);
+
+			}
+			catch (Exception ex)
+			{
+				InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex));
+			}
 		}
 
 		#region Events
@@ -563,7 +583,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 			var handler = LoadingStateChanged;
 			handler?.Invoke(this, e);
 		}
-
 
         public void InvokeLocalHasChangesChanged(LocalHasChangesChangedEventArgs e)
         {

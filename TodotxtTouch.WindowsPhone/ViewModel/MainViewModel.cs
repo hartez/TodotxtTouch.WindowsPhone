@@ -168,9 +168,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             StartupSyncCommand = new RelayCommand(Sync, () => TaskFileServiceReady && _applicationSettings.SyncOnStartup);
 		}
 
-		private void Sync()
+		private async void Sync()
 		{
-			_taskFileService.Sync();
+			try
+			{
+				await _taskFileService.Sync().ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				// TODO hartez 2017/06/04 15:30:34 display error	
+			}
 		}
 
 		private void RemoveSelectedTasks()
@@ -219,16 +226,23 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			_workingWithSelectedTasks = false;
 		}
 
-		private void InitiateArchiveTasks()
+		private async void InitiateArchiveTasks()
 		{
 		    _archiveFileService.LoadingStateChanged += ArchiveTasks;
 
             _taskFileService.LoadingState = TaskLoadingState.Syncing;
 
-            _archiveFileService.Sync();
+			try
+			{
+				await _archiveFileService.Sync().ConfigureAwait(false);
+			}
+			catch (Exception)
+			{
+				// TODO hartez 2017/06/04 15:31:27 Error message	
+			}
 		}
 
-        private void ArchiveTasks(object obj, LoadingStateChangedEventArgs args)
+        private async void ArchiveTasks(object obj, LoadingStateChangedEventArgs args)
         {
 	        if (args.LoadingState != TaskLoadingState.Ready)
 	        {
@@ -250,17 +264,31 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 	        _archiveFileService.LoadingStateChanged += FinishSavingArchive;
 
-	        _archiveFileService.Sync();
+			try
+			{
+				await _archiveFileService.Sync().ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				// TODO hartez 2017/06/04 15:32:22 Error message	
+			}
         }
 
-        private void FinishSavingArchive(object obj, LoadingStateChangedEventArgs args)
+        private async void FinishSavingArchive(object obj, LoadingStateChangedEventArgs args)
         {
             if (args.LoadingState == TaskLoadingState.Ready)
             {
                 _archiveFileService.LoadingStateChanged -= FinishSavingArchive;
 
-                _taskFileService.Sync();
-            }
+				try
+				{
+					await _taskFileService.Sync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					// TODO hartez 2017/06/04 15:32:22 Error message	
+				}
+			}
         }
 
 		private void FilterByContext()

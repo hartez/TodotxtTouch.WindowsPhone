@@ -1,12 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using Dropbox.Api;
 using Dropbox.Api.Files;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
-using RestSharp;
 using TodotxtTouch.WindowsPhone.Messages;
 
 namespace TodotxtTouch.WindowsPhone.Service
@@ -162,26 +163,26 @@ namespace TodotxtTouch.WindowsPhone.Service
 				};
 		}
 
-		public void GetMetaData(string path, Action<Metadata> success, Action<DropboxException> failure)
+		// TODO hartez 2017/06/04 13:57:31 Fix names with Async suffix	
+		public async Task<Metadata> GetMetaData(string path)
 		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.GetMetaDataAsync(path, success, WrapExceptionHandler(failure)));
+			return await _dropNetClient.Files.GetMetadataAsync(new GetMetadataArg(path));
 		}
 
-		public void Upload(string path, string filename, byte[] bytes, Action<Metadata> success,
-		                   Action<DropboxException> failure)
+		public async Task<Metadata> Upload(string path, string filename, byte[] bytes)
 		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.UploadFileAsync(path, filename, bytes, success, WrapExceptionHandler(failure)));
+			using (var stream = new MemoryStream(bytes))
+			{
+				return await _dropNetClient.Files.UploadAsync(new CommitInfo(path + "/" + filename), stream);
+			}
 		}
 
-		public void GetFile(string path, Action<IRestResponse> success, Action<DropboxException> failure)
+		public async Task<string> GetFile(string path)
 		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.GetFileAsync(path, success, WrapExceptionHandler(failure)));
+			var response = await _dropNetClient.Files.DownloadAsync(new DownloadArg(path));
+			return await response.GetContentAsStringAsync();
 		}
 
-		// Should really be called 'start get token process' or something
 		public void StartLoginProcess()
 		{
 			try
