@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using Dropbox.Api;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.Phone.Controls;
@@ -24,10 +26,10 @@ namespace TodotxtTouch.WindowsPhone
 
 			Messenger.Default.Register<RetrievedDropboxTokenMessage>(this, LoadLoginPage);
 
-			LoginBrowser.LoadCompleted += LoadCompleted;
+			LoginBrowser.Navigating += Navigating;
 		}
 
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+		protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             ((DropboxCredentialsViewModel)DataContext).StartLoginProcessCommand.Execute(null);
@@ -45,13 +47,14 @@ namespace TodotxtTouch.WindowsPhone
 			}
 		}
 
-		private static void LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
+		private void Navigating(object sender, NavigatingEventArgs e)
 		{
-			//Check for the callback path here (or just check it against "/1/oauth/authorize")
-			if (e.Uri.Host == "todotxt.codewise-llc.com")
+			if (e.Uri.Host != "todotxt.codewise-llc.com")
 			{
-				Messenger.Default.Send(new DropboxLoginSuccessfulMessage());
+				return;
 			}
+
+			Messenger.Default.Send(new DropboxLoginSuccessfulMessage(e.Uri));
 		}
 	}
 }

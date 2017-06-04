@@ -42,13 +42,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				// Code runs "for real"
 				_dropBoxService = dropBoxService;
 				StartLoginProcessCommand = new RelayCommand(StartLoginProcess);
-				Messenger.Default.Register<DropboxLoginSuccessfulMessage>(this, msg => _dropBoxService.GetAccessToken());
+				Messenger.Default.Register<DropboxLoginSuccessfulMessage>(this, msg => _dropBoxService.GetAccessToken(msg));
 			}
 		}
 
 		private void StartLoginProcess()
 		{
-			_dropBoxService.GetToken();
+			_dropBoxService.StartLoginProcess();
 		}
 	}
 }

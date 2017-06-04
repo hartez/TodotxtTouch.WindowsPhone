@@ -3,28 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Resources;
-using DropNet;
+using Dropbox.Api;
 using Newtonsoft.Json;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
 	public static class DropNetExtensions
 	{
-		public static DropNetClient CreateClient()
-		{
-			var apikeys = LoadApiKeysFromFile();
+		//public static DropboxClient CreateClient()
+		//{
+		//	var apikeys = LoadApiKeysFromFile();
 
-			return new DropNetClient(apikeys["dropboxkey"], apikeys["dropboxsecret"]);
+		//	return new DropboxClient(apikeys["dropboxkey"], apikeys["dropboxsecret"]);
+		//}
+
+		public static DropboxClient CreateClient(string token, string secret)
+		{
+			//var apikeys = LoadApiKeysFromFile();
+
+			return new DropboxClient(token, new DropboxClientConfig("TodotxtTouch.WindowsPhone"));
+
+			//return new DropboxClient(apikeys["dropboxkey"], apikeys["dropboxsecret"], token, secret);
 		}
 
-		public static DropNetClient CreateClient(string token, string secret)
-		{
-			var apikeys = LoadApiKeysFromFile();
-
-			return new DropNetClient(apikeys["dropboxkey"], apikeys["dropboxsecret"], token, secret);
-		}
-
-		private static Dictionary<string, string> LoadApiKeysFromFile()
+		public static Dictionary<string, string> LoadApiKeysFromFile()
 		{
 			StreamResourceInfo apikeysResource =
 				Application.GetResourceStream(new Uri("/TodotxtTouch.WindowsPhone;component/apikeys.txt", UriKind.Relative));

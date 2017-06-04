@@ -5,8 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Text;
-using DropNet.Exceptions;
-using DropNet.Models;
+using Dropbox.Api;
+using Dropbox.Api.Files;
 using GalaSoft.MvvmLight.Messaging;
 using RestSharp;
 using todotxtlib.net;
@@ -183,7 +183,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			TaskList[index].UpdateTo(task);
 		}
 
-		private void GetRemoteMetaData(Action<MetaData> success, Action<DropboxException> failure)
+		private void GetRemoteMetaData(Action<Metadata> success, Action<DropboxException> failure)
 		{
 			_dropBoxService.GetMetaData(FullPath, success, failure);
 		}
@@ -206,7 +206,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private void Sync(MetaData data)
+		private void Sync(Metadata data)
 		{
 			bool remoteExists = (!string.IsNullOrEmpty(data?.Name));
 
@@ -226,8 +226,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				return;
 			}
 
-            // This should really use the rev property, but that's not in the current version of DropNet
-			string remoteRevision = data.Revision.ToString(CultureInfo.InvariantCulture);
+			string remoteRevision = data.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
 
 			// See if we have a local task file
 			if (!LocalFileExists)
@@ -357,7 +356,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			                       	{
 			                       		LocalHasChanges = false;
 
-										LocalLastRevision = metaDataResponse.Revision.ToString(CultureInfo.InvariantCulture);
+										LocalLastRevision = metaDataResponse.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
 
                                         CacheForMerge();
 

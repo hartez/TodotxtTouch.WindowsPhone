@@ -2,9 +2,8 @@
 using System.IO.IsolatedStorage;
 using System.Net;
 using System.Windows;
-using DropNet;
-using DropNet.Exceptions;
-using DropNet.Models;
+using Dropbox.Api;
+using Dropbox.Api.Files;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using RestSharp;
@@ -14,10 +13,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 {
 	public class DropboxService
 	{
-		private DropNetClient _dropNetClient;
+		private DropboxClient _dropNetClient;
 
 		private string _secret = string.Empty;
 		private string _token = string.Empty;
+		private string _oauth2State;
 
 		public bool WeHaveTokens => !string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(Secret);
 
@@ -127,10 +127,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 				        return;
 				    }
 
-				    if(ex.Response != null)
+					var httpException = ex as HttpException;
+
+				    if(httpException != null)
 				    {
 				        // Dropnet responds with BadGateway if the network isn't accessible
-				        switch(ex.Response.StatusCode)
+				        switch((HttpStatusCode)httpException.StatusCode)
 				        {
 				            case HttpStatusCode.BadGateway:
 				                Messenger.Default.Send(new NetworkUnavailableMessage());
@@ -160,13 +162,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 				};
 		}
 
-		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)
+		public void GetMetaData(string path, Action<Metadata> success, Action<DropboxException> failure)
 		{
 			ExecuteDropboxAction(
 				() => _dropNetClient.GetMetaDataAsync(path, success, WrapExceptionHandler(failure)));
 		}
 
-		public void Upload(string path, string filename, byte[] bytes, Action<MetaData> success,
+		public void Upload(string path, string filename, byte[] bytes, Action<Metadata> success,
 		                   Action<DropboxException> failure)
 		{
 			ExecuteDropboxAction(
@@ -179,33 +181,48 @@ namespace TodotxtTouch.WindowsPhone.Service
 				() => _dropNetClient.GetFileAsync(path, success, WrapExceptionHandler(failure)));
 		}
 
-		public void GetToken()
+		// Should really be called 'start get token process' or something
+		public void StartLoginProcess()
 		{
-			if (_dropNetClient == null)
+			try
 			{
-				_dropNetClient = DropNetExtensions.CreateClient();
+				var keys = DropNetExtensions.LoadApiKeysFromFile();
+				_oauth2State = Guid.NewGuid().ToString("N");
+
+				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, keys["dropboxkey"],
+					new Uri("http://todotxt.codewise-llc.com"), _oauth2State);
+
+				Messenger.Default.Send(new RetrievedDropboxTokenMessage(authUri));
 			}
-
-			_dropNetClient.GetTokenAsync(
-				success =>
-				{
-					string tokenUrl = _dropNetClient.BuildAuthorizeUrl("http://todotxt.codewise-llc.com/dblogin.htm");
-
-					Messenger.Default.Send(new RetrievedDropboxTokenMessage(new Uri(tokenUrl)));
-				},
-			    failure => Messenger.Default.Send(new RetrievedDropboxTokenMessage(failure.Message)));
+			catch (Exception ex)
+			{
+				Messenger.Default.Send(new RetrievedDropboxTokenMessage(ex.Message));
+			}
 		}
 
-		public void GetAccessToken()
+		public void GetAccessToken(DropboxLoginSuccessfulMessage msg)
 		{
-			_dropNetClient.GetAccessTokenAsync(response =>
+			// TODO hartez 2017/06/04 11:52:12 long term, move this message.show stuff to a generic error message handler in the UI; this service shouldn't be doing message.show	
+
+
+			try
+			{
+				OAuth2Response result = DropboxOAuth2Helper.ParseTokenFragment(msg.RedirectUri);
+				if (result.State != _oauth2State)
 				{
-					Token = response.Token;
-					Secret = response.Secret;
-					Messenger.Default.Send(new CredentialsUpdatedMessage());
-				},
-			error => DispatcherHelper.CheckBeginInvokeOnUI(
-				() => MessageBox.Show(error.Message)));
+					// TODO hartez 2017/06/04 11:47:24 Should this be displaying some sort of error? 	
+					//DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(error.Message));
+					return;
+				}
+
+				Token = result.AccessToken;
+				Messenger.Default.Send(new CredentialsUpdatedMessage());
+			}
+			catch (Exception ex)
+			{
+				DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(ex.Message));
+				//throw;
+			}
 		}
 	}
 }
