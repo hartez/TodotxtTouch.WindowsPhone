@@ -49,7 +49,7 @@ namespace TodotxtTouch.WindowsPhone
 
 		private void Navigating(object sender, NavigatingEventArgs e)
 		{
-			if (e.Uri.Host != "todotxt.codewise-llc.com")
+			if (e.Uri.Host != "www.codewise-llc.com")
 			{
 				return;
 			}

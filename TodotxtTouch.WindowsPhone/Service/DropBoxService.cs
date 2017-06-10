@@ -16,11 +16,13 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		private DropboxClient _dropNetClient;
 
+		private const string DropboxApiKey = "dropboxkey";
+
 		private string _secret = string.Empty;
 		private string _token = string.Empty;
 		private string _oauth2State;
 
-		public bool WeHaveTokens => !string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(Secret);
+		public bool WeHaveTokens => !string.IsNullOrEmpty(Token);// && !string.IsNullOrEmpty(Secret);
 
 		public void Disconnect()
 	    {
@@ -72,8 +74,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				if (string.IsNullOrEmpty(_token))
 				{
 					string token;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken",
-					                                                            out token))
+					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken", out token))
 					{
 						_token = token;
 					}
@@ -93,6 +94,52 @@ namespace TodotxtTouch.WindowsPhone.Service
 				IsolatedStorageSettings.ApplicationSettings["dropboxToken"] = _token;
 			}
 		}
+
+		private Task<DropboxClient> Auth()
+		{
+			TaskCompletionSource<DropboxClient> tcs = new TaskCompletionSource<DropboxClient>();
+
+			Messenger.Default.Register<CredentialsUpdatedMessage>(
+					this, async (message) =>
+					{
+						Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
+						tcs.SetResult(await Client().ConfigureAwait(false));
+					});
+
+			Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
+
+			return tcs.Task;
+		}
+
+		private async Task<DropboxClient> Client()
+		{
+			if (_dropNetClient != null)
+			{
+				return _dropNetClient;
+			}
+
+			if (WeHaveTokens)
+			{
+				_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+				return _dropNetClient;
+			}
+
+			return await Auth();
+		}
+
+		//private async Task EnsureDropboxClient()
+		//{
+			
+
+		//	Messenger.Default.Register<CredentialsUpdatedMessage>(
+		//			this, (message) =>
+		//			{
+		//				Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
+		//				EnsureDropboxClient();
+		//			});
+
+		//	Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
+		//}
 
 		private void ExecuteDropboxAction(Action dropboxAction)
 		{
@@ -166,20 +213,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 		// TODO hartez 2017/06/04 13:57:31 Fix names with Async suffix	
 		public async Task<Metadata> GetMetaData(string path)
 		{
-			return await _dropNetClient.Files.GetMetadataAsync(new GetMetadataArg(path));
+			var client = await Client();
+			return await client.Files.GetMetadataAsync(new GetMetadataArg(path));
 		}
 
 		public async Task<Metadata> Upload(string path, string filename, byte[] bytes)
 		{
 			using (var stream = new MemoryStream(bytes))
 			{
-				return await _dropNetClient.Files.UploadAsync(new CommitInfo(path + "/" + filename), stream);
+				return await Client().Result.Files.UploadAsync(new CommitInfo(path + "/" + filename), stream);
 			}
 		}
 
 		public async Task<string> GetFile(string path)
 		{
-			var response = await _dropNetClient.Files.DownloadAsync(new DownloadArg(path));
+			var response = await Client().Result.Files.DownloadAsync(new DownloadArg(path));
 			return await response.GetContentAsStringAsync();
 		}
 
@@ -188,10 +236,16 @@ namespace TodotxtTouch.WindowsPhone.Service
 			try
 			{
 				var keys = DropNetExtensions.LoadApiKeysFromFile();
+
+				if (!keys.ContainsKey(DropboxApiKey) || String.IsNullOrEmpty(keys[DropboxApiKey]))
+				{
+					throw new Exception("Missing Dropbox API key");
+				}
+
 				_oauth2State = Guid.NewGuid().ToString("N");
 
-				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, keys["dropboxkey"],
-					new Uri("http://todotxt.codewise-llc.com"), _oauth2State);
+				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, keys[DropboxApiKey],
+					redirectUri: new Uri("https://www.codewise-llc.com/todotxtoauth2"), state: _oauth2State);
 
 				Messenger.Default.Send(new RetrievedDropboxTokenMessage(authUri));
 			}

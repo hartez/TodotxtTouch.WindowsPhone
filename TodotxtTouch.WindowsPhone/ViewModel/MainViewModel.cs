@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using EZLibrary;
 using GalaSoft.MvvmLight;
@@ -177,6 +178,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			catch (Exception ex)
 			{
 				// TODO hartez 2017/06/04 15:30:34 display error	
+
+				DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(ex.Message));
 			}
 		}
 
