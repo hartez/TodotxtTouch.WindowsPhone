@@ -188,7 +188,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private async Task<Metadata> GetRemoteMetaData()
 		{
-			return await _dropBoxService.GetMetaData(FullPath);
+			return await _dropBoxService.GetMetaDataAsync(FullPath);
 		}
 
 		public async Task Sync()
@@ -361,7 +361,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			try
 			{
-				var metadata = await _dropBoxService.Upload(GetFilePath(), localFile, remoteRevision ?? LocalLastRevision, bytes);
+				var metadata = await _dropBoxService.UploadAsync(GetFilePath(), localFile, remoteRevision ?? LocalLastRevision, bytes);
 				LocalHasChanges = false;
 				LocalLastRevision = metadata.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
 				CacheForMerge();
@@ -383,7 +383,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			try
 			{
-				var response = await _dropBoxService.GetFile(FullPath);
+				var response = await _dropBoxService.GetFileAsync(FullPath);
 				var remoteContents = await response.GetContentAsStringAsync();
 				await MergeTaskLists(remoteContents, response.Response.Rev);
 			}
@@ -551,7 +551,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			try
 			{
-				var response = await _dropBoxService.GetFile(FullPath);
+				var response = await _dropBoxService.GetFileAsync(FullPath);
 				var contents = await response.GetContentAsStringAsync();
 
 				OverwriteWithRemoteFile(contents, response.Response.Rev);

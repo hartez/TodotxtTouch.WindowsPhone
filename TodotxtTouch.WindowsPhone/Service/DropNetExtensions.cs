@@ -8,24 +8,15 @@ using Newtonsoft.Json;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
+	// TODO hartez 2017/06/11 17:45:10 Rename this class	
 	public static class DropNetExtensions
 	{
-		//public static DropboxClient CreateClient()
-		//{
-		//	var apikeys = LoadApiKeysFromFile();
-
-		//	return new DropboxClient(apikeys["dropboxkey"], apikeys["dropboxsecret"]);
-		//}
-
-		public static DropboxClient CreateClient(string token, string secret)
+		public static DropboxClient CreateClient(string token)
 		{
-			//var apikeys = LoadApiKeysFromFile();
-
 			return new DropboxClient(token, new DropboxClientConfig("TodotxtTouch.WindowsPhone"));
-
-			//return new DropboxClient(apikeys["dropboxkey"], apikeys["dropboxsecret"], token, secret);
 		}
 
+		// TODO hartez 2017/06/11 17:44:21 Is this literally the only place where we're using Newtonsoft? Might be worth removing that dependency 	
 		public static Dictionary<string, string> LoadApiKeysFromFile()
 		{
 			StreamResourceInfo apikeysResource =

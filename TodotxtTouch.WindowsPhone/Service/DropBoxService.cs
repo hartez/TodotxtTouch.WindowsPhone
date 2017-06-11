@@ -24,46 +24,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private string _token = string.Empty;
 		private string _oauth2State;
 
-		public bool WeHaveTokens => !string.IsNullOrEmpty(Token);// && !string.IsNullOrEmpty(Secret);
+		public bool WeHaveTokens => !string.IsNullOrEmpty(Token);
 
 		public void Disconnect()
 	    {
 	        Token = string.Empty;
-	        Secret = string.Empty;
 	    } 
-
-	    /// <summary>
-		/// Gets the Secret property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Secret
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(_secret))
-				{
-					string secret;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxSecret",
-					                                                            out secret))
-					{
-						_secret = secret;
-					}
-				}
-
-				return _secret;
-			}
-
-			set
-			{
-				if (_secret == value)
-				{
-					return;
-				}
-
-				_secret = value;
-				IsolatedStorageSettings.ApplicationSettings["dropboxSecret"] = _secret;
-			}
-		}
 
 		/// <summary>
 		/// Gets the Token property.
@@ -97,7 +63,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private Task<DropboxClient> Auth()
+		private Task<DropboxClient> Authenticate()
 		{
 			TaskCompletionSource<DropboxClient> tcs = new TaskCompletionSource<DropboxClient>();
 
@@ -122,51 +88,14 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			if (WeHaveTokens)
 			{
-				_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+				_dropNetClient = DropNetExtensions.CreateClient(Token);
 				return _dropNetClient;
 			}
 
-			return await Auth();
+			return await Authenticate();
 		}
 
-		//private async Task EnsureDropboxClient()
-		//{
-			
-
-		//	Messenger.Default.Register<CredentialsUpdatedMessage>(
-		//			this, (message) =>
-		//			{
-		//				Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
-		//				EnsureDropboxClient();
-		//			});
-
-		//	Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
-		//}
-
-		private void ExecuteDropboxAction(Action dropboxAction)
-		{
-			if (WeHaveTokens)
-			{
-				if (_dropNetClient == null)
-				{
-					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
-				}
-
-				dropboxAction?.Invoke();
-			}
-			else
-			{
-				Messenger.Default.Register<CredentialsUpdatedMessage>(
-					this, (message) =>
-						{
-							Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
-							ExecuteDropboxAction(dropboxAction);
-						});
-
-				Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
-			}
-		}
-
+		// TODO hartez 2017/06/11 17:45:48 Update this using the code from PneumaticTube	
 		private Action<DropboxException> WrapExceptionHandler(Action<DropboxException> handler)
 		{
 			return (ex) =>
@@ -196,7 +125,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 				            case HttpStatusCode.Unauthorized:
 				                _dropNetClient = null;
 				                Token = string.Empty;
-				                Secret = string.Empty;
 				                Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
 				                break;
 				            case HttpStatusCode.BadRequest:
@@ -213,7 +141,9 @@ namespace TodotxtTouch.WindowsPhone.Service
 		}
 
 		// TODO hartez 2017/06/04 13:57:31 Fix names with Async suffix	
-		public async Task<Metadata> GetMetaData(string path)
+
+
+		public async Task<Metadata> GetMetaDataAsync(string path)
 		{
 			try
 			{
@@ -228,7 +158,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			return null;
 		}
 
-		public async Task<Metadata> Upload(string path, string filename, string revision, byte[] bytes)
+		public async Task<Metadata> UploadAsync(string path, string filename, string revision, byte[] bytes)
 		{
 			using (var stream = new MemoryStream(bytes))
 			{
@@ -238,7 +168,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		public async Task<IDownloadResponse<FileMetadata>> GetFile(string path)
+		public async Task<IDownloadResponse<FileMetadata>> GetFileAsync(string path)
 		{
 			return await Client().Result.Files.DownloadAsync(new DownloadArg(path));
 		}
