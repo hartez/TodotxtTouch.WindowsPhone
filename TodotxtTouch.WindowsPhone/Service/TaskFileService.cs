@@ -60,7 +60,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 		    private set
 		    {
 		        IsolatedStorageSettings.ApplicationSettings[GetFileName() + "haschanges"] = value;
-		        InvokeLocalHasChangesChanged(new LocalHasChangesChangedEventArgs(value));
+				IsolatedStorageSettings.ApplicationSettings.Save();
+				InvokeLocalHasChangesChanged(new LocalHasChangesChangedEventArgs(value));
 		    }
 		}
 
@@ -106,6 +107,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				_lastRevision = value;
 				IsolatedStorageSettings.ApplicationSettings[LocalLastRevisionPropertyName] = _lastRevision;
+				IsolatedStorageSettings.ApplicationSettings.Save();
 			}
 		}
 
@@ -240,7 +242,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			if (!LocalFileExists)
 			{
 				// We have no local file - just make the remote file the local file
-				await UseRemoteFile(remoteRevision);
+				await UseRemoteFile();
 			}
 
 			// Use the metadata to make a decision about whether to 
@@ -262,8 +264,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 				else if (LocalLastRevision != remoteRevision && !LocalHasChanges)
 				{
 					//	If local.Retrieved < remote.LastUpdated and local has no changes, replace local with remote (local.Retrieved = remote.LastUpdated)
-					IsolatedStorageSettings.ApplicationSettings["LastLocalModified"] = remoteRevision;
-					await UseRemoteFile(remoteRevision);
+					await UseRemoteFile();
 				}
 				else if (LocalLastRevision != remoteRevision && LocalHasChanges)
 				{
@@ -352,7 +353,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private async Task PushLocal()
+		private async Task PushLocal(string remoteRevision = null)
 		{
 			string localFile = GetFileName();
 
@@ -360,7 +361,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			try
 			{
-				var metadata = await _dropBoxService.Upload(GetFilePath(), localFile, bytes);
+				var metadata = await _dropBoxService.Upload(GetFilePath(), localFile, remoteRevision ?? LocalLastRevision, bytes);
 				LocalHasChanges = false;
 				LocalLastRevision = metadata.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
 				CacheForMerge();
@@ -383,7 +384,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 			try
 			{
 				var response = await _dropBoxService.GetFile(FullPath);
-				MergeTaskLists(response);
+				var remoteContents = await response.GetContentAsStringAsync();
+				await MergeTaskLists(remoteContents, response.Response.Rev);
 			}
 			catch (Exception ex)
 			{
@@ -391,7 +393,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 		}
 
-		private async Task MergeTaskLists(string remoteTaskContents)
+		private async Task MergeTaskLists(string remoteTaskContents, string remoteRevision)
 		{
             // We need a tasklist from the original remote file
 		    var original = new TaskList();
@@ -435,7 +437,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		        }
 
                 SaveToStorage();
-				await PushLocal();
+				await PushLocal(remoteRevision);
 
 		        InitTaskPropertyChangedHandlers();
 		        ResumeCollectionChanged();
@@ -524,7 +526,7 @@ namespace TodotxtTouch.WindowsPhone.Service
             appStorage.CopyFile(GetFileName(), "MergeCache");
 	    }
 
-	    private void OverwriteWithRemoteFile(string remoteContent, string latestRevision)
+	    private void OverwriteWithRemoteFile(string remoteContent, string revision)
 		{
 			using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 			{
@@ -540,18 +542,19 @@ namespace TodotxtTouch.WindowsPhone.Service
 			    CacheForMerge(appStorage);
 			}
 
-			LocalLastRevision = latestRevision;
+			LocalLastRevision = revision;
 			LocalHasChanges = false;
 			LoadTasks();
 		}
 
-		private async Task UseRemoteFile(string latestRevision)
+		private async Task UseRemoteFile()
 		{
 			try
 			{
 				var response = await _dropBoxService.GetFile(FullPath);
-				OverwriteWithRemoteFile(response, latestRevision);
+				var contents = await response.GetContentAsStringAsync();
 
+				OverwriteWithRemoteFile(contents, response.Response.Rev);
 			}
 			catch (Exception ex)
 			{

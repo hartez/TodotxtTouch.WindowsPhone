@@ -29,6 +29,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _archiveFilePath = value;
                 IsolatedStorageSettings.ApplicationSettings["archiveFilePath"] = _archiveFilePath;
+				IsolatedStorageSettings.ApplicationSettings.Save();
             }
         }
 
@@ -47,7 +48,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _archiveFileName = value;
                 IsolatedStorageSettings.ApplicationSettings["archiveFileName"] = _archiveFileName;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
         public string TodoFilePath
@@ -65,7 +67,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _todoFilePath = value;
                 IsolatedStorageSettings.ApplicationSettings["todoFilePath"] = _todoFilePath;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
         public string TodoFileName
@@ -84,7 +87,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 _todoFileName = value;
 
                 IsolatedStorageSettings.ApplicationSettings["todoFileName"] = _todoFileName;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
         public bool SyncOnStartup
@@ -99,7 +103,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _syncOnStartup = value;
                 IsolatedStorageSettings.ApplicationSettings["syncOnStartup"] = _syncOnStartup;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
         public void ResetColors()
@@ -110,7 +115,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
 
             IsolatedStorageSettings.ApplicationSettings.Remove("priorityColors");
-            _priorityColors = null;
+			IsolatedStorageSettings.ApplicationSettings.Save();
+			_priorityColors = null;
         }
 
         private List<PriorityColor> GetDefaultColors()
@@ -164,7 +170,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             EnsureValidColorOptions();
             IsolatedStorageSettings.ApplicationSettings["priorityColors"] = _priorityColors;
-        }
+			IsolatedStorageSettings.ApplicationSettings.Save();
+		}
 
         /// <summary>
         /// Ensures that the set of color options in the settings are all valid options from the ColorOptions.All list

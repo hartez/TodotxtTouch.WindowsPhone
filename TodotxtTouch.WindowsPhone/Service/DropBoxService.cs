@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dropbox.Api;
 using Dropbox.Api.Files;
+using Dropbox.Api.Stone;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using TodotxtTouch.WindowsPhone.Messages;
@@ -28,7 +30,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 	    {
 	        Token = string.Empty;
 	        Secret = string.Empty;
-	    }
+	    } 
 
 	    /// <summary>
 		/// Gets the Secret property.
@@ -213,22 +215,32 @@ namespace TodotxtTouch.WindowsPhone.Service
 		// TODO hartez 2017/06/04 13:57:31 Fix names with Async suffix	
 		public async Task<Metadata> GetMetaData(string path)
 		{
-			var client = await Client();
-			return await client.Files.GetMetadataAsync(new GetMetadataArg(path));
+			try
+			{
+				var client = await Client();
+				return await client.Files.GetMetadataAsync(new GetMetadataArg(path));
+			}
+			catch (ApiException<GetMetadataError>)
+			{
+				// Path not found; the file's not in Dropbox yet
+			}
+
+			return null;
 		}
 
-		public async Task<Metadata> Upload(string path, string filename, byte[] bytes)
+		public async Task<Metadata> Upload(string path, string filename, string revision, byte[] bytes)
 		{
 			using (var stream = new MemoryStream(bytes))
 			{
-				return await Client().Result.Files.UploadAsync(new CommitInfo(path + "/" + filename), stream);
+				var writeMode = revision == null ? WriteMode.Add.Instance as WriteMode : new WriteMode.Update(revision);
+
+				return await Client().Result.Files.UploadAsync(new CommitInfo(path + "/" + filename, writeMode), stream);
 			}
 		}
 
-		public async Task<string> GetFile(string path)
+		public async Task<IDownloadResponse<FileMetadata>> GetFile(string path)
 		{
-			var response = await Client().Result.Files.DownloadAsync(new DownloadArg(path));
-			return await response.GetContentAsStringAsync();
+			return await Client().Result.Files.DownloadAsync(new DownloadArg(path));
 		}
 
 		public void StartLoginProcess()
