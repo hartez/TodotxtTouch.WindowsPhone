@@ -48,8 +48,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 			else
 			{
-				_dropBoxService = new DropboxService();
 				var settings = new ApplicationSettings();
+				_dropBoxService = new DropboxService(settings);
 
 				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings, _dropBoxService);
 

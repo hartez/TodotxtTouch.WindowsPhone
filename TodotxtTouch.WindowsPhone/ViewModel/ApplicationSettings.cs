@@ -13,8 +13,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private bool _syncOnStartup;
         private string _todoFileName;
         private string _todoFilePath;
+		private string _token;
 
-        public string ArchiveFilePath
+		public string ArchiveFilePath
         {
             get
             {
@@ -107,7 +108,51 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
         }
 
-        public void ResetColors()
+		public string Token
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_token))
+				{
+					_token = GetSetting("dropboxToken", string.Empty);
+				}
+
+				return _token;
+			}
+
+			set
+			{
+				if (_token == value)
+				{
+					return;
+				}
+
+				_token = value;
+				SaveSetting("dropboxToken", _token);
+			}
+		}
+
+	    public bool HasChanges(string filename)
+	    {
+		    return GetSetting(filename + "haschanges", false);
+	    }
+
+	    public void SetHasChanges(string filename, bool value)
+	    {
+			SaveSetting(filename + "haschanges", value);
+	    }
+
+	    public string GetRevision(string filename)
+	    {
+			return GetSetting<string>(filename + "LocalLastRevision", null);
+		}
+
+	    public void SetRevision(string filename, string revision)
+	    {
+			SaveSetting(filename + "LocalLastRevision", revision);
+		}
+
+	    public void ResetColors()
         {
             foreach (var priorityColor in _priorityColors)
             {
@@ -169,8 +214,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private void PriorityColorOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             EnsureValidColorOptions();
-            IsolatedStorageSettings.ApplicationSettings["priorityColors"] = _priorityColors;
-			IsolatedStorageSettings.ApplicationSettings.Save();
+			SaveSetting("priorityColors", _priorityColors);
 		}
 
         /// <summary>
@@ -189,10 +233,16 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
         }
 
-        private static T GetSetting<T>(string setting, T defaultValue)
+		private static T GetSetting<T>(string setting, T defaultValue)
         {
             T value;
             return IsolatedStorageSettings.ApplicationSettings.TryGetValue(setting, out value) ? value : defaultValue;
         }
-    }
+
+		private static void SaveSetting(string setting, object value)
+		{
+			IsolatedStorageSettings.ApplicationSettings[setting] = value;
+			IsolatedStorageSettings.ApplicationSettings.Save();
+		}
+	}
 }

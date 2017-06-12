@@ -20,7 +20,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 	{
 		protected readonly ApplicationSettings Settings;
 		private readonly DropboxService _dropBoxService;
-		private readonly TaskList _taskList = new TaskList();
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private string _lastRevision;
 
@@ -31,7 +30,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			_dropBoxService = dropBoxService;
 			Settings = settings;
 
-			_taskList.CollectionChanged += TaskListCollectionChanged;
+			TaskList.CollectionChanged += TaskListCollectionChanged;
 
 			Messenger.Default.Register<ApplicationReadyMessage>(this, message => Start());
 			Messenger.Default.Register<NeedCredentialsMessage>(this, message =>
@@ -49,18 +48,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			get
 			{
-				bool hasChanges;
-				if (IsolatedStorageSettings.ApplicationSettings.TryGetValue(GetFileName() + "haschanges", out hasChanges))
-				{
-					return hasChanges;
-				}
-
-				return false;
+				return Settings.HasChanges(GetFileName());
 			}
 		    private set
 		    {
-		        IsolatedStorageSettings.ApplicationSettings[GetFileName() + "haschanges"] = value;
-				IsolatedStorageSettings.ApplicationSettings.Save();
+				Settings.SetHasChanges(GetFileName(), value);
 				InvokeLocalHasChangesChanged(new LocalHasChangesChangedEventArgs(value));
 		    }
 		}
@@ -84,30 +76,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 		/// Gets the TaskList property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public TaskList TaskList => _taskList;
-
-		private string LocalLastRevisionPropertyName => GetFileName() + "LocalLastRevision";
+		public TaskList TaskList { get; } = new TaskList();
 
 		private string LocalLastRevision
 		{
-			get
-			{
-				if (_lastRevision == null)
-				{
-					string llm;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue(LocalLastRevisionPropertyName, out llm))
-					{
-						_lastRevision = llm;
-					}
-				}
-
-				return _lastRevision;
-			}
+			get { return _lastRevision ?? (_lastRevision = Settings.GetRevision(GetFileName())); }
 			set
 			{
 				_lastRevision = value;
-				IsolatedStorageSettings.ApplicationSettings[LocalLastRevisionPropertyName] = _lastRevision;
-				IsolatedStorageSettings.ApplicationSettings.Save();
+				Settings.SetRevision(GetFileName(), value);
 			}
 		}
 
@@ -115,7 +92,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		{
 			get
 			{
-				using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+				using (var appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 				{
 					return appStorage.FileExists(GetFileName());
 				}
@@ -129,17 +106,17 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void PauseCollectionChanged()
 		{
-			_taskList.CollectionChanged -= TaskListCollectionChanged;
+			TaskList.CollectionChanged -= TaskListCollectionChanged;
 		}
 
 		private void ResumeCollectionChanged()
 		{
-			_taskList.CollectionChanged += TaskListCollectionChanged;
+			TaskList.CollectionChanged += TaskListCollectionChanged;
 		}
 
 		private void ClearTaskPropertyChangedHandlers()
 		{
-			foreach(var task in _taskList)
+			foreach(var task in TaskList)
 			{
 				task.PropertyChanged -= TaskPropertyChanged;
 			}
@@ -147,7 +124,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private void InitTaskPropertyChangedHandlers()
 		{
-			foreach (var task in _taskList)
+			foreach (var task in TaskList)
 			{
 				task.PropertyChanged += TaskPropertyChanged;
 			}
@@ -231,12 +208,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 			// No remote and no local? Then save the current task list (even if empty) as the local file
 			SaveTasks();
 			LoadTasks();
-			return;
 		}
 
 		private async Task Sync(Metadata data)
 		{
-			string remoteRevision = data.AsFile.Rev.ToString(CultureInfo.InvariantCulture);
+			var remoteRevision = data.AsFile.Rev;
 
 			// See if we have a local task file
 			if (!LocalFileExists)
@@ -300,8 +276,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		/// <param name="initialLength">The initial buffer length</param>
 		public static byte[] ReadFully(Stream stream, int initialLength)
 		{
-			// If we've been passed an unhelpful initial length, just
-			// use 32K.
+			// If we've been passed an unhelpful initial length, just use 32K.
 			if (initialLength < 1)
 			{
 				initialLength = 32768;
@@ -412,8 +387,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		    // Now we need the new remote task list
             var tl = new TaskList();
 
-			using (var ms = new MemoryStream(
-				Encoding.UTF8.GetBytes(remoteTaskContents)))
+			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(remoteTaskContents)))
 			{
 				tl.LoadTasks(ms);
 			}
@@ -428,12 +402,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 		        PauseCollectionChanged();
 		        ClearTaskPropertyChangedHandlers();
 
-		        var newTaskList = TaskList.Merge(original, tl, _taskList);
+		        var newTaskList = TaskList.Merge(original, tl, TaskList);
 
-                _taskList.Clear();
+                TaskList.Clear();
 		        foreach(var task in newTaskList)
 		        {
-		            _taskList.Add(task);
+		            TaskList.Add(task);
 		        }
 
                 SaveToStorage();

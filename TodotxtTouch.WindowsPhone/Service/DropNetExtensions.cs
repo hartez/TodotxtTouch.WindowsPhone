@@ -17,6 +17,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 		}
 
 		// TODO hartez 2017/06/11 17:44:21 Is this literally the only place where we're using Newtonsoft? Might be worth removing that dependency 	
+		// TODO hartez 2017/06/11 20:07:40 Also, now that there's just one thing in this dictionary the overhead of a dictionary is pretty pointless	
 		public static Dictionary<string, string> LoadApiKeysFromFile()
 		{
 			StreamResourceInfo apikeysResource =

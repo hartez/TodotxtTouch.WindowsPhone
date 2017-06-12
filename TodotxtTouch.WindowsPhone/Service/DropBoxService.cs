@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,57 +9,30 @@ using Dropbox.Api.Stone;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Threading;
 using TodotxtTouch.WindowsPhone.Messages;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
 	public class DropboxService
 	{
-		private DropboxClient _dropNetClient;
+		private readonly ApplicationSettings _settings;
+		private DropboxClient _dropboxClient;
 
 		private const string DropboxApiKey = "dropboxkey";
 
-		private string _secret = string.Empty;
-		private string _token = string.Empty;
+		public DropboxService(ApplicationSettings settings)
+		{
+			_settings = settings;
+		}
+
 		private string _oauth2State;
 
-		public bool WeHaveTokens => !string.IsNullOrEmpty(Token);
+		public bool WeHaveTokens => !string.IsNullOrEmpty(_settings.Token);
 
 		public void Disconnect()
 	    {
-	        Token = string.Empty;
+			_settings.Token = string.Empty;
 	    } 
-
-		/// <summary>
-		/// Gets the Token property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Token
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(_token))
-				{
-					string token;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken", out token))
-					{
-						_token = token;
-					}
-				}
-
-				return _token;
-			}
-
-			set
-			{
-				if (_token == value)
-				{
-					return;
-				}
-
-				_token = value;
-				IsolatedStorageSettings.ApplicationSettings["dropboxToken"] = _token;
-			}
-		}
 
 		private Task<DropboxClient> Authenticate()
 		{
@@ -81,15 +52,15 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		private async Task<DropboxClient> Client()
 		{
-			if (_dropNetClient != null)
+			if (_dropboxClient != null)
 			{
-				return _dropNetClient;
+				return _dropboxClient;
 			}
 
 			if (WeHaveTokens)
 			{
-				_dropNetClient = DropNetExtensions.CreateClient(Token);
-				return _dropNetClient;
+				_dropboxClient = DropNetExtensions.CreateClient(_settings.Token);
+				return _dropboxClient;
 			}
 
 			return await Authenticate();
@@ -123,8 +94,8 @@ namespace TodotxtTouch.WindowsPhone.Service
 				                Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox Server Error"));
 				                break;
 				            case HttpStatusCode.Unauthorized:
-				                _dropNetClient = null;
-				                Token = string.Empty;
+				                _dropboxClient = null;
+								_settings.Token = string.Empty;
 				                Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
 				                break;
 				            case HttpStatusCode.BadRequest:
@@ -179,7 +150,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			{
 				var keys = DropNetExtensions.LoadApiKeysFromFile();
 
-				if (!keys.ContainsKey(DropboxApiKey) || String.IsNullOrEmpty(keys[DropboxApiKey]))
+				if (!keys.ContainsKey(DropboxApiKey) || string.IsNullOrEmpty(keys[DropboxApiKey]))
 				{
 					throw new Exception("Missing Dropbox API key");
 				}
@@ -212,7 +183,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 					return;
 				}
 
-				Token = result.AccessToken;
+				_settings.Token = result.AccessToken;
 				Messenger.Default.Send(new CredentialsUpdatedMessage());
 			}
 			catch (Exception ex)
