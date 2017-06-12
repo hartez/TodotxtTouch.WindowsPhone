@@ -344,11 +344,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 			catch (Exception ex)
 			{
-				SendSyncError(ex);
+				RaiseSyncError(ex);
 			}
 		}
 
-		private void SendSyncError(Exception ex)
+		private void RaiseSyncError(Exception ex)
 		{
 			LoadingState = TaskLoadingState.Ready;
 			InvokeSynchronizationError(new SynchronizationErrorEventArgs(ex));
@@ -364,7 +364,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 			catch (Exception ex)
 			{
-				SendSyncError(ex);
+				RaiseSyncError(ex);
 			}
 		}
 

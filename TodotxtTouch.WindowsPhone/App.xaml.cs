@@ -60,6 +60,22 @@ namespace TodotxtTouch.WindowsPhone
 					"An error occurred while syncing; you may need to try again later\n" +
 					msg.Exception.Message,
 					"Error", MessageBoxButton.OK));
+
+			Messenger.Default.Register<ArchiveErrorMessage>(this, msg =>
+				MessageBox.Show(
+					"An error occurred while archiving\n" +
+					msg.Exception.Message,
+					"Error", MessageBoxButton.OK));
+
+			Messenger.Default.Register<AuthenticationErrorMessage>(this, msg => MessageBox.Show(
+				"An error occurred while authenticating to Dropbox\n" +
+				msg.Exception.Message,
+				"Error", MessageBoxButton.OK));
+
+			Messenger.Default.Register<CannotAccessDropboxMessage>(this, msg => MessageBox.Show(
+				"Cannot access Dropbox\n" +
+				msg.Reason,
+				"Error", MessageBoxButton.OK));
 		}
 
 		/// <summary>

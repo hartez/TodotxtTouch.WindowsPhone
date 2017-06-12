@@ -177,9 +177,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 			catch (Exception ex)
 			{
-				// TODO hartez 2017/06/04 15:30:34 display error	
-
-				DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(ex.Message));
+				Messenger.Default.Send(new SynchronizationErrorMessage(ex));
 			}
 		}
 
@@ -239,9 +237,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			{
 				await _archiveFileService.Sync().ConfigureAwait(false);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				// TODO hartez 2017/06/04 15:31:27 Error message	
+				Messenger.Default.Send(new ArchiveErrorMessage(ex));
 			}
 		}
 
@@ -273,7 +271,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 			catch (Exception ex)
 			{
-				// TODO hartez 2017/06/04 15:32:22 Error message	
+				Messenger.Default.Send(new ArchiveErrorMessage(ex));
 			}
         }
 
@@ -289,7 +287,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 				}
 				catch (Exception ex)
 				{
-					// TODO hartez 2017/06/04 15:32:22 Error message	
+					Messenger.Default.Send(new ArchiveErrorMessage(ex));
 				}
 			}
         }

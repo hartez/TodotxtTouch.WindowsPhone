@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Resources;
 using Dropbox.Api;
 using Dropbox.Api.Files;
 using Dropbox.Api.Stone;
 using GalaSoft.MvvmLight.Messaging;
-using GalaSoft.MvvmLight.Threading;
+using Newtonsoft.Json;
 using TodotxtTouch.WindowsPhone.Messages;
 using TodotxtTouch.WindowsPhone.ViewModel;
 
@@ -59,60 +60,12 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			if (WeHaveTokens)
 			{
-				_dropboxClient = DropNetExtensions.CreateClient(_settings.Token);
+				_dropboxClient = new DropboxClient(_settings.Token, new DropboxClientConfig("TodotxtTouch.WindowsPhone"));
 				return _dropboxClient;
 			}
 
 			return await Authenticate();
 		}
-
-		// TODO hartez 2017/06/11 17:45:48 Update this using the code from PneumaticTube	
-		private Action<DropboxException> WrapExceptionHandler(Action<DropboxException> handler)
-		{
-			return (ex) =>
-				{
-				    if(ex == null)
-				    {
-                        Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox is inaccessible; no error information available."));
-				        return;
-				    }
-
-					var httpException = ex as HttpException;
-
-				    if(httpException != null)
-				    {
-				        // Dropnet responds with BadGateway if the network isn't accessible
-				        switch((HttpStatusCode)httpException.StatusCode)
-				        {
-				            case HttpStatusCode.BadGateway:
-				                Messenger.Default.Send(new NetworkUnavailableMessage());
-				                break;
-				            case HttpStatusCode.ServiceUnavailable:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Too many requests"));
-				                break;
-				            case HttpStatusCode.InternalServerError:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox Server Error"));
-				                break;
-				            case HttpStatusCode.Unauthorized:
-				                _dropboxClient = null;
-								_settings.Token = string.Empty;
-				                Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
-				                break;
-				            case HttpStatusCode.BadRequest:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Lacking mobile authentication permission"));
-				                break;
-				            default:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage());
-				                break;
-				        }
-				    }
-
-					handler?.Invoke(ex);
-				};
-		}
-
-		// TODO hartez 2017/06/04 13:57:31 Fix names with Async suffix	
-
 
 		public async Task<Metadata> GetMetaDataAsync(string path)
 		{
@@ -144,11 +97,29 @@ namespace TodotxtTouch.WindowsPhone.Service
 			return await Client().Result.Files.DownloadAsync(new DownloadArg(path));
 		}
 
+		// TODO hartez 2017/06/11 17:44:21 Is this literally the only place where we're using Newtonsoft? Might be worth removing that dependency 	
+		// TODO hartez 2017/06/11 20:07:40 Also, now that there's just one thing in this dictionary the overhead of a dictionary is pretty pointless	
+		private Dictionary<string, string> LoadApiKeysFromFile()
+		{
+			StreamResourceInfo apikeysResource =
+				Application.GetResourceStream(new Uri("/TodotxtTouch.WindowsPhone;component/apikeys.txt", UriKind.Relative));
+
+			var sr = new StreamReader(apikeysResource.Stream);
+
+			string keys = sr.ReadToEnd();
+
+			JsonSerializer serializer = JsonSerializer.Create(new JsonSerializerSettings());
+
+			var reader = new JsonTextReader(new StringReader(keys));
+
+			return serializer.Deserialize<Dictionary<string, string>>(reader);
+		}
+
 		public void StartLoginProcess()
 		{
 			try
 			{
-				var keys = DropNetExtensions.LoadApiKeysFromFile();
+				var keys = LoadApiKeysFromFile();
 
 				if (!keys.ContainsKey(DropboxApiKey) || string.IsNullOrEmpty(keys[DropboxApiKey]))
 				{
@@ -160,27 +131,22 @@ namespace TodotxtTouch.WindowsPhone.Service
 				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, keys[DropboxApiKey],
 					redirectUri: new Uri("https://www.codewise-llc.com/todotxtoauth2"), state: _oauth2State);
 
-				Messenger.Default.Send(new RetrievedDropboxTokenMessage(authUri));
+				Messenger.Default.Send(new DropboxAuthUriMessage(authUri));
 			}
 			catch (Exception ex)
 			{
-				Messenger.Default.Send(new RetrievedDropboxTokenMessage(ex.Message));
+				Messenger.Default.Send(new DropboxAuthUriMessage(ex.Message));
 			}
 		}
 
 		public void GetAccessToken(DropboxLoginSuccessfulMessage msg)
 		{
-			// TODO hartez 2017/06/04 11:52:12 long term, move this message.show stuff to a generic error message handler in the UI; this service shouldn't be doing message.show	
-
-
 			try
 			{
 				OAuth2Response result = DropboxOAuth2Helper.ParseTokenFragment(msg.RedirectUri);
 				if (result.State != _oauth2State)
 				{
-					// TODO hartez 2017/06/04 11:47:24 Should this be displaying some sort of error? 	
-					//DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(error.Message));
-					return;
+					throw new Exception("OAuth2 state mismatch");
 				}
 
 				_settings.Token = result.AccessToken;
@@ -188,8 +154,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			}
 			catch (Exception ex)
 			{
-				DispatcherHelper.CheckBeginInvokeOnUI(() => MessageBox.Show(ex.Message));
-				//throw;
+				Messenger.Default.Send(new AuthenticationErrorMessage(ex));
 			}
 		}
 	}

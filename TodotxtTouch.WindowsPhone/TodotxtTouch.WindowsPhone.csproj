@@ -175,8 +175,10 @@
       <DependentUpon>CustomizeColorsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\ApplicationStartedMessage.cs" />
+    <Compile Include="Messages\ArchiveErrorMessage.cs" />
     <Compile Include="Messages\CannotAccessDropboxMessage.cs" />
     <Compile Include="Messages\DropboxLoginSuccessfulMessage.cs" />
+    <Compile Include="Messages\AuthenticationErrorMessage.cs" />
     <Compile Include="Messages\NetworkUnavailableMessage.cs" />
     <Compile Include="Messages\SynchronizationErrorMessage.cs" />
     <Compile Include="MultiSelectPage.xaml.cs">
@@ -185,7 +187,6 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Service\ArchiveTaskFileService.cs" />
     <Compile Include="Service\DropboxServiceAvailableChangedEventArgs.cs" />
-    <Compile Include="Service\DropNetExtensions.cs" />
     <Compile Include="Service\LocalHasChangesChangedEventArgs.cs" />
     <Compile Include="Service\PrimaryTaskFileService.cs" />
     <Compile Include="Service\SynchronizationErrorEventArgs.cs" />
@@ -214,7 +215,7 @@
       <DependentUpon>TaskDetail.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\ApplicationReadyMessage.cs" />
-    <Compile Include="Messages\RetrievedDropboxTokenMessage.cs" />
+    <Compile Include="Messages\DropboxAuthUriMessage.cs" />
     <Compile Include="ViewModel\ColorOption.cs" />
     <Compile Include="ViewModel\ColorOptions.cs" />
     <Compile Include="ViewModel\DropboxCredentialsViewModel.cs" />

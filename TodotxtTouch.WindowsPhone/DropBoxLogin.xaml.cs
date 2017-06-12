@@ -24,7 +24,7 @@ namespace TodotxtTouch.WindowsPhone
 					}
 				});
 
-			Messenger.Default.Register<RetrievedDropboxTokenMessage>(this, LoadLoginPage);
+			Messenger.Default.Register<DropboxAuthUriMessage>(this, LoadLoginPage);
 
 			LoginBrowser.Navigating += Navigating;
 		}
@@ -35,7 +35,7 @@ namespace TodotxtTouch.WindowsPhone
             ((DropboxCredentialsViewModel)DataContext).StartLoginProcessCommand.Execute(null);
         }
 
-		private void LoadLoginPage(RetrievedDropboxTokenMessage msg)
+		private void LoadLoginPage(DropboxAuthUriMessage msg)
 		{
 			if(!string.IsNullOrEmpty(msg.Error))
 			{
