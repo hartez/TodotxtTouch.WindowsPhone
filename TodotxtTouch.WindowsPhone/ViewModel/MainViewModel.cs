@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -141,8 +142,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
 			FilterByProjectCommand = new RelayCommand(FilterByProject, () => TaskFileServiceReady);
 
-			ArchiveTasksCommand = new RelayCommand(InitiateArchiveTasks,
-			                                       () => TaskFileServiceReady);
+			ArchiveTasksCommand = new RelayCommand(ArchiveTasks, () => TaskFileServiceReady);
 
 			SelectionChangedCommand = new RelayCommand<SelectionChangedEventArgs>(args =>
 				{
@@ -227,70 +227,40 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			_workingWithSelectedTasks = false;
 		}
 
-		private async void InitiateArchiveTasks()
+		private async void ArchiveTasks()
 		{
-		    _archiveFileService.LoadingStateChanged += ArchiveTasks;
-
-            _taskFileService.LoadingState = TaskLoadingState.Syncing;
-
 			try
 			{
-				await _archiveFileService.Sync().ConfigureAwait(false);
+				_taskFileService.LoadingState = TaskLoadingState.Syncing;
+
+				await _archiveFileService.Sync();
+				
+				// TODO Have setting for preserving line numbers
+				var completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
+
+				foreach (var completedTask in completedTasks)
+				{
+					_archiveFileService.TaskList.Add(completedTask);
+				}
+
+				_archiveFileService.SaveTasks();
+				_taskFileService.SaveTasks();
+
+				await _archiveFileService.Sync();
+				await _taskFileService.Sync();
+
+				Debug.WriteLine($">>>>> MainViewModel ArchiveTasks 257: {LocalHasChanges}");
+
 			}
 			catch (Exception ex)
 			{
 				Messenger.Default.Send(new ArchiveErrorMessage(ex));
+			}
+			finally
+			{
+				_taskFileService.LoadingState = TaskLoadingState.Ready;
 			}
 		}
-
-        private async void ArchiveTasks(object obj, LoadingStateChangedEventArgs args)
-        {
-	        if (args.LoadingState != TaskLoadingState.Ready)
-	        {
-		        return;
-	        }
-
-	        _archiveFileService.LoadingStateChanged -= ArchiveTasks;
-
-	        // TODO Have setting for preserving line numbers
-	        var completedTasks = _taskFileService.TaskList.RemoveCompletedTasks(false);
-
-	        foreach (var completedTask in completedTasks)
-	        {
-		        _archiveFileService.TaskList.Add(completedTask);
-	        }
-
-	        _archiveFileService.SaveTasks();
-	        _taskFileService.SaveTasks();
-
-	        _archiveFileService.LoadingStateChanged += FinishSavingArchive;
-
-			try
-			{
-				await _archiveFileService.Sync().ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				Messenger.Default.Send(new ArchiveErrorMessage(ex));
-			}
-        }
-
-        private async void FinishSavingArchive(object obj, LoadingStateChangedEventArgs args)
-        {
-            if (args.LoadingState == TaskLoadingState.Ready)
-            {
-                _archiveFileService.LoadingStateChanged -= FinishSavingArchive;
-
-				try
-				{
-					await _taskFileService.Sync().ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					Messenger.Default.Send(new ArchiveErrorMessage(ex));
-				}
-			}
-        }
 
 		private void FilterByContext()
 		{

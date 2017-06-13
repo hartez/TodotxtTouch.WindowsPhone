@@ -170,28 +170,25 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		public async Task Sync()
 		{
-			if (LoadingState != TaskLoadingState.Syncing)
+			LoadingState = TaskLoadingState.Syncing;
+
+			Messenger.Default.Register<NetworkUnavailableMessage>(this,
+				msg =>
+				{
+					LoadingState = TaskLoadingState.Ready;
+					Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
+				});
+
+			// Get the metadata for the remote file
+			var metadata = await GetRemoteMetaData();
+
+			if (metadata == null)
 			{
-				LoadingState = TaskLoadingState.Syncing;
-
-				Messenger.Default.Register<NetworkUnavailableMessage>(this,
-					msg =>
-					{
-						LoadingState = TaskLoadingState.Ready;
-						Messenger.Default.Unregister<NetworkUnavailableMessage>(this);
-					});
-
-				// Get the metadata for the remote file
-				var metadata = await GetRemoteMetaData();
-
-				if (metadata == null)
-				{
-					await InitRemote();
-				}
-				else
-				{
-					await Sync(metadata);
-				}
+				await InitRemote();
+			}
+			else
+			{
+				await Sync(metadata);
 			}
 		}
 
