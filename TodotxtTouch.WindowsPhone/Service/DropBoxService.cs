@@ -19,8 +19,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private readonly ApplicationSettings _settings;
 		private DropboxClient _dropboxClient;
 
-		private const string DropboxApiKey = "dropboxkey";
-
 		public DropboxService(ApplicationSettings settings)
 		{
 			_settings = settings;
@@ -97,9 +95,7 @@ namespace TodotxtTouch.WindowsPhone.Service
 			return await Client().Result.Files.DownloadAsync(new DownloadArg(path));
 		}
 
-		// TODO hartez 2017/06/11 17:44:21 Is this literally the only place where we're using Newtonsoft? Might be worth removing that dependency 	
-		// TODO hartez 2017/06/11 20:07:40 Also, now that there's just one thing in this dictionary the overhead of a dictionary is pretty pointless	
-		private Dictionary<string, string> LoadApiKeysFromFile()
+		private static string LoadApiKeyFromFile()
 		{
 			StreamResourceInfo apikeysResource =
 				Application.GetResourceStream(new Uri("/TodotxtTouch.WindowsPhone;component/apikeys.txt", UriKind.Relative));
@@ -112,23 +108,23 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 			var reader = new JsonTextReader(new StringReader(keys));
 
-			return serializer.Deserialize<Dictionary<string, string>>(reader);
+			return serializer.Deserialize<Dictionary<string, string>>(reader)["dropboxkey"];
 		}
 
 		public void StartLoginProcess()
 		{
 			try
 			{
-				var keys = LoadApiKeysFromFile();
+				var dropboxkey = LoadApiKeyFromFile();
 
-				if (!keys.ContainsKey(DropboxApiKey) || string.IsNullOrEmpty(keys[DropboxApiKey]))
+				if (string.IsNullOrEmpty(dropboxkey))
 				{
 					throw new Exception("Missing Dropbox API key");
 				}
 
 				_oauth2State = Guid.NewGuid().ToString("N");
 
-				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, keys[DropboxApiKey],
+				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, dropboxkey,
 					redirectUri: new Uri("https://www.codewise-llc.com/todotxtoauth2"), state: _oauth2State);
 
 				Messenger.Default.Send(new DropboxAuthUriMessage(authUri));

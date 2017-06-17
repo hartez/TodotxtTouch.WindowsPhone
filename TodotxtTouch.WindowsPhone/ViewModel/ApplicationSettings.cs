@@ -13,7 +13,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private bool _syncOnStartup;
         private string _todoFileName;
         private string _todoFilePath;
-		private string _token;
+	    private string _token;
 
 		public string ArchiveFilePath
         {

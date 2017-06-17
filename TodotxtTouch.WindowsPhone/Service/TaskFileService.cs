@@ -23,8 +23,6 @@ namespace TodotxtTouch.WindowsPhone.Service
 		private TaskLoadingState _loadingState = TaskLoadingState.Ready;
 		private string _lastRevision;
 
-		private readonly object _syncLock = new object();
-
 		protected TaskFileService(DropboxService dropBoxService, ApplicationSettings settings)
 		{
 			_dropBoxService = dropBoxService;
@@ -393,26 +391,22 @@ namespace TodotxtTouch.WindowsPhone.Service
             // with the local version
             LoadingState = TaskLoadingState.Loading;
 
-			// TODO hartez 2017/06/04 15:37:32 Think through whether this lock statement makes any sense	
-		    //lock(_syncLock)
-		    //{
-		        PauseCollectionChanged();
-		        ClearTaskPropertyChangedHandlers();
+		    PauseCollectionChanged();
+		    ClearTaskPropertyChangedHandlers();
 
-		        var newTaskList = TaskList.Merge(original, tl, TaskList);
+		    var newTaskList = TaskList.Merge(original, tl, TaskList);
 
-                TaskList.Clear();
-		        foreach(var task in newTaskList)
-		        {
-		            TaskList.Add(task);
-		        }
+            TaskList.Clear();
+		    foreach(var task in newTaskList)
+		    {
+		        TaskList.Add(task);
+		    }
 
-                SaveToStorage();
-				await PushLocal(remoteRevision);
+            SaveToStorage();
+			await PushLocal(remoteRevision);
 
-		        InitTaskPropertyChangedHandlers();
-		        ResumeCollectionChanged();
-		    //}
+		    InitTaskPropertyChangedHandlers();
+		    ResumeCollectionChanged();
 
             InvokeTaskListChanged(new TaskListChangedEventArgs());
 
@@ -425,24 +419,21 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 		    if(LocalFileExists)
 		    {
-		        lock(_syncLock)
+		        PauseCollectionChanged();
+		        ClearTaskPropertyChangedHandlers();
+
+		        using(IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
 		        {
-		            PauseCollectionChanged();
-		            ClearTaskPropertyChangedHandlers();
-
-		            using(IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+		            using(
+		                IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read)
+		                )
 		            {
-		                using(
-		                    IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Open, FileAccess.Read)
-		                    )
-		                {
-		                    TaskList.LoadTasks(file);
-		                }
+		                TaskList.LoadTasks(file);
 		            }
-
-		            InitTaskPropertyChangedHandlers();
-		            ResumeCollectionChanged();
 		        }
+
+		        InitTaskPropertyChangedHandlers();
+		        ResumeCollectionChanged();
 
 		        InvokeTaskListChanged(new TaskListChangedEventArgs());
 		    }
@@ -452,14 +443,11 @@ namespace TodotxtTouch.WindowsPhone.Service
 
 	    private void SaveToStorage()
 	    {
-            lock (_syncLock)
+            using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
+                using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
                 {
-                    using (IsolatedStorageFileStream file = appStorage.OpenFile(GetFileName(), FileMode.Create, FileAccess.Write))
-                    {
-                        TaskList.SaveTasks(file);
-                    }
+                    TaskList.SaveTasks(file);
                 }
             }
 
