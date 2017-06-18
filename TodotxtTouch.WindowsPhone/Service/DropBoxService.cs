@@ -1,220 +1,157 @@
 ﻿using System;
-using System.IO.IsolatedStorage;
-using System.Net;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
-using DropNet;
-using DropNet.Exceptions;
-using DropNet.Models;
+using System.Windows.Resources;
+using Dropbox.Api;
+using Dropbox.Api.Files;
+using Dropbox.Api.Stone;
 using GalaSoft.MvvmLight.Messaging;
-using GalaSoft.MvvmLight.Threading;
-using RestSharp;
+using Newtonsoft.Json;
 using TodotxtTouch.WindowsPhone.Messages;
+using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Service
 {
 	public class DropboxService
 	{
-		private DropNetClient _dropNetClient;
+		private readonly ApplicationSettings _settings;
+		private DropboxClient _dropboxClient;
 
-		private String _secret = String.Empty;
-		private String _token = String.Empty;
-
-		public bool WeHaveTokens
+		public DropboxService(ApplicationSettings settings)
 		{
-			get { return !String.IsNullOrEmpty(Token) && !String.IsNullOrEmpty(Secret); }
+			_settings = settings;
 		}
 
-	    public void Disconnect()
+		private string _oauth2State;
+
+		public bool WeHaveTokens => !string.IsNullOrEmpty(_settings.Token);
+
+		public void Disconnect()
 	    {
-	        Token = String.Empty;
-	        Secret = String.Empty;
-	    }
+			_settings.Token = string.Empty;
+	    } 
 
-	    /// <summary>
-		/// Gets the Secret property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Secret
+		private Task<DropboxClient> Authenticate()
 		{
-			get
-			{
-				if (String.IsNullOrEmpty(_secret))
-				{
-					String secret;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxSecret",
-					                                                            out secret))
+			TaskCompletionSource<DropboxClient> tcs = new TaskCompletionSource<DropboxClient>();
+
+			Messenger.Default.Register<CredentialsUpdatedMessage>(
+					this, async (message) =>
 					{
-						_secret = secret;
-					}
-				}
+						Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
+						tcs.SetResult(await Client().ConfigureAwait(false));
+					});
 
-				return _secret;
-			}
+			Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
 
-			set
-			{
-				if (_secret == value)
-				{
-					return;
-				}
-
-				_secret = value;
-				IsolatedStorageSettings.ApplicationSettings["dropboxSecret"] = _secret;
-			}
+			return tcs.Task;
 		}
 
-		/// <summary>
-		/// Gets the Token property.
-		/// Changes to that property's value raise the PropertyChanged event. 
-		/// </summary>
-		public string Token
+		private async Task<DropboxClient> Client()
 		{
-			get
+			if (_dropboxClient != null)
 			{
-				if (String.IsNullOrEmpty(_token))
-				{
-					String token;
-					if (IsolatedStorageSettings.ApplicationSettings.TryGetValue("dropboxToken",
-					                                                            out token))
-					{
-						_token = token;
-					}
-				}
-
-				return _token;
+				return _dropboxClient;
 			}
 
-			set
-			{
-				if (_token == value)
-				{
-					return;
-				}
-
-				_token = value;
-				IsolatedStorageSettings.ApplicationSettings["dropboxToken"] = _token;
-			}
-		}
-
-		private void ExecuteDropboxAction(Action dropboxAction)
-		{
 			if (WeHaveTokens)
 			{
-				if (_dropNetClient == null)
+				_dropboxClient = new DropboxClient(_settings.Token, new DropboxClientConfig("TodotxtTouch.WindowsPhone"));
+				return _dropboxClient;
+			}
+
+			return await Authenticate();
+		}
+
+		public async Task<Metadata> GetMetaDataAsync(string path)
+		{
+			try
+			{
+				var client = await Client();
+				return await client.Files.GetMetadataAsync(new GetMetadataArg(path));
+			}
+			catch (ApiException<GetMetadataError>)
+			{
+				// Path not found; the file's not in Dropbox yet
+			}
+
+			return null;
+		}
+
+		public async Task<Metadata> UploadAsync(string path, string filename, string revision, byte[] bytes)
+		{
+			using (var stream = new MemoryStream(bytes))
+			{
+				var writeMode = revision == null ? WriteMode.Add.Instance as WriteMode : new WriteMode.Update(revision);
+
+				return await Client().Result.Files.UploadAsync(new CommitInfo(path + "/" + filename, writeMode), stream);
+			}
+		}
+
+		public async Task<IDownloadResponse<FileMetadata>> GetFileAsync(string path)
+		{
+			return await Client().Result.Files.DownloadAsync(new DownloadArg(path));
+		}
+
+		private static string LoadApiKeyFromFile()
+		{
+			StreamResourceInfo apikeysResource =
+				Application.GetResourceStream(new Uri("/TodotxtTouch.WindowsPhone;component/apikeys.txt", UriKind.Relative));
+
+			var sr = new StreamReader(apikeysResource.Stream);
+
+			string keys = sr.ReadToEnd();
+
+			JsonSerializer serializer = JsonSerializer.Create(new JsonSerializerSettings());
+
+			var reader = new JsonTextReader(new StringReader(keys));
+
+			return serializer.Deserialize<Dictionary<string, string>>(reader)["dropboxkey"];
+		}
+
+		public void StartLoginProcess()
+		{
+			try
+			{
+				var dropboxkey = LoadApiKeyFromFile();
+
+				if (string.IsNullOrEmpty(dropboxkey))
 				{
-					_dropNetClient = DropNetExtensions.CreateClient(Token, Secret);
+					throw new Exception("Missing Dropbox API key");
 				}
 
-				if (dropboxAction != null)
+				_oauth2State = Guid.NewGuid().ToString("N");
+
+				var authUri = DropboxOAuth2Helper.GetAuthorizeUri(OAuthResponseType.Token, dropboxkey,
+					redirectUri: new Uri("https://www.codewise-llc.com/todotxtoauth2"), state: _oauth2State);
+
+				Messenger.Default.Send(new DropboxAuthUriMessage(authUri));
+			}
+			catch (Exception ex)
+			{
+				Messenger.Default.Send(new DropboxAuthUriMessage(ex.Message));
+			}
+		}
+
+		public void GetAccessToken(DropboxLoginSuccessfulMessage msg)
+		{
+			try
+			{
+				OAuth2Response result = DropboxOAuth2Helper.ParseTokenFragment(msg.RedirectUri);
+				if (result.State != _oauth2State)
 				{
-					dropboxAction();
+					throw new Exception("OAuth2 state mismatch");
 				}
+
+				_settings.Token = result.AccessToken;
+				Messenger.Default.Send(new CredentialsUpdatedMessage());
 			}
-			else
+			catch (Exception ex)
 			{
-				Messenger.Default.Register<CredentialsUpdatedMessage>(
-					this, (message) =>
-						{
-							Messenger.Default.Unregister<CredentialsUpdatedMessage>(this);
-							ExecuteDropboxAction(dropboxAction);
-						});
-
-				Messenger.Default.Send(new NeedCredentialsMessage("Not authenticated"));
+				Messenger.Default.Send(new AuthenticationErrorMessage(ex));
 			}
-		}
-
-		private Action<DropboxException> WrapExceptionHandler(Action<DropboxException> handler)
-		{
-			return (ex) =>
-				{
-				    if(ex == null)
-				    {
-                        Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox is inaccessible; no error information available."));
-				        return;
-				    }
-
-				    if(ex.Response != null)
-				    {
-				        // Dropnet responds with BadGateway if the network isn't accessible
-				        switch(ex.Response.StatusCode)
-				        {
-				            case HttpStatusCode.BadGateway:
-				                Messenger.Default.Send(new NetworkUnavailableMessage());
-				                break;
-				            case HttpStatusCode.ServiceUnavailable:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Too many requests"));
-				                break;
-				            case HttpStatusCode.InternalServerError:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Dropbox Server Error"));
-				                break;
-				            case HttpStatusCode.Unauthorized:
-				                _dropNetClient = null;
-				                Token = string.Empty;
-				                Secret = string.Empty;
-				                Messenger.Default.Send(new NeedCredentialsMessage("Authentication failed"));
-				                break;
-				            case HttpStatusCode.BadRequest:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage("Lacking mobile authentication permission"));
-				                break;
-				            default:
-				                Messenger.Default.Send(new CannotAccessDropboxMessage());
-				                break;
-				        }
-				    }
-
-				    if (handler != null)
-					{
-						handler(ex);
-					}
-				};
-		}
-
-		public void GetMetaData(string path, Action<MetaData> success, Action<DropboxException> failure)
-		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.GetMetaDataAsync(path, success, WrapExceptionHandler(failure)));
-		}
-
-		public void Upload(string path, string filename, byte[] bytes, Action<MetaData> success,
-		                   Action<DropboxException> failure)
-		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.UploadFileAsync(path, filename, bytes, success, WrapExceptionHandler(failure)));
-		}
-
-		public void GetFile(string path, Action<IRestResponse> success, Action<DropboxException> failure)
-		{
-			ExecuteDropboxAction(
-				() => _dropNetClient.GetFileAsync(path, success, WrapExceptionHandler(failure)));
-		}
-
-		public void GetToken()
-		{
-			if (_dropNetClient == null)
-			{
-				_dropNetClient = DropNetExtensions.CreateClient();
-			}
-
-			_dropNetClient.GetTokenAsync(
-				success =>
-				{
-					string tokenUrl = _dropNetClient.BuildAuthorizeUrl("http://todotxt.codewise-llc.com/dblogin.htm");
-
-					Messenger.Default.Send(new RetrievedDropboxTokenMessage(new Uri(tokenUrl)));
-				},
-			    failure => Messenger.Default.Send(new RetrievedDropboxTokenMessage(failure.Message)));
-		}
-
-		public void GetAccessToken()
-		{
-			_dropNetClient.GetAccessTokenAsync(response =>
-				{
-					Token = response.Token;
-					Secret = response.Secret;
-					Messenger.Default.Send(new CredentialsUpdatedMessage());
-				},
-			error => DispatcherHelper.CheckBeginInvokeOnUI(
-				() => MessageBox.Show(error.Message)));
 		}
 	}
 }

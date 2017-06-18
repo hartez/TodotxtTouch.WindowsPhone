@@ -18,7 +18,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                     return;
                 }
                 _colorOption = value;
-                OnPropertyChanged("ColorOption");
+                OnPropertyChanged(nameof(ColorOption));
             }
         }
 
@@ -28,10 +28,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         protected virtual void OnPropertyChanged(string propertyName)
         {
             var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+	        handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -5,7 +5,7 @@
 							xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
 							xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 							xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-							xmlns:Controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+							xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 							FontFamily="{StaticResource PhoneFontFamilyNormal}"
 							FontSize="{StaticResource PhoneFontSizeNormal}"
 							Foreground="{StaticResource PhoneForegroundBrush}"
@@ -66,25 +66,21 @@
 		<Grid x:Name="ContentPanel"
 			  DataContext="{Binding SelectedTaskDraft}"
 			  Grid.Row="1">
-			<Grid.RowDefinitions>
-				<RowDefinition></RowDefinition>
-
-			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition></ColumnDefinition>
-				<ColumnDefinition></ColumnDefinition>
+				<ColumnDefinition />
+				<ColumnDefinition />
 			</Grid.ColumnDefinitions>
 			<Grid Grid.Row="0"
 				  Grid.ColumnSpan="2">
 				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
-					<RowDefinition Height="Auto"></RowDefinition>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
 				<TextBox x:Name="Body"
@@ -99,7 +95,7 @@
 
                     <TextBox.InputScope>
                         <InputScope>
-                            <InputScopeName NameValue="Text"></InputScopeName>
+                            <InputScopeName NameValue="Text" />
                         </InputScope>
                     </TextBox.InputScope>
 
@@ -108,27 +104,24 @@
 				<CheckBox x:Name="Completed"
 						  Grid.Row="1"
 						  Content="Completed"
-						  IsChecked="{Binding Completed, Mode=TwoWay}"></CheckBox>
+						  IsChecked="{Binding Completed, Mode=TwoWay}" />
 
-				<Controls:ListPicker SelectedItem="{Binding Priority, Mode=TwoWay}"
-									 ItemsSource="{Binding Main.AvailablePriorities, Source={StaticResource Locator}}"
+				<controls:ListPicker SelectedItem="{Binding Priority, Mode=TwoWay}"
+									 ItemsSource="{Binding Main.Priorities, Source={StaticResource Locator}}"
 									 Grid.Row="2"
 									 FullModeHeader="Priority"
 									 Header="Priority"
-									 FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}">
+									 FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}" />
 
-
-				</Controls:ListPicker>
-
-				<Controls:DatePicker Header="Added"
+				<controls:DatePicker Header="Added"
 									 x:Name="DateAdded"
 									 Grid.Row="3"
-									 Value="{Binding CreatedDate, Mode=TwoWay}"></Controls:DatePicker>
+									 Value="{Binding CreatedDate, Mode=TwoWay}" />
 
-				<Controls:DatePicker Header="Completed"
+				<controls:DatePicker Header="Completed"
 									 x:Name="DateCompleted"
 									 Grid.Row="4"
-									 Value="{Binding CompletedDate, Mode=TwoWay}"></Controls:DatePicker>
+									 Value="{Binding CompletedDate, Mode=TwoWay}" />
 
 			</Grid>
 

@@ -18,14 +18,8 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 			return "context:" + _context;
 		}
 
-		public override string Description
-		{
-			get { return _context; }
-		}
+		public override string Description => _context;
 
-		public override string Target
-		{
-			get { return _context; }
-		}
+		public override string Target => _context;
 	}
 }

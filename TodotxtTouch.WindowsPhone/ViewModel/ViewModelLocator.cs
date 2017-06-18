@@ -48,8 +48,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 			}
 			else
 			{
-				_dropBoxService = new DropboxService();
 				var settings = new ApplicationSettings();
+				_dropBoxService = new DropboxService(settings);
 
 				_applicationSettingsViewModel = new ApplicationSettingsViewModel(settings, _dropBoxService);
 
@@ -67,15 +67,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
-		public MainViewModel Main
-		{
-			get { return _main; }
-		}
+		public MainViewModel Main => _main;
 
-		public AboutViewModel About
-		{
-			get { return _about; }			
-		}
+		public AboutViewModel About => _about;
 
 		/// <summary>
 		/// Gets the ApplicationSettings property which defines the dropbox credentials viewmodel.
@@ -83,10 +77,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
-		public DropboxCredentialsViewModel DropboxCredentials
-		{
-			get { return _dropBoxCredentials; }
-		}
+		public DropboxCredentialsViewModel DropboxCredentials => _dropBoxCredentials;
 
 		/// <summary>
 		/// Gets the ApplicationSettings property which defines the application settings viewmodel.
@@ -94,12 +85,9 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		[SuppressMessage("Microsoft.Performance",
 			"CA1822:MarkMembersAsStatic",
 			Justification = "This non-static member is needed for data binding purposes.")]
-		public ApplicationSettingsViewModel ApplicationSettings
-		{
-			get { return _applicationSettingsViewModel; }
-		}
+		public ApplicationSettingsViewModel ApplicationSettings => _applicationSettingsViewModel;
 
-		private void Initialize(ApplicationSettings settings)
+		private static void Initialize(ApplicationSettings settings)
 		{
 			var ptfs = new PrimaryTaskFileService(_dropBoxService, settings);
 			var atfs = new ArchiveTaskFileService(_dropBoxService, settings);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.IsolatedStorage;
 using GalaSoft.MvvmLight;
@@ -14,12 +13,13 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private bool _syncOnStartup;
         private string _todoFileName;
         private string _todoFilePath;
+	    private string _token;
 
-        public string ArchiveFilePath
+		public string ArchiveFilePath
         {
             get
             {
-                if (String.IsNullOrEmpty(_archiveFilePath))
+                if (string.IsNullOrEmpty(_archiveFilePath))
                 {
                     _archiveFilePath = GetSetting("archiveFilePath", "/todo");
                 }
@@ -30,6 +30,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _archiveFilePath = value;
                 IsolatedStorageSettings.ApplicationSettings["archiveFilePath"] = _archiveFilePath;
+				IsolatedStorageSettings.ApplicationSettings.Save();
             }
         }
 
@@ -37,7 +38,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             get
             {
-                if (String.IsNullOrEmpty(_archiveFileName))
+                if (string.IsNullOrEmpty(_archiveFileName))
                 {
                     _archiveFileName = GetSetting("archiveFileName", "done.txt");
                 }
@@ -48,14 +49,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _archiveFileName = value;
                 IsolatedStorageSettings.ApplicationSettings["archiveFileName"] = _archiveFileName;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
-        public String TodoFilePath
+        public string TodoFilePath
         {
             get
             {
-                if (String.IsNullOrEmpty(_todoFilePath))
+                if (string.IsNullOrEmpty(_todoFilePath))
                 {
                     _todoFilePath = GetSetting("todoFilePath", "/todo");
                 }
@@ -66,14 +68,15 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _todoFilePath = value;
                 IsolatedStorageSettings.ApplicationSettings["todoFilePath"] = _todoFilePath;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
-        public String TodoFileName
+        public string TodoFileName
         {
             get
             {
-                if (String.IsNullOrEmpty(_todoFileName))
+                if (string.IsNullOrEmpty(_todoFileName))
                 {
                     _todoFileName = GetSetting("todoFileName", "todo.txt");
                 }
@@ -85,7 +88,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
                 _todoFileName = value;
 
                 IsolatedStorageSettings.ApplicationSettings["todoFileName"] = _todoFileName;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
         public bool SyncOnStartup
@@ -100,10 +104,55 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             {
                 _syncOnStartup = value;
                 IsolatedStorageSettings.ApplicationSettings["syncOnStartup"] = _syncOnStartup;
-            }
+				IsolatedStorageSettings.ApplicationSettings.Save();
+			}
         }
 
-        public void ResetColors()
+		public string Token
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_token))
+				{
+					_token = GetSetting("dropboxToken", string.Empty);
+				}
+
+				return _token;
+			}
+
+			set
+			{
+				if (_token == value)
+				{
+					return;
+				}
+
+				_token = value;
+				SaveSetting("dropboxToken", _token);
+			}
+		}
+
+	    public bool HasChanges(string filename)
+	    {
+		    return GetSetting(filename + "haschanges", false);
+	    }
+
+	    public void SetHasChanges(string filename, bool value)
+	    {
+			SaveSetting(filename + "haschanges", value);
+	    }
+
+	    public string GetRevision(string filename)
+	    {
+			return GetSetting<string>(filename + "LocalLastRevision", null);
+		}
+
+	    public void SetRevision(string filename, string revision)
+	    {
+			SaveSetting(filename + "LocalLastRevision", revision);
+		}
+
+	    public void ResetColors()
         {
             foreach (var priorityColor in _priorityColors)
             {
@@ -111,21 +160,22 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
 
             IsolatedStorageSettings.ApplicationSettings.Remove("priorityColors");
-            _priorityColors = null;
+			IsolatedStorageSettings.ApplicationSettings.Save();
+			_priorityColors = null;
         }
 
         private List<PriorityColor> GetDefaultColors()
         {
-           var defaultColors = new List<PriorityColor>
-                {
-                    new PriorityColor {ColorOption = ColorOptions.Yellow, Priority = "A"},
-                    new PriorityColor {ColorOption = ColorOptions.Green, Priority = "B"},
-                    new PriorityColor {ColorOption = ColorOptions.Cyan, Priority = "C"}
-                };
-
-            for (int i = 68; i < 91; i++)
+            var defaultColors = new List<PriorityColor>
             {
-                var priority = string.Empty + (char)i;
+                new PriorityColor {ColorOption = ColorOptions.Yellow, Priority = "A"},
+                new PriorityColor {ColorOption = ColorOptions.Green, Priority = "B"},
+                new PriorityColor {ColorOption = ColorOptions.Cyan, Priority = "C"}
+            };
+
+            for (var i = 68; i < 91; i++)
+            {
+                var priority = string.Empty + (char) i;
 
                 defaultColors.Add(new PriorityColor {ColorOption = ColorOptions.Default, Priority = priority});
             }
@@ -137,19 +187,24 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         {
             get
             {
-                if (_priorityColors == null)
+                if (_priorityColors != null)
                 {
-                    if (IsInDesignModeStatic)
-                    {
-                        _priorityColors = GetDefaultColors();
-                        return _priorityColors;
-                    }
+                    return _priorityColors;
+                }
 
-                    _priorityColors = GetSetting("priorityColors", GetDefaultColors());
-                    foreach (var priorityColor in _priorityColors)
-                    {
-                        priorityColor.PropertyChanged += PriorityColorOnPropertyChanged;
-                    }
+                if (IsInDesignModeStatic)
+                {
+                    _priorityColors = GetDefaultColors();
+                    return _priorityColors;
+                }
+
+                _priorityColors = GetSetting("priorityColors", GetDefaultColors());
+
+                EnsureValidColorOptions();
+
+                foreach (var priorityColor in _priorityColors)
+                {
+                    priorityColor.PropertyChanged += PriorityColorOnPropertyChanged;
                 }
 
                 return _priorityColors;
@@ -158,13 +213,36 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 
         private void PriorityColorOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-            IsolatedStorageSettings.ApplicationSettings["priorityColors"] = _priorityColors;
+            EnsureValidColorOptions();
+			SaveSetting("priorityColors", _priorityColors);
+		}
+
+        /// <summary>
+        /// Ensures that the set of color options in the settings are all valid options from the ColorOptions.All list
+        /// This avoids "SelectedItem must always be set to a valid value" exceptions from the color options ListPicker
+        /// if the settings have been corrupted or there are still values from an older version hanging around
+        /// </summary>
+        private void EnsureValidColorOptions()
+        {
+            foreach (var priorityColor in _priorityColors)
+            {
+                if (!ColorOptions.All.Contains(priorityColor.ColorOption))
+                {
+                    priorityColor.ColorOption = ColorOptions.Default;
+                }
+            }
         }
 
-        private static T GetSetting<T>(string setting, T defaultValue)
+		private static T GetSetting<T>(string setting, T defaultValue)
         {
             T value;
             return IsolatedStorageSettings.ApplicationSettings.TryGetValue(setting, out value) ? value : defaultValue;
         }
-    }
+
+		private static void SaveSetting(string setting, object value)
+		{
+			IsolatedStorageSettings.ApplicationSettings[setting] = value;
+			IsolatedStorageSettings.ApplicationSettings.Save();
+		}
+	}
 }

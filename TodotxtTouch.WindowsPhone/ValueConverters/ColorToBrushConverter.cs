@@ -35,17 +35,14 @@ namespace TodotxtTouch.WindowsPhone.ValueConverters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value != null)
-            {
-                var option = (ColorOption)value;
+	        var option = (ColorOption) value;
 
-                if (option.Color.HasValue)
-                {
-                    return new SolidColorBrush(option.Color.Value);
-                }
-            }
+	        if (option?.Color != null)
+	        {
+		        return new SolidColorBrush(option.Color.Value);
+	        }
 
-            return Application.Current.Resources["PhoneForegroundBrush"];
+	        return Application.Current.Resources["PhoneForegroundBrush"];
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

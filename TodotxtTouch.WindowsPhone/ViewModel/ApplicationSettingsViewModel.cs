@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media;
+﻿using System.Collections.Generic;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -37,20 +34,11 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
         private const string ConnectedPropertyName = "Connected";
 	    private const string DisconnectedPropertyName = "Disconnected";
 
-        public bool Connected
-        {
-            get
-            {
-                return _dropBoxService.WeHaveTokens;
-            }
-        }
+        public bool Connected => _dropBoxService.WeHaveTokens;
 
-	    public bool Disconnected
-	    {
-            get { return !Connected; }
-	    }
+		public bool Disconnected => !Connected;
 
-	    private readonly ApplicationSettings _settings;
+		private readonly ApplicationSettings _settings;
         private readonly DropboxService _dropBoxService;
 
 		public RelayCommand BroadcastSettingsChanged { get; private set; }
@@ -92,7 +80,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// Gets the TodoFileName property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public String TodoFileName
+		public string TodoFileName
 		{
 			get { return _settings.TodoFileName; }
 
@@ -114,7 +102,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// Gets the TodoFilePath property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public String TodoFilePath
+		public string TodoFilePath
 		{
 			get { return _settings.TodoFilePath; }
 
@@ -136,7 +124,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// Gets the ArchiveFilePath property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public String ArchiveFilePath
+		public string ArchiveFilePath
 		{
 			get { return _settings.ArchiveFilePath; }
 
@@ -158,7 +146,7 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
 		/// Gets the ArchiveFileName property.
 		/// Changes to that property's value raise the PropertyChanged event. 
 		/// </summary>
-		public String ArchiveFileName
+		public string ArchiveFileName
 		{
 			get { return _settings.ArchiveFileName; }
 
@@ -197,14 +185,8 @@ namespace TodotxtTouch.WindowsPhone.ViewModel
             }
         }
 
-        public List<PriorityColor> PriorityColors
-        {
-            get { return _settings.PriorityColors; }
-        }
+        public List<PriorityColor> PriorityColors => _settings.PriorityColors;
 
-	    public List<ColorOption> PriorityColorOptions
-	    {
-	        get { return ColorOptions.All; }
-	    }
+		public List<ColorOption> PriorityColorOptions => ColorOptions.All;
 	}
 }

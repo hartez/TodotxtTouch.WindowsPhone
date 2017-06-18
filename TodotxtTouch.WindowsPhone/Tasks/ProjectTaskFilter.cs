@@ -18,14 +18,8 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 			return "project:" + _project;
 		}
 
-		public override string Description
-		{
-			get { return _project; }
-		}
+		public override string Description => _project;
 
-		public override string Target
-		{
-			get { return _project; }
-		}
+		public override string Target => _project;
 	}
 }

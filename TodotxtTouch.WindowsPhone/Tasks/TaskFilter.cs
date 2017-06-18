@@ -11,8 +11,8 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 		}
 
 		public Func<Task, bool> Filter { get; private set; }
-		public abstract String Description { get; }
+		public abstract string Description { get; }
 
-		public abstract String Target { get; }
+		public abstract string Target { get; }
 	}
 }

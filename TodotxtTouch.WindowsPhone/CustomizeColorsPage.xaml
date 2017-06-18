@@ -7,10 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    xmlns:windowsPhone="clr-namespace:TodotxtTouch.WindowsPhone"
-    xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters"
-    xmlns:viewModel="clr-namespace:TodotxtTouch.WindowsPhone.ViewModel"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+	xmlns:valueConverters="clr-namespace:TodotxtTouch.WindowsPhone.ValueConverters"
+	FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
@@ -18,8 +16,7 @@
     shell:SystemTray.IsVisible="True"
     DataContext="{Binding ApplicationSettings, Source={StaticResource Locator}}">
     <phone:PhoneApplicationPage.Resources>
-        <valueConverters:ColorToBrushConverter x:Key="ColorToBrushConverter"></valueConverters:ColorToBrushConverter>
-        <valueConverters:ColorOptionToBrushConverter x:Key="ColorOptionToBrushConverter"></valueConverters:ColorOptionToBrushConverter>
+        <valueConverters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
     </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -79,27 +76,280 @@
                                             ItemsSource="{Binding ApplicationSettings.PriorityColorOptions, Source={StaticResource Locator}}"
                                             FullModeItemTemplate="{StaticResource PickerFullModeItemTemplate}"
                                             ItemTemplate="{StaticResource PickerItemTemplate}"
-                                            Width="300" >
-                        </toolkit:ListPicker>
+                                            Width="300" />
                     </StackPanel>
                 </DataTemplate>
 
             </Grid.Resources>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*" />
+	            <RowDefinition Height="Auto" />
+	            <RowDefinition Height="Auto" />
+	            <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <ListBox x:Name="Priorities" ItemsSource="{Binding PriorityColors}" 
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                     ItemTemplate="{StaticResource Picker}">
-            </ListBox>
+                     ItemTemplate="{StaticResource Picker}" />
 
-            <Button Grid.Row="1" x:Name="ResetColors" Content="Reset To Defaults" Click="ResetColors_OnClick" />
+	        <Button Grid.Row="1" x:Name="ResetColors" Content="Reset To Defaults" Click="ResetColors_OnClick" />
         </Grid>
     </Grid>
 
 </phone:PhoneApplicationPage>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

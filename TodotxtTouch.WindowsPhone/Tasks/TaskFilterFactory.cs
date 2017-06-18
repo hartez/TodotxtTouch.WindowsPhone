@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EZLibrary;
-using TodotxtTouch.WindowsPhone.ViewModel;
 
 namespace TodotxtTouch.WindowsPhone.Tasks
 {
@@ -14,7 +12,7 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 		{
 			if (filter.StartsWith("context:"))
 			{
-				string target = filter.Replace("context:", String.Empty);
+				var target = filter.Replace("context:", string.Empty);
 				return new ContextTaskFilter(
 					task => task.Contexts.Contains(target),
 					target);
@@ -22,7 +20,7 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 
 			if (filter.StartsWith("project:"))
 			{
-				string target = filter.Replace("project: ", "+");
+				var target = filter.Replace("project: ", "+");
 				return new ProjectTaskFilter(
 					task => task.Projects.Contains(target),
 					target);
@@ -33,9 +31,9 @@ namespace TodotxtTouch.WindowsPhone.Tasks
 
 		public static List<TaskFilter> ParseFilterString(string filter)
 		{
-			string[] filters = filter.Split(Delimiter);
+			var filters = filter.Split(Delimiter);
 
-			return filters.Where(f => !String.IsNullOrEmpty(f)).Select(CreateTaskFilterFromString).ToList();
+			return filters.Where(f => !string.IsNullOrEmpty(f)).Select(CreateTaskFilterFromString).ToList();
 		}
 
 		public static string CreateFilterString(List<TaskFilter> filters)

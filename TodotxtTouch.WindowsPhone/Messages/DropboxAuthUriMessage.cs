@@ -2,14 +2,14 @@
 
 namespace TodotxtTouch.WindowsPhone.Messages
 {
-	public class RetrievedDropboxTokenMessage
+	public class DropboxAuthUriMessage
 	{
-		public RetrievedDropboxTokenMessage(string error)
+		public DropboxAuthUriMessage(string error)
 		{
 			Error = error;
 		}
 
-		public RetrievedDropboxTokenMessage(Uri tokenUri)
+		public DropboxAuthUriMessage(Uri tokenUri)
 		{
 			TokenUri = tokenUri;
 		}
