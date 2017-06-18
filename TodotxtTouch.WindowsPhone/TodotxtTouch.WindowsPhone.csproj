@@ -99,9 +99,9 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dropbox.Api, Version=4.0.0.0, Culture=neutral, PublicKeyToken=310f0e82fbb45d01, processorArchitecture=MSIL">
+    <Reference Include="Dropbox.Api, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Dropbox.Api.4.3.0\lib\portable-net40+sl5+wp80+win8+wpa81\Dropbox.Api.dll</HintPath>
+      <HintPath>..\lib\Dropbox.Api.dll</HintPath>
     </Reference>
     <Reference Include="EZLibrary.WindowsPhone, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\EZLibrary.WindowsPhone.1.1.0\lib\sl4-windowsphone71\EZLibrary.WindowsPhone.dll</HintPath>
