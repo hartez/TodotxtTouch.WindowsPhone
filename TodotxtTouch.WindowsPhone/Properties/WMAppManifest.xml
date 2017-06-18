@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="" />
-  <App xmlns="" ProductID="{6c78467b-962a-475a-9a65-13def700e6d8}" Title="Todo.txt" RuntimeType="Silverlight" Version="1.0.1.0" Genre="apps.normal" Author="TodotxtTouch.WindowsPhone author" Description="Todo.txt for Windows Phone is a task manager based on the todo.txt file format. " Publisher="TodotxtTouch.WindowsPhone" PublisherID="{e23a324e-3362-4031-83e9-2ae21bd08848}">
+  <App xmlns="" ProductID="{6c78467b-962a-475a-9a65-13def700e6d8}" Title="Todo.txt" RuntimeType="Silverlight" Version="1.7.3.0" Genre="apps.normal" Author="TodotxtTouch.WindowsPhone author" Description="Todo.txt for Windows Phone is a task manager based on the todo.txt file format. " Publisher="TodotxtTouch.WindowsPhone" PublisherID="{e23a324e-3362-4031-83e9-2ae21bd08848}">
     <IconPath IsRelative="true" IsResource="false">todotxt_tile.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
