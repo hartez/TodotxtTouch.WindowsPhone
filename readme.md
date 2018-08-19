@@ -1,3 +1,5 @@
+Sadly, Windows Phone is pretty much dead, so I'm no longer maintaining this project. If Windows Phones ever makes a comeback, maybe this will, too.
+
 # Todo.txt for Windows Phone
 
 ## Building The Project
